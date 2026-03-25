@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import CreateProject from './pages/CreateProject'
 import { Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
+import MyProjects from './pages/MyProject'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -17,6 +18,7 @@ function App() {
       <Route path='/login' element={<Login />} />
       <Route path='/profile' element={<Profile />} />
       <Route path='/project/create' element={<CreateProject />} />
+      <Route path='/project' element={<MyProjects />} />
     </Routes>
     </>
   )

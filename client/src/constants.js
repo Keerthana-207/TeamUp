@@ -57,3 +57,70 @@ export const DOMAINS = [
       ]
     }
   ];
+
+export const INITIAL_PROJECTS = [
+  {
+    id: "p1", name: "HackBot — AI Hackathon Assistant",
+    domain: "AI / Machine Learning", domainIcon: "psychology",
+    description: "An intelligent assistant that helps teams find hackathons, form teams, brainstorm ideas, and track submissions using NLP and recommendation algorithms.",
+    visibility: "public", files: 24, stars: 18, forks: 4,
+    color: "#63daff", accent: "rgba(99,218,255,0.12)", dotColor: "rgba(99,218,255,0.18)",
+    date: "2025-03-10", tags: ["Python","FastAPI","React"], status: "active",
+  },
+  {
+    id: "p2", name: "EcoTrack — Carbon Footprint Monitor",
+    domain: "Environmental Science", domainIcon: "eco",
+    description: "A mobile-first web app that tracks personal and team carbon footprints, visualises impact data and gamifies eco-friendly habits.",
+    visibility: "public", files: 37, stars: 31, forks: 9,
+    color: "#34d399", accent: "rgba(52,211,153,0.12)", dotColor: "rgba(52,211,153,0.18)",
+    date: "2025-01-22", tags: ["Flutter","Firebase","Charts.js"], status: "active",
+  },
+  {
+    id: "p3", name: "MediLens — Smart Prescription Reader",
+    domain: "MedTech & Healthcare", domainIcon: "local_hospital",
+    description: "An OCR-powered tool that reads handwritten doctor prescriptions, identifies medicines and dosages, and cross-checks drug interactions.",
+    visibility: "private", files: 19, stars: 0, forks: 0,
+    color: "#f87171", accent: "rgba(248,113,113,0.10)", dotColor: "rgba(248,113,113,0.18)",
+    date: "2025-02-14", tags: ["PyTorch","Tesseract","Next.js"], status: "active",
+  },
+  {
+    id: "p4", name: "SkillForge — Peer Learning Platform",
+    domain: "EdTech", domainIcon: "school",
+    description: "A marketplace connecting students with niche skills to those who want to learn them — structured around short project-based micro-courses.",
+    visibility: "public", files: 52, stars: 44, forks: 12,
+    color: "#fbbf24", accent: "rgba(251,191,36,0.10)", dotColor: "rgba(251,191,36,0.18)",
+    date: "2024-12-05", tags: ["React","Node.js","PostgreSQL"], status: "active",
+  },
+  {
+    id: "p5", name: "Quantum Cipher — Encryption Lab",
+    domain: "Cybersecurity", domainIcon: "security",
+    description: "An interactive quantum-resistant encryption playground that lets researchers experiment with lattice-based cryptographic schemes.",
+    visibility: "private", files: 11, stars: 0, forks: 0,
+    color: "#a78bfa", accent: "rgba(167,139,250,0.10)", dotColor: "rgba(167,139,250,0.18)",
+    date: "2025-03-01", tags: ["Rust","WebAssembly","C++"], status: "wip",
+  },
+  {
+    id: "p6", name: "FarmVision — Crop Disease Detector",
+    domain: "AgriTech", domainIcon: "agriculture",
+    description: "A deep-learning model deployed on-device (Raspberry Pi) that identifies crop diseases from leaf images and recommends organic treatments.",
+    visibility: "public", files: 29, stars: 22, forks: 6,
+    color: "#34d399", accent: "rgba(52,211,153,0.10)", dotColor: "rgba(52,211,153,0.15)",
+    date: "2024-11-18", tags: ["TensorFlow Lite","Raspberry Pi","Python"], status: "active",
+  },
+  {
+    id: "p7", name: "NightOwl — Dev Productivity Tracker",
+    domain: "Web Development", domainIcon: "language",
+    description: "A VS Code extension + web dashboard that logs coding sessions, detects flow states, and generates weekly productivity reports for developers.",
+    visibility: "public", files: 16, stars: 9, forks: 2,
+    color: "#fb923c", accent: "rgba(251,146,60,0.10)", dotColor: "rgba(251,146,60,0.18)",
+    date: "2025-02-28", tags: ["TypeScript","VS Code API","SQLite"], status: "active",
+  },
+  {
+    id: "p8", name: "StageSpace — AR Campus Tour",
+    domain: "AR / VR / XR", domainIcon: "view_in_ar",
+    description: "An augmented reality app that overlays real-time wayfinding, event info, and historical facts onto the physical campus environment.",
+    visibility: "private", files: 41, stars: 0, forks: 0,
+    color: "#f472b6", accent: "rgba(244,114,182,0.10)", dotColor: "rgba(244,114,182,0.18)",
+    date: "2025-03-15", tags: ["ARCore","Unity","Kotlin"], status: "wip",
+  },
+];
