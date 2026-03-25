@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TeamUp — Explore Hackathons</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+  <style>
+/* ─── RESET & BASE ────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #07080f;
+  --surface:    #0e1018;
+  --surface2:   #161924;
+  --surface3:   #1c2130;
+  --border:     rgba(255,255,255,0.07);
+  --border-h:   rgba(99,218,255,0.35);
+  --cyan:       #63daff;
+  --cyan-glow:  rgba(99,218,255,0.18);
+  --violet:     #a78bfa;
+  --violet-glow:rgba(167,139,250,0.15);
+  --green:      #34d399;
+  --red:        #f87171;
+  --yellow:     #fbbf24;
+  --text:       #e8eaf0;
+  --text-muted: #6b7280;
+  --radius:     14px;
+  --radius-sm:  9px;
+  --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── BACKGROUND FX ──────────────────────────────────── */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(99,218,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,218,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.orb {
+  position: fixed; border-radius: 50%;
+  filter: blur(90px); pointer-events: none; z-index: 0;
+  animation: floatOrb 12s ease-in-out infinite alternate;
+}
+.orb-1 { width: 520px; height: 520px; background: rgba(99,218,255,0.07); top:-180px; left:-160px; }
+.orb-2 { width: 400px; height: 400px; background: rgba(167,139,250,0.07); bottom:-100px; right:-100px; animation-delay:-4s; }
+.orb-3 { width: 280px; height: 280px; background: rgba(52,211,153,0.05); top:50%; left:60%; animation-delay:-8s; }
+
+@keyframes floatOrb {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(30px,40px) scale(1.08); }
+}
+
+/* ─── NAVBAR ─────────────────────────────────────────── */
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,8,15,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+
+.logo {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px;
+  text-decoration: none; color: var(--text);
+}
+.logo-icon {
+  font-size: 1.5rem !important; color: var(--cyan);
+  filter: drop-shadow(0 0 8px rgba(99,218,255,0.6));
+}
+.logo-accent { color: var(--cyan); }
+
+.nav-links {
+  display: flex; align-items: center; gap: 4px;
+  list-style: none;
+}
+.nav-links a {
+  padding: 7px 14px; border-radius: 8px;
+  color: var(--text-muted); font-size: 0.875rem; font-weight: 500;
+  text-decoration: none; transition: var(--transition);
+}
+.nav-links a:hover { color: var(--text); background: var(--surface2); }
+.nav-links a.active { color: var(--cyan); background: rgba(99,218,255,0.08); }
+
+.nav-right { display: flex; align-items: center; gap: 10px; }
+
+.btn-ghost {
+  padding: 8px 18px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-muted); font-size: 0.85rem; font-weight: 500;
+  cursor: pointer; transition: var(--transition);
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-ghost:hover { border-color: var(--border-h); color: var(--cyan); }
+
+.btn-primary {
+  padding: 8px 18px; border-radius: var(--radius-sm);
+  border: none; background: var(--cyan);
+  color: #07080f; font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; transition: var(--transition);
+  font-family: 'DM Sans', sans-serif;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.btn-primary:hover {
+  background: #9eeaff;
+  box-shadow: 0 0 20px rgba(99,218,255,0.35);
+}
+
+/* ─── MAIN WRAPPER ───────────────────────────────────── */
+.main-wrapper {
+  position: relative; z-index: 1;
+  max-width: 1280px; margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* ─── HERO SECTION ───────────────────────────────────── */
+.hero {
+  text-align: center; margin-bottom: 48px;
+  animation: fadeUp 0.55s cubic-bezier(0.4,0,0.2,1) both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(24px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px; border-radius: 20px;
+  background: var(--cyan-glow); border: 1px solid var(--border-h);
+  color: var(--cyan); font-size: 0.75rem; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 20px;
+}
+.hero-badge .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--cyan); animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.5; transform:scale(0.7); }
+}
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800; letter-spacing: -1.5px; line-height: 1.1;
+  margin-bottom: 16px;
+}
+.hero h1 span { color: var(--cyan); }
+
+.hero p {
+  color: var(--text-muted); font-size: 1.05rem;
+  max-width: 520px; margin: 0 auto 32px; line-height: 1.6;
+}
+
+/* ─── STATS ROW ──────────────────────────────────────── */
+.stats-row {
+  display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+  margin-bottom: 48px;
+  animation: fadeUp 0.55s 0.1s cubic-bezier(0.4,0,0.2,1) both;
+}
+.stat-item {
+  text-align: center;
+}
+.stat-number {
+  font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+  color: var(--cyan); line-height: 1;
+}
+.stat-label { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ─── SEARCH & FILTER BAR ────────────────────────────── */
+.controls {
+  display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px;
+  animation: fadeUp 0.55s 0.15s cubic-bezier(0.4,0,0.2,1) both;
+}
+
+.search-row {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+
+.search-wrap {
+  flex: 1; min-width: 240px;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 0 14px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.search-wrap:focus-within {
+  border-color: var(--border-h);
+  box-shadow: 0 0 0 3px rgba(99,218,255,0.08);
+}
+.search-wrap .material-icons-round { color: var(--text-muted); font-size: 20px !important; }
+.search-wrap input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+  padding: 12px 0;
+}
+.search-wrap input::placeholder { color: var(--text-muted); }
+
+.select-wrap {
+  position: relative;
+}
+.select-wrap select {
+  appearance: none;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+  padding: 11px 36px 11px 14px; cursor: pointer;
+  transition: border-color var(--transition);
+  outline: none;
+}
+.select-wrap select:focus { border-color: var(--border-h); }
+.select-wrap::after {
+  content: 'expand_more';
+  font-family: 'Material Icons Round';
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); font-size: 18px; pointer-events: none;
+}
+
+/* ─── FILTER CHIPS ───────────────────────────────────── */
+.filter-row {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+}
+.filter-label {
+  font-size: 0.78rem; color: var(--text-muted);
+  font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;
+  margin-right: 4px;
+}
+.chip {
+  padding: 6px 14px; border-radius: 20px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-muted); font-size: 0.8rem; font-weight: 500;
+  cursor: pointer; transition: var(--transition);
+  font-family: 'DM Sans', sans-serif;
+}
+.chip:hover { border-color: var(--border-h); color: var(--cyan); }
+.chip.active {
+  border-color: var(--cyan); background: var(--cyan-glow); color: var(--cyan);
+}
+
+/* ─── RESULTS META ───────────────────────────────────── */
+.results-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 8px;
+}
+.results-count {
+  font-size: 0.875rem; color: var(--text-muted);
+}
+.results-count strong { color: var(--text); font-weight: 600; }
+
+.view-toggle {
+  display: flex; gap: 4px;
+}
+.view-btn {
+  width: 34px; height: 34px; border-radius: 8px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+}
+.view-btn.active, .view-btn:hover {
+  border-color: var(--border-h); color: var(--cyan); background: var(--cyan-glow);
+}
+.view-btn .material-icons-round { font-size: 18px !important; }
+
+/* ─── GRID LAYOUT ────────────────────────────────────── */
+#hackathonsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+#hackathonsGrid.list-view {
+  grid-template-columns: 1fr;
+}
+
+/* ─── HACKATHON CARD ─────────────────────────────────── */
+.hcard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  animation: cardIn 0.4s cubic-bezier(0.4,0,0.2,1) both;
+  text-decoration: none; color: inherit;
+}
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.hcard:hover {
+  border-color: rgba(99,218,255,0.25);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 40px rgba(99,218,255,0.06);
+}
+
+/* thumbnail */
+.hcard-thumb {
+  width: 100%; height: 160px; overflow: hidden;
+  position: relative; background: var(--surface2);
+  flex-shrink: 0;
+}
+.hcard-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.hcard:hover .hcard-thumb img { transform: scale(1.04); }
+.hcard-thumb .thumb-fallback {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+  color: var(--text-muted); background: var(--surface2);
+}
+
+/* badges overlay */
+.hcard-badges {
+  position: absolute; top: 10px; left: 10px;
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.badge {
+  padding: 3px 9px; border-radius: 12px;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em;
+  backdrop-filter: blur(8px);
+}
+.badge-open {
+  background: rgba(52,211,153,0.2); border: 1px solid rgba(52,211,153,0.4);
+  color: var(--green);
+}
+.badge-featured {
+  background: rgba(251,191,36,0.2); border: 1px solid rgba(251,191,36,0.4);
+  color: var(--yellow);
+}
+.badge-online {
+  background: rgba(99,218,255,0.15); border: 1px solid rgba(99,218,255,0.3);
+  color: var(--cyan);
+}
+.badge-offline {
+  background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.3);
+  color: var(--violet);
+}
+
+/* time left pill */
+.time-left-pill {
+  position: absolute; top: 10px; right: 10px;
+  padding: 3px 9px; border-radius: 12px;
+  font-size: 0.68rem; font-weight: 600;
+  background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-muted); backdrop-filter: blur(8px);
+  display: flex; align-items: center; gap: 4px;
+}
+.time-left-pill .material-icons-round { font-size: 12px !important; }
+
+/* card body */
+.hcard-body { padding: 18px 20px 20px; flex: 1; display: flex; flex-direction: column; }
+
+.hcard-org {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-muted); margin-bottom: 5px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hcard-title {
+  font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700;
+  line-height: 1.3; margin-bottom: 12px;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+
+.hcard-meta {
+  display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.hcard-meta-item {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 0.78rem; color: var(--text-muted);
+}
+.hcard-meta-item .material-icons-round { font-size: 14px !important; }
+
+/* themes */
+.hcard-themes {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.theme-chip {
+  padding: 3px 10px; border-radius: 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 0.72rem;
+}
+
+/* prize & footer */
+.hcard-footer {
+  margin-top: auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 14px; border-top: 1px solid var(--border);
+}
+.prize-block { display: flex; flex-direction: column; }
+.prize-label { font-size: 0.7rem; color: var(--text-muted); }
+.prize-value {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+  color: var(--green);
+}
+.prize-value.no-prize { color: var(--text-muted); font-size: 0.85rem; }
+
+.hcard-cta {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: var(--radius-sm);
+  background: var(--cyan-glow); border: 1px solid var(--border-h);
+  color: var(--cyan); font-size: 0.8rem; font-weight: 600;
+  text-decoration: none; transition: var(--transition);
+}
+.hcard-cta:hover {
+  background: rgba(99,218,255,0.25);
+  box-shadow: 0 0 16px rgba(99,218,255,0.2);
+}
+.hcard-cta .material-icons-round { font-size: 15px !important; }
+
+/* ─── LIST VIEW CARD ─────────────────────────────────── */
+#hackathonsGrid.list-view .hcard {
+  flex-direction: row; align-items: center;
+}
+#hackathonsGrid.list-view .hcard-thumb {
+  width: 160px; height: 120px; flex-shrink: 0;
+}
+#hackathonsGrid.list-view .hcard-body {
+  flex-direction: row; align-items: center; gap: 16px; padding: 16px 20px;
+}
+#hackathonsGrid.list-view .hcard-title { margin-bottom: 0; font-size: 0.95rem; }
+#hackathonsGrid.list-view .hcard-themes { display: none; }
+#hackathonsGrid.list-view .hcard-footer { border-top: none; padding-top: 0; margin-top: 0; margin-left: auto; flex-shrink: 0; }
+#hackathonsGrid.list-view .hcard-org { margin-bottom: 3px; }
+
+/* ─── SKELETON LOADERS ───────────────────────────────── */
+.skeleton {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px; overflow: hidden;
+}
+.skel-thumb {
+  width: 100%; height: 160px;
+  background: linear-gradient(90deg, var(--surface2) 25%, var(--surface3) 50%, var(--surface2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+.skel-body { padding: 18px 20px; }
+.skel-line {
+  height: 12px; border-radius: 6px; margin-bottom: 10px;
+  background: linear-gradient(90deg, var(--surface2) 25%, var(--surface3) 50%, var(--surface2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+.skel-line.short { width: 50%; }
+.skel-line.medium { width: 75%; }
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── EMPTY STATE ────────────────────────────────────── */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center; padding: 80px 20px;
+}
+.empty-state .material-icons-round {
+  font-size: 52px !important; color: var(--text-muted); margin-bottom: 16px; display: block;
+}
+.empty-state h3 {
+  font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 8px;
+}
+.empty-state p { color: var(--text-muted); }
+
+/* ─── LOAD MORE ──────────────────────────────────────── */
+.load-more-wrap {
+  text-align: center; margin-top: 40px;
+}
+#loadMoreBtn {
+  padding: 12px 32px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; font-weight: 500; cursor: pointer;
+  transition: var(--transition); display: inline-flex; align-items: center; gap: 8px;
+}
+#loadMoreBtn:hover { border-color: var(--border-h); color: var(--cyan); }
+#loadMoreBtn:disabled { opacity: 0.4; cursor: default; }
+#loadMoreBtn .material-icons-round { font-size: 18px !important; }
+
+/* ─── TOAST ──────────────────────────────────────────── */
+#toastContainer {
+  position: fixed; bottom: 24px; right: 24px;
+  display: flex; flex-direction: column; gap: 8px; z-index: 999;
+}
+.toast {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 18px; border-radius: var(--radius-sm);
+  background: var(--surface2); border: 1px solid var(--border);
+  font-size: 0.85rem; animation: toastIn 0.3s ease both;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.toast.error { border-color: rgba(248,113,113,0.4); }
+.toast.error .material-icons-round { color: var(--red); }
+.toast.success { border-color: rgba(52,211,153,0.4); }
+.toast.success .material-icons-round { color: var(--green); }
+@keyframes toastIn {
+  from { opacity:0; transform:translateX(20px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  .navbar { padding: 0 16px; }
+  .nav-links { display: none; }
+  .main-wrapper { padding: 32px 16px 60px; }
+  .hero h1 { font-size: 2rem; }
+  #hackathonsGrid { grid-template-columns: 1fr; }
+  #hackathonsGrid.list-view .hcard { flex-direction: column; }
+  #hackathonsGrid.list-view .hcard-thumb { width: 100%; height: 160px; }
+  #hackathonsGrid.list-view .hcard-body { flex-direction: column; align-items: flex-start; }
+  #hackathonsGrid.list-view .hcard-footer { margin-left: 0; }
+  .stats-row { gap: 24px; }
+}
+  </style>
+</head>
+
+<body>
+<!-- BG -->
+<div class="bg-grid"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="#" class="logo">
+    <span class="material-icons-round logo-icon">hub</span>
+    Team<span class="logo-accent">Up</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#">Home</a></li>
+    <li><a href="#" class="active">Explore</a></li>
+    <li><a href="#">Teams</a></li>
+    <li><a href="#">Projects</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn-ghost">Sign In</button>
+    <button class="btn-primary">
+      <span class="material-icons-round" style="font-size:16px!important">add</span>
+      Register
+    </button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main-wrapper">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Live Hackathons
+    </div>
+    <h1>Find Your Next<br><span>Big Challenge</span></h1>
+    <p>Discover upcoming hackathons, find your dream team, and build something extraordinary together.</p>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-item"><div class="stat-number" id="statTotal">—</div><div class="stat-label">Total Hackathons</div></div>
+    <div class="stat-item"><div class="stat-number" id="statOnline">—</div><div class="stat-label">Online</div></div>
+    <div class="stat-item"><div class="stat-number" id="statOffline">—</div><div class="stat-label">In-Person</div></div>
+    <div class="stat-item"><div class="stat-number" id="statFeatured">—</div><div class="stat-label">Featured</div></div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="search-row">
+      <div class="search-wrap">
+        <span class="material-icons-round">search</span>
+        <input type="text" id="searchInput" placeholder="Search hackathons, themes, organizations…" />
+      </div>
+      <div class="select-wrap">
+        <select id="sortSelect">
+          <option value="default">Sort: Default</option>
+          <option value="prize">Highest Prize</option>
+          <option value="registrations">Most Registered</option>
+          <option value="deadline">Deadline Soon</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Filter:</span>
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="online">🌐 Online</button>
+      <button class="chip" data-filter="offline">📍 In-Person</button>
+      <button class="chip" data-filter="featured">⭐ Featured</button>
+      <button class="chip" data-filter="prize">💰 With Prize</button>
+      <button class="chip" data-filter="ai">🤖 AI / ML</button>
+      <button class="chip" data-filter="web">🌍 Web</button>
+      <button class="chip" data-filter="beginner">🌱 Beginner</button>
+    </div>
+  </div>
+
+  <!-- RESULTS META -->
+  <div class="results-meta">
+    <div class="results-count" id="resultsCount">Loading hackathons…</div>
+    <div class="view-toggle">
+      <button class="view-btn active" id="gridViewBtn" title="Grid view">
+        <span class="material-icons-round">grid_view</span>
+      </button>
+      <button class="view-btn" id="listViewBtn" title="List view">
+        <span class="material-icons-round">view_list</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div id="hackathonsGrid">
+    <!-- skeleton loaders -->
+    <div class="skeleton" id="skel1">
+      <div class="skel-thumb"></div>
+      <div class="skel-body">
+        <div class="skel-line short"></div>
+        <div class="skel-line medium"></div>
+        <div class="skel-line"></div>
+        <div class="skel-line short"></div>
+      </div>
+    </div>
+    <div class="skeleton" id="skel2">
+      <div class="skel-thumb"></div>
+      <div class="skel-body">
+        <div class="skel-line short"></div>
+        <div class="skel-line medium"></div>
+        <div class="skel-line"></div>
+        <div class="skel-line short"></div>
+      </div>
+    </div>
+    <div class="skeleton" id="skel3">
+      <div class="skel-thumb"></div>
+      <div class="skel-body">
+        <div class="skel-line short"></div>
+        <div class="skel-line medium"></div>
+        <div class="skel-line"></div>
+        <div class="skel-line short"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOAD MORE -->
+  <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+    <button id="loadMoreBtn">
+      <span class="material-icons-round">expand_more</span>
+      Load More Hackathons
+    </button>
+  </div>
+
+</main>
+
+<!-- TOAST -->
+<div id="toastContainer"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let allHackathons = [];
+let filtered      = [];
+let currentFilter = 'all';
+let currentSearch = '';
+let currentSort   = 'default';
+let isListView    = false;
+let page          = 1;
+const PAGE_SIZE   = 12;
+
+/* ═══════════════════════════════════════════════════════
+   FETCH DATA
+═══════════════════════════════════════════════════════ */
+async function fetchHackathons() {
+  try {
+    const res  = await fetch('https://webdevharsha.github.io/open-hackathons-api/data.json');
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    allHackathons = (data.hackathons || []).filter(h => h.title && h.title.trim() !== '------------');
+
+    // stats
+    document.getElementById('statTotal').textContent    = allHackathons.length;
+    document.getElementById('statOnline').textContent   = allHackathons.filter(h => h.displayed_location?.toLowerCase().includes('online')).length;
+    document.getElementById('statOffline').textContent  = allHackathons.filter(h => !h.displayed_location?.toLowerCase().includes('online')).length;
+    document.getElementById('statFeatured').textContent = allHackathons.filter(h => h.featured).length;
+
+    applyFilters();
+  } catch (err) {
+    clearSkeletons();
+    document.getElementById('hackathonsGrid').innerHTML = `
+      <div class="empty-state">
+        <span class="material-icons-round">wifi_off</span>
+        <h3>Couldn't load hackathons</h3>
+        <p>Please check your connection and try again.</p>
+      </div>`;
+    showToast('Failed to load hackathons', 'error', 'error');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PARSE PRIZE
+═══════════════════════════════════════════════════════ */
+function parsePrize(text) {
+  if (!text) return 0;
+  const cleaned = text.replace(/<[^>]*>/g, '').replace(/[$,]/g, '').trim();
+  return parseInt(cleaned) || 0;
+}
+
+function formatPrize(text) {
+  const val = parsePrize(text);
+  if (val === 0) return null;
+  if (val >= 1000) return '$' + (val / 1000).toFixed(val % 1000 === 0 ? 0 : 1) + 'K';
+  return '$' + val.toLocaleString();
+}
+
+/* ═══════════════════════════════════════════════════════
+   FILTER & SORT
+═══════════════════════════════════════════════════════ */
+function applyFilters() {
+  let result = [...allHackathons];
+
+  // filter
+  if (currentFilter === 'online')   result = result.filter(h => h.displayed_location?.toLowerCase().includes('online'));
+  if (currentFilter === 'offline')  result = result.filter(h => !h.displayed_location?.toLowerCase().includes('online'));
+  if (currentFilter === 'featured') result = result.filter(h => h.featured);
+  if (currentFilter === 'prize')    result = result.filter(h => parsePrize(h.prizeText) > 0);
+  if (currentFilter === 'ai')       result = result.filter(h => h.themes?.some(t => t.name.toLowerCase().includes('machine learning') || t.name.toLowerCase().includes('ai')));
+  if (currentFilter === 'web')      result = result.filter(h => h.themes?.some(t => t.name.toLowerCase() === 'web'));
+  if (currentFilter === 'beginner') result = result.filter(h => h.themes?.some(t => t.name.toLowerCase().includes('beginner')));
+
+  // search
+  if (currentSearch) {
+    const q = currentSearch.toLowerCase();
+    result = result.filter(h =>
+      h.title?.toLowerCase().includes(q) ||
+      h.organization_name?.toLowerCase().includes(q) ||
+      h.themes?.some(t => t.name.toLowerCase().includes(q)) ||
+      h.displayed_location?.toLowerCase().includes(q)
+    );
+  }
+
+  // sort
+  if (currentSort === 'prize') result.sort((a,b) => parsePrize(b.prizeText) - parsePrize(a.prizeText));
+  if (currentSort === 'registrations') result.sort((a,b) => (b.registrations_count || 0) - (a.registrations_count || 0));
+
+  filtered = result;
+  page = 1;
+  renderCards();
+}
+
+/* ═══════════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════════ */
+function clearSkeletons() {
+  ['skel1','skel2','skel3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  });
+}
+
+function renderCards() {
+  clearSkeletons();
+  const grid = document.getElementById('hackathonsGrid');
+  grid.innerHTML = '';
+
+  const slice = filtered.slice(0, page * PAGE_SIZE);
+
+  if (slice.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <span class="material-icons-round">search_off</span>
+        <h3>No hackathons found</h3>
+        <p>Try a different filter or search term.</p>
+      </div>`;
+    document.getElementById('loadMoreWrap').style.display = 'none';
+    document.getElementById('resultsCount').innerHTML = `<strong>0</strong> hackathons found`;
+    return;
+  }
+
+  slice.forEach((h, i) => {
+    grid.appendChild(createCard(h, i));
+  });
+
+  // load more
+  const lmw = document.getElementById('loadMoreWrap');
+  if (filtered.length > slice.length) {
+    lmw.style.display = 'block';
+    document.getElementById('loadMoreBtn').disabled = false;
+  } else {
+    lmw.style.display = 'none';
+  }
+
+  document.getElementById('resultsCount').innerHTML =
+    `Showing <strong>${slice.length}</strong> of <strong>${filtered.length}</strong> hackathons`;
+}
+
+function createCard(h, idx) {
+  const isOnline = h.displayed_location?.toLowerCase().includes('online');
+  const prize    = formatPrize(h.prizeText);
+  const initials = (h.title || '?').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+  const thumbUrl = h.thumbnail_url
+    ? (h.thumbnail_url.startsWith('//') ? 'https:' + h.thumbnail_url : h.thumbnail_url)
+    : null;
+
+  const themes = (h.themes || []).slice(0,3);
+
+  const card = document.createElement('a');
+  card.className = 'hcard';
+  card.href = h.url || '#';
+  card.target = '_blank';
+  card.rel = 'noopener noreferrer';
+  card.style.animationDelay = (idx % PAGE_SIZE * 0.04) + 's';
+
+  card.innerHTML = `
+    <div class="hcard-thumb">
+      ${thumbUrl
+        ? `<img src="${thumbUrl}" alt="${h.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'thumb-fallback\\'>${initials}</div>'">`
+        : `<div class="thumb-fallback">${initials}</div>`
+      }
+      <div class="hcard-badges">
+        ${h.isOpen === 'open' ? '<span class="badge badge-open">Open</span>' : ''}
+        ${h.featured ? '<span class="badge badge-featured">⭐ Featured</span>' : ''}
+        ${isOnline ? '<span class="badge badge-online">Online</span>' : '<span class="badge badge-offline">In-Person</span>'}
+      </div>
+      ${h.time_left_to_submission ? `
+        <div class="time-left-pill">
+          <span class="material-icons-round">schedule</span>
+          ${h.time_left_to_submission}
+        </div>` : ''}
+    </div>
+    <div class="hcard-body">
+      <div class="hcard-org">${h.organization_name || 'Unknown Org'}</div>
+      <div class="hcard-title">${h.title}</div>
+      <div class="hcard-meta">
+        ${h.displayed_location ? `
+          <span class="hcard-meta-item">
+            <span class="material-icons-round">${isOnline ? 'language' : 'location_on'}</span>
+            ${h.displayed_location}
+          </span>` : ''}
+        ${h.submission_period_dates ? `
+          <span class="hcard-meta-item">
+            <span class="material-icons-round">calendar_today</span>
+            ${h.submission_period_dates}
+          </span>` : ''}
+        ${h.registrations_count ? `
+          <span class="hcard-meta-item">
+            <span class="material-icons-round">group</span>
+            ${h.registrations_count} registered
+          </span>` : ''}
+      </div>
+      ${themes.length ? `
+        <div class="hcard-themes">
+          ${themes.map(t => `<span class="theme-chip">${t.name}</span>`).join('')}
+        </div>` : ''}
+      <div class="hcard-footer">
+        <div class="prize-block">
+          <span class="prize-label">Prize Pool</span>
+          ${prize
+            ? `<span class="prize-value">${prize}</span>`
+            : `<span class="prize-value no-prize">No prize listed</span>`}
+        </div>
+        <span class="hcard-cta">
+          View Details
+          <span class="material-icons-round">arrow_forward</span>
+        </span>
+      </div>
+    </div>
+  `;
+
+  return card;
+}
+
+/* ═══════════════════════════════════════════════════════
+   EVENTS
+═══════════════════════════════════════════════════════ */
+// filter chips
+document.querySelectorAll('.chip[data-filter]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip[data-filter]').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    currentFilter = chip.dataset.filter;
+    applyFilters();
+  });
+});
+
+// search
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    currentSearch = e.target.value.trim();
+    applyFilters();
+  }, 280);
+});
+
+// sort
+document.getElementById('sortSelect').addEventListener('change', e => {
+  currentSort = e.target.value;
+  applyFilters();
+});
+
+// view toggle
+document.getElementById('gridViewBtn').addEventListener('click', () => {
+  isListView = false;
+  document.getElementById('hackathonsGrid').classList.remove('list-view');
+  document.getElementById('gridViewBtn').classList.add('active');
+  document.getElementById('listViewBtn').classList.remove('active');
+});
+document.getElementById('listViewBtn').addEventListener('click', () => {
+  isListView = true;
+  document.getElementById('hackathonsGrid').classList.add('list-view');
+  document.getElementById('listViewBtn').classList.add('active');
+  document.getElementById('gridViewBtn').classList.remove('active');
+});
+
+// load more
+document.getElementById('loadMoreBtn').addEventListener('click', () => {
+  page++;
+  renderCards();
+  document.getElementById('loadMoreBtn').disabled = true;
+  setTimeout(() => {
+    document.getElementById('loadMoreBtn').disabled = false;
+  }, 400);
+});
+
+/* ═══════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════ */
+function showToast(message, type = 'info', icon = 'info', duration = 3200) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span class="material-icons-round">${icon}</span>${message}`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'toastIn 0.3s ease reverse both';
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+fetchHackathons();
+</script>
+</body>
+</html>
