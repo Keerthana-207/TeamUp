@@ -6,6 +6,7 @@ import CreateProject from './pages/CreateProject'
 import { Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import MyProjects from './pages/MyProject'
+import MyTeams from './pages/MyTeams'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -19,6 +20,7 @@ function App() {
       <Route path='/profile' element={<Profile />} />
       <Route path='/project/create' element={<CreateProject />} />
       <Route path='/project' element={<MyProjects />} />
+      <Route path='/teams' element={<MyTeams />} />
     </Routes>
     </>
   )

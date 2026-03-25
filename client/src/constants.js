@@ -124,3 +124,41 @@ export const INITIAL_PROJECTS = [
     date: "2025-03-15", tags: ["ARCore","Unity","Kotlin"], status: "wip",
   },
 ];
+
+export const TEAMS = [
+  {
+    id:"t1", name:"Code Crusaders", project:"HackBot — AI Hackathon Assistant",
+    desc:"Building an AI assistant that helps teams form, brainstorm and track hackathon submissions in real time.",
+    domain:"AI / ML", domainIcon:"psychology",
+    color:"#63daff", accent:"rgba(99,218,255,0.12)", dot:"rgba(99,218,255,0.2)",
+    role:"Lead", members:[{init:"AS",bg:"#63daff"},{init:"PK",bg:"#a78bfa"},{init:"RM",bg:"#34d399"},{init:"JD",bg:"#fbbf24"}], memberCount:4,
+  },
+  {
+    id:"t2", name:"Green Bytes", project:"EcoTrack — Carbon Monitor",
+    desc:"Mobile-first web app gamifying eco-friendly habits and visualising real-time carbon footprint data across teams.",
+    domain:"EnviroTech", domainIcon:"eco",
+    color:"#34d399", accent:"rgba(52,211,153,0.12)", dot:"rgba(52,211,153,0.2)",
+    role:"Member", members:[{init:"SL",bg:"#34d399"},{init:"AS",bg:"#63daff"},{init:"NK",bg:"#f472b6"}], memberCount:3,
+  },
+  {
+    id:"t3", name:"MediMinds", project:"MediLens — Prescription Reader",
+    desc:"OCR-powered prescription reader that identifies medicines, dosages and flags dangerous drug interactions automatically.",
+    domain:"MedTech", domainIcon:"local_hospital",
+    color:"#f87171", accent:"rgba(248,113,113,0.10)", dot:"rgba(248,113,113,0.18)",
+    role:"Lead", members:[{init:"AS",bg:"#63daff"},{init:"VT",bg:"#f87171"},{init:"MD",bg:"#fb923c"},{init:"LK",bg:"#a78bfa"},{init:"+2",bg:"#6b7280"}], memberCount:7,
+  },
+  {
+    id:"t4", name:"Forge & Flow", project:"SkillForge — Peer Learning",
+    desc:"Peer-to-peer micro-learning marketplace connecting students with niche skills to eager learners via project-based courses.",
+    domain:"EdTech", domainIcon:"school",
+    color:"#fbbf24", accent:"rgba(251,191,36,0.10)", dot:"rgba(251,191,36,0.18)",
+    role:"Member", members:[{init:"RL",bg:"#fbbf24"},{init:"AS",bg:"#63daff"},{init:"ST",bg:"#34d399"}], memberCount:3,
+  },
+  {
+    id:"t5", name:"CipherSync", project:"Quantum Cipher — Encryption Lab",
+    desc:"Quantum-resistant encryption playground for researchers to experiment with lattice-based cryptographic schemes.",
+    domain:"Cybersecurity", domainIcon:"security",
+    color:"#a78bfa", accent:"rgba(167,139,250,0.10)", dot:"rgba(167,139,250,0.18)",
+    role:"Lead", members:[{init:"AS",bg:"#63daff"},{init:"ZH",bg:"#a78bfa"},{init:"TR",bg:"#f472b6"},{init:"KP",bg:"#fb923c"}], memberCount:4,
+  },
+];
