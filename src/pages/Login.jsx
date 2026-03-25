@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "./Login.css";
 
 /* ─────────────────────────────────────────────────────────────
@@ -278,7 +279,7 @@ export default function Login() {
         {/* ── Footer ────────────────────────────────────────── */}
         <p className="login-footer-link">
           Don't have an account?&nbsp;
-          <a href="/register">Create one — it's free</a>
+          <Link to="/register">Create one — it's free</Link>
         </p>
 
       </div>

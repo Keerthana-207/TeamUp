@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react'
+import { ToastContainer, toast } from 'react-toastify'
 import './Register.css'
+import axios from 'axios'
+
 const Register = () => {
     const [step, setStep] = useState(1);
     const [skills, setSkills] = useState([]);
@@ -8,6 +11,7 @@ const Register = () => {
     const [skillInput, setSkillInput] = useState("");
     const [profilePhoto, setProfilePhoto] = useState(null);
     const [passwordStrength, setPasswordStrength] = useState(0);
+    const [errors, setErrors] = useState({});
 
     const strengthConfig = [
         { pct: 0,   color: "transparent", text: "Password strength" },
@@ -95,22 +99,61 @@ const Register = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
+
+        try {
+            const data = new FormData();
+
+            Object.keys(formData).forEach(key => {
+                data.append(key, formData[key]);
+            });
+
+            data.append("profilePhoto", profilePhoto);
+
+            const res = await axios.post(
+                "http://localhost:3001/register",
+                data,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                }
+            );
+
+            console.log(res.data);
+            // alert("Registered successfully!");
+            toast.success("Registered successfully!")
+            
+
+        } catch (err) {
+            console.error(err);
+            // alert("Registration failed");
+            toast.error("Registration failed");
+        }
     };
 
     const validateStep = () => {
         if (step === 1) {
             if (!formData.fullName || !formData.email || !formData.password || !formData.role) {
-                alert("Please fill all required fields");
+                // alert("Please fill all required fields");
+                toast.warn("Please fill all required fields")
+                return false;
+            }
+
+            if (formData.password !== formData.confirmPassword) {
+                setErrors(prev => ({
+                    ...prev,
+                    confirmPassword: "Passwords do not match"
+                }));
                 return false;
             }
         }
 
         if (step === 2) {
             if (!formData.college || !formData.department || !formData.yearOfStudy) {
-                alert("Please fill all required fields in Step 2");
+                // alert("Please fill all required fields in Step 2");
+                toast.warn("Please fill all required fields");
                 return false;
             }
         }
@@ -151,6 +194,7 @@ const Register = () => {
     }, [interests]);
   return (
     <main>
+        <ToastContainer position='top-right' autoClose={3000}/>
         <div className="bg-grid"></div>
         <div className="orb orb-1"></div>
         <div className="orb orb-2"></div>
@@ -252,9 +296,21 @@ const Register = () => {
                                 placeholder="Create a strong password"
                                 value={formData.password}
                                 onChange={(e) => {
-                                    handleChange(e);
-                                    setPasswordStrength(getStrength(e.target.value));
-                                }}/>
+                                handleChange(e);
+                                setPasswordStrength(getStrength(e.target.value));
+
+                                if (formData.confirmPassword && e.target.value !== formData.confirmPassword) {
+                                    setErrors(prev => ({
+                                        ...prev,
+                                        confirmPassword: "Passwords do not match"
+                                    }));
+                                } else {
+                                    setErrors(prev => ({
+                                        ...prev,
+                                        confirmPassword: ""
+                                    }));
+                                }
+                            }}/>
                             <button type="button" className="toggle-pw" data-target="password" data-icon="eye-password">
                                 <span className="material-icons-round" id="eye-password">visibility</span>
                             </button>
@@ -289,12 +345,29 @@ const Register = () => {
                                 name="confirmPassword" 
                                 placeholder="Re-enter your password"
                                 value={formData.confirmPassword}
-                                onChange={handleChange}/>
+                                onChange={(e) => {
+                                    handleChange(e);
+
+                                    if (formData.password !== e.target.value) {
+                                        setErrors(prev => ({
+                                            ...prev,
+                                            confirmPassword: "Passwords do not match"
+                                        }));
+                                    } else {
+                                        setErrors(prev => ({
+                                            ...prev,
+                                            confirmPassword: ""
+                                        }));
+                                    }
+                                }}
+                            />
                             <button type="button" className="toggle-pw" data-target="confirmPassword" data-icon="eye-confirmPassword">
                                 <span className="material-icons-round" id="eye-confirmPassword">visibility</span>
                             </button>
                         </div>
-                        <div className="error-msg" id="err-confirmPassword"></div>
+                        <div className="error-msg">
+                            {errors.confirmPassword}
+                        </div>
                     </div>
 
                     <div className="field-group">
