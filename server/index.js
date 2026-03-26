@@ -25,27 +25,27 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-app.use('/', authRoutes);
+app.use('/api/auth', authRoutes);
 
-app.post('/register', upload.single("profilePhoto"), async (req, res) => {
-    try {
-        const userData = req.body;
+// app.post('/register', upload.single("profilePhoto"), async (req, res) => {
+//     try {
+//         const userData = req.body;
 
-        // hash password
-        const salt = await bcrypt.genSalt(10);
-        userData.password = await bcrypt.hash(userData.password, salt);
+//         // hash password
+//         const salt = await bcrypt.genSalt(10);
+//         userData.password = await bcrypt.hash(userData.password, salt);
 
-        if (req.file) {
-            userData.profilePhoto = req.file.filename;
-        }
+//         if (req.file) {
+//             userData.profilePhoto = req.file.filename;
+//         }
 
-        const user = await userModel.create(userData);
-        res.json(user);
+//         const user = await userModel.create(userData);
+//         res.json(user);
 
-    } catch (err) {
-        res.status(500).json(err);
-    }
-});
+//     } catch (err) {
+//         res.status(500).json(err);
+//     }
+// });
 
 app.listen(3001, () => {
     console.log('App is running')

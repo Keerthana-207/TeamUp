@@ -33,8 +33,25 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     skills: {
-        type: [String],
-        default: []
+    type: [
+        {
+        name: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        score: {
+            type: Number,
+            min: 0,
+            max: 100
+        },
+        level: {
+            type: String,
+            enum: ["Beginner", "Intermediate", "Advanced"]
+        }
+        }
+    ],
+    default: null
     },
     interests: {
         type: [String],
