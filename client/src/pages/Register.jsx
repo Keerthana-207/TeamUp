@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { ToastContainer, toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import './Register.css'
-import axios from 'axios'
+import axios from 'axios';
 
 const Register = () => {
     const [step, setStep] = useState(1);
-    const [skills, setSkills] = useState([]);
-    const [interests, setInterests] = useState([]);
+    // const [skills, setSkills] = useState([]);
+    // const [interests, setInterests] = useState([]);
     const [interestInput, setInterestInput] = useState("");
     const [skillInput, setSkillInput] = useState("");
     const [profilePhoto, setProfilePhoto] = useState(null);
@@ -34,8 +34,8 @@ const Register = () => {
         college: '',
         department: '',
         yearOfStudy: '',
-        skills: [],
-        interests: [],
+        // skills: [],
+        // interests: [],
         github: '',
         linkedin: '',
         instagram: '',
@@ -61,91 +61,88 @@ const Register = () => {
         }));
     };
 
-    const handleSkillKeyDown = (e) => {
-        if (e.key === "Enter" && skillInput.trim() !== "") {
-            e.preventDefault();
+    // const handleSkillKeyDown = (e) => {
+    //     if (e.key === "Enter" && skillInput.trim() !== "") {
+    //         e.preventDefault();
 
-            if (!skills.includes(skillInput.trim())) {
-            setSkills([...skills, skillInput.trim()]);
+    //         if (!skills.includes(skillInput.trim())) {
+    //         setSkills([...skills, skillInput.trim()]);
+    //         }
+
+    //         setSkillInput("");
+    //     }
+    // };
+    // const handleInterestKeyDown = (e) => {
+    //     if (e.key === "Enter" && interestInput.trim() !== "") {
+    //         e.preventDefault();
+
+    //         if (!interests.includes(interestInput.trim())) {
+    //         setInterests([...interests, interestInput.trim()]);
+    //         }
+
+    //         setInterestInput("");
+    //     }
+    // };
+    // const removeSkill = (skillToRemove) => {
+    //     setSkills(skills.filter(skill => skill !== skillToRemove));
+    // };
+
+    // const addSkill = (skill) => {
+    //     if (!skills.includes(skill)) {
+    //         setSkills([...skills, skill]);
+    //     }
+    // };
+
+    // const removeInterest = (item) => {
+    //     setInterests(interests.filter(i => i !== item));
+    // };
+    // const addInterest = (item) => {
+    //     if (!interests.includes(item)) {
+    //         setInterests([...interests, item]);
+    //     }
+    // };
+
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.terms) {
+        toast.warn("Please accept Terms & Conditions");
+        return;
+    }
+    try {
+        const data = new FormData();
+
+        // Append all fields from formData
+        Object.keys(formData).forEach(key => {
+            // Only append simple fields, skip undefined or null
+            if (formData[key] !== null && formData[key] !== undefined) {
+                data.append(key, formData[key]);
             }
+        });
 
-            setSkillInput("");
+        // Append profile photo separately
+        if (profilePhoto) {
+            data.append("profilePhoto", profilePhoto);
         }
-    };
-    const handleInterestKeyDown = (e) => {
-        if (e.key === "Enter" && interestInput.trim() !== "") {
-            e.preventDefault();
 
-            if (!interests.includes(interestInput.trim())) {
-            setInterests([...interests, interestInput.trim()]);
-            }
-
-            setInterestInput("");
-        }
-    };
-    const removeSkill = (skillToRemove) => {
-        setSkills(skills.filter(skill => skill !== skillToRemove));
-    };
-
-    const addSkill = (skill) => {
-        if (!skills.includes(skill)) {
-            setSkills([...skills, skill]);
-        }
-    };
-
-    const removeInterest = (item) => {
-        setInterests(interests.filter(i => i !== item));
-    };
-    const addInterest = (item) => {
-        if (!interests.includes(item)) {
-            setInterests([...interests, item]);
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!formData.terms) {
-            toast.warn("Please accept Terms & Conditions");
-            return;
-        }
-        try {
-            const data = new FormData();
-
-            Object.keys(formData).forEach(key => {
-                if (key === "skills" || key === "interests") {
-                    data.append(key, JSON.stringify(formData[key]));
-                } else {
-                    data.append(key, formData[key]);
+        const res = await axios.post(
+            "http://localhost:3001/api/auth/register",
+            data,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data"
                 }
-            });
-
-            if (profilePhoto) {
-                data.append("profilePhoto", profilePhoto);
             }
+        );
 
-
-            const res = await axios.post(
-                "http://localhost:3001/register",
-                data,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data"
-                    }
-                }
-            );
-
-            console.log(res.data);
-            // alert("Registered successfully!");
-            toast.success("Registered successfully!");
-            navigate('/login');
-            
-
-        }
-        catch (err) {
-            console.error(err.response?.data || err.message);
-            toast.error(err.response?.data?.message || "Registration failed");
-        }
-    };
+        console.log(res.data);
+        toast.success("Registered successfully!");
+        navigate('/login');
+    }
+    catch (err) {
+        console.error(err.response?.data || err.message);
+        toast.error(err.response?.data?.message || "Registration failed");
+    }
+};
 
     const validateStep = () => {
         if (step === 1) {
@@ -193,19 +190,6 @@ const Register = () => {
         return Math.min(score, 4);
     };
 
-    useEffect(() => {
-    setFormData(prev => ({
-        ...prev,
-        skills: skills
-    }));
-    }, [skills]);
-
-    useEffect(() => {
-    setFormData(prev => ({
-        ...prev,
-        interests: interests
-    }));
-    }, [interests]);
   return (
     <main>
         <ToastContainer position='top-right' theme='dark' autoClose={3000}/>
@@ -224,7 +208,7 @@ const Register = () => {
         </header>
         <div className="card" id="registerCard">
             <div className="step-progress">
-            {[1, 2, 3, 4].map((s, index) => (
+            {[1, 2, 3].map((s, index) => (
                 <React.Fragment key={s}>
                 <div
                     className={`step 
@@ -238,7 +222,7 @@ const Register = () => {
                     </div>
                 </div>
 
-                {s !== 4 && (
+                {s !== 3 && (
                     <div
                     className={`step-line ${step > s ? "done" : ""}`}
                     ></div>
@@ -496,7 +480,7 @@ const Register = () => {
                </div>
                 </div>
                 )}
-            { step === 3 && (
+            {/* { step === 3 && (
              <div className={`form-step ${step === 3 ? 'active' : ''}`}>
                <div className="step-header">
                  <h2>Skills &amp; Interests</h2>
@@ -510,7 +494,7 @@ const Register = () => {
                 </label>
 
                 <div className="tag-input-wrap">
-                    {/* Render Tags */}
+                    
                     {skills.map((skill, index) => (
                     <span key={index} className="tag">
                         {skill}
@@ -524,7 +508,6 @@ const Register = () => {
                     </span>
                     ))}
 
-                    {/* Input */}
                     <input
                     type="text"
                     value={skillInput}
@@ -534,7 +517,7 @@ const Register = () => {
                     />
                 </div>
 
-                {/* Suggestions */}
+
                 <div className="skill-suggestions">
                     <span className="sugg-label">Quick add:</span>
 
@@ -569,7 +552,7 @@ const Register = () => {
                 </label>
 
                 <div className="tag-input-wrap">
-                    {/* Render tags */}
+                    
                     {interests.map((item, index) => (
                     <span key={index} className="tag">
                         {item}
@@ -583,7 +566,7 @@ const Register = () => {
                     </span>
                     ))}
 
-                    {/* Input */}
+
                     <input
                     type="text"
                     value={interestInput}
@@ -593,7 +576,7 @@ const Register = () => {
                     />
                 </div>
 
-                {/* Suggestions */}
+
                 <div className="skill-suggestions">
                     <span className="sugg-label">Quick add:</span>
 
@@ -628,10 +611,10 @@ const Register = () => {
                  </button>
                </div>
              </div>
-            )}
+            )} */}
 
-            {step === 4 && (
-             <div className={`form-step ${step === 4 ? 'active' : ''}`} id="step-4">
+            {step === 3 && (
+             <div className={`form-step ${step === 3 ? 'active' : ''}`} id="step-4">
                <div className="step-header">
                  <h2>Complete Your Profile</h2>
                  <p>Optional links — but highly recommended!</p>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 
 /* ─────────────────────────────────────────────────────────────
@@ -28,6 +28,7 @@ export default function Login() {
   const [remember, setRemember]   = useState(false);
   const [showPw, setShowPw]       = useState(false);
   const [loading, setLoading]     = useState(false);
+  const navigate = useNavigate();
 
   // Field errors
   const [errors, setErrors] = useState({ email: "", password: "" });
@@ -78,7 +79,7 @@ export default function Login() {
     try {
       // ── Swap fakeLogin with your real API call ──────────────
       // await fetch("/api/login", { method:"POST", body: JSON.stringify({email, password}) })
-      const res = await fetch("http://localhost:3001/login", {
+      const res = await fetch("http://localhost:3001/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -96,6 +97,7 @@ export default function Login() {
       localStorage.setItem("token", data.token);
 
       showToast("Welcome back! Redirecting…", "success", "celebration");
+      navigate("/dashboard");
     } catch (err) {
       showToast(err.message || "Login failed. Please try again.", "error", "error");
     } finally {
