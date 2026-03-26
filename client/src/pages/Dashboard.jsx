@@ -95,7 +95,25 @@ export default function Dashboard() {
     fetchUser();
   },[])
 
-
+if (!user) return (
+  <div style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",       // full viewport height
+    width: "100vw",        // full viewport width
+    background: "var(--bg)" // optional, match your dashboard background
+  }}>
+    <ThreeDots
+      visible={true}
+      height="80"
+      width="80"
+      color="#53CBF3"
+      radius="9"
+      ariaLabel="three-dots-loading"
+    />
+  </div>
+);
 
   const firstName = user.fullName.split(" ")[0];
   const hour = new Date().getHours();

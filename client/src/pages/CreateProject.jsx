@@ -1,438 +1,566 @@
-import React, { useState, useRef, useEffect } from "react";
-import { DOMAINS } from '../constants';
-import './CreateProject.css'
-const CreateProject = () => {
-    // ───────────────── STATE ─────────────────
-    const [projectName, setProjectName] = useState("");
-    const [domain, setDomain] = useState(null);
-    const [description, setDescription] = useState("");
-    const [files, setFiles] = useState([]);
-    const [captchaVerified, setCaptchaVerified] = useState(false);
-    const [errors, setErrors] = useState({});
-    const [visibility, setVisibility] = useState("public");
-    const [domainOpen, setDomainOpen] = useState(false);
-    const [domainSearch, setDomainSearch] = useState("");
-    const [selectedDomain, setSelectedDomain] = useState(null);
+import { useState, useRef, useCallback, useEffect } from "react";
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import "./CreateProject.css";
 
-    const comboRef = useRef();
+const DOMAINS = [
+  { id:"ai",        label:"AI / ML",      icon:"psychology"         },
+  { id:"web",       label:"Web Dev",       icon:"language"           },
+  { id:"mobile",    label:"Mobile",        icon:"smartphone"         },
+  { id:"blockchain",label:"Blockchain",    icon:"link"               },
+  { id:"iot",       label:"IoT",           icon:"sensors"            },
+  { id:"data",      label:"Data Science",  icon:"bar_chart"          },
+  { id:"design",    label:"UI/UX",         icon:"brush"              },
+  { id:"cloud",     label:"Cloud",         icon:"cloud"              },
+  { id:"security",  label:"Cybersecurity", icon:"security"           },
+  { id:"other",     label:"Other",         icon:"more_horiz"         },
+];
 
-    // ───────────────── HELPERS ─────────────────
-    const countWords = (str) =>
-        str.trim() === "" ? 0 : str.trim().split(/\s+/).length;
+const ROLES_NEEDED = [
+  { id:"frontend",  label:"Frontend",     icon:"code"               },
+  { id:"backend",   label:"Backend",      icon:"dns"                },
+  { id:"ml",        label:"ML Engineer",  icon:"psychology"         },
+  { id:"design",    label:"Designer",     icon:"brush"              },
+  { id:"pm",        label:"PM",           icon:"work"               },
+  { id:"devops",    label:"DevOps",       icon:"cloud"              },
+];
 
-    const handleFileUpload = (e) => {
-        const selectedFiles = Array.from(e.target.files);
+/* ── AI suggestion engine (keyword-based; replace with real LLM call) ── */
+const DOMAIN_SKILL_MAP = {
+  ai:         ["Python","TensorFlow","PyTorch","Scikit-learn","NumPy","FastAPI","ML Ops","Hugging Face"],
+  web:        ["React","Node.js","TypeScript","MongoDB","PostgreSQL","REST API","GraphQL","Tailwind CSS"],
+  mobile:     ["Flutter","React Native","Swift","Kotlin","Firebase","Expo","Dart"],
+  blockchain: ["Solidity","Web3.js","Ethereum","IPFS","Truffle","MetaMask","Rust"],
+  iot:        ["Arduino","Raspberry Pi","MQTT","C++","Embedded C","Sensor Fusion","AWS IoT"],
+  data:       ["Python","Pandas","SQL","Tableau","Apache Spark","Kafka","Airflow","dbt"],
+  design:     ["Figma","Adobe XD","Prototyping","User Research","Design Systems","Accessibility"],
+  cloud:      ["AWS","GCP","Azure","Kubernetes","Docker","Terraform","CI/CD","Serverless"],
+  security:   ["Penetration Testing","OWASP","Cryptography","Wireshark","Network Security","CTF"],
+  other:      ["Git","Agile","Project Management","Technical Writing"],
+};
 
-        const mapped = selectedFiles.map(file => ({
-        file,
-        path: file.webkitRelativePath || file.name
-        }));
+const KEYWORD_SKILL_MAP = {
+  "chat":    ["WebSocket","Socket.io","Redis"],
+  "real":    ["WebSocket","Socket.io"],
+  "health":  ["FHIR","HL7","Healthcare API"],
+  "finance": ["Plaid API","Stripe","Payment Gateway"],
+  "social":  ["OAuth2","Social Graph","CDN"],
+  "game":    ["Unity","WebGL","Three.js"],
+  "image":   ["OpenCV","PIL","YOLO","Image Processing"],
+  "video":   ["FFmpeg","WebRTC","HLS"],
+  "nlp":     ["NLTK","spaCy","Transformers","LangChain"],
+  "market":  ["Stripe","Payment","E-commerce","Search Engine"],
+  "resume":  ["PDF Parsing","NLP","Resume Parser"],
+  "student": ["Authentication","Dashboards","Analytics"],
+};
 
-        setFiles(prev => [...prev, ...mapped]);
-    };
+function suggestSkills(title, description, domains) {
+  const text = (title + " " + description).toLowerCase();
+  const skills = new Set();
 
-    const removeFile = (path) => {
-        setFiles(prev => prev.filter(f => f.path !== path));
-    };
+  // Domain-based
+  domains.forEach(d => (DOMAIN_SKILL_MAP[d] || []).forEach(s => skills.add(s)));
 
-    // ───────────────── VALIDATION ─────────────────
-    const validate = () => {
-        let err = {};
+  // Keyword-based
+  Object.entries(KEYWORD_SKILL_MAP).forEach(([kw, sks]) => {
+    if (text.includes(kw)) sks.forEach(s => skills.add(s));
+  });
 
-        if (!projectName || projectName.length < 3)
-        err.projectName = "Min 3 characters required";
+  // Always add essentials
+  skills.add("Git"); skills.add("REST API");
 
-        if (!domain)
-        err.domain = "Select a domain";
-
-        if (countWords(description) < 5)
-        err.description = "Minimum 5 words required";
-
-        if (files.length === 0)
-        err.files = "Upload at least 1 file";
-
-        if (!captchaVerified)
-        err.captcha = "Verify captcha";
-
-        setErrors(err);
-        return Object.keys(err).length === 0;
-    };
-
-    // ───────────────── SUBMIT ─────────────────
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!validate()) return;
-
-        const payload = {
-        name: projectName,
-        domain: domain.value,
-        description,
-        files: files.map(f => ({
-            path: f.path,
-            size: f.file.size,
-            type: f.file.type
-        }))
-        };
-
-        console.log("Submitting:", payload);
-
-        // TODO: API call here
-    };
-
-    // ───────────────── CAPTCHA ─────────────────
-    const handleCaptcha = () => {
-        setTimeout(() => {
-        setCaptchaVerified(true);
-        }, 1000);
-    };
-
-    useEffect(() => {
-    const handleClickOutside = (e) => {
-        if (comboRef.current && !comboRef.current.contains(e.target)) {
-        setDomainOpen(false);
-        }
-    };
-
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-    }, []);
-
-    useEffect(() => {
-  const handleEsc = (e) => {
-    if (e.key === "Escape") setDomainOpen(false);
-  };
-
-  document.addEventListener("keydown", handleEsc);
-  return () => document.removeEventListener("keydown", handleEsc);
-}, []);
-  return (
-    <div>
-        <div className="bg-grid"></div>
-        <div className="orb orb-1"></div>
-        <div className="orb orb-2"></div>
-        <div className="orb orb-3"></div>
-
-        <nav className="topbar">
-            <a href="#" className="logo">
-            <span className="material-icons-round logo-icon">bolt</span>
-            <span>Team<span className="logo-accent">Up</span></span>
-            </a>
-            <div className="nav-right">
-            <div className="nav-avatar">
-                <span className="material-icons-round">person</span>
-            </div>
-            </div>
-        </nav>
-        <main className="page">
-
-            <div className="page-title-row">
-            <div className="page-title-icon">
-                <span className="material-icons-round">rocket_launch</span>
-            </div>
-            <div className="page-title-text">
-                <h1>Create a New Project</h1>
-                <p>Set up your project workspace and invite collaborators</p>
-            </div>
-            </div>
-
-            <form id="projectForm" noValidate onSubmit={handleSubmit}>
-
-            <div className="section-card">
-                <div className="section-label">
-                <span className="material-icons-round">edit_note</span>
-                Project Basics
-                </div>
-
-                <div className="field-group">
-                <label className="field-label">
-                    <span className="material-icons-round">drive_file_rename_outline</span>
-                    Project Name
-                </label>
-                <div className="input-wrap" id="wrap-projName">
-                    <span className="material-icons-round inp-icon">folder_special</span>
-                    <input
-                    type="text" id="projName" name="projName"
-                    placeholder="e.g. HackBot — AI Hackathon Assistant"
-                    autoComplete="off" maxLength="80"
-                    value={projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
-                    />
-                    <span className="input-count" id="nameCount">{projectName.length}/80</span>
-                    {errors.projectName && <span className="error-msg">{errors.projectName}</span>}
-                </div>
-                <div className="error-msg" id="err-projName"></div>
-                </div>
-
-                <div className="field-group">
-                <label className="field-label">
-                    <span className="material-icons-round">hub</span>
-                    Domain of Project
-                </label>
-
-                <div className="combo-wrap" ref={comboRef}>
-                    
-                    {/* Trigger */}
-                    <div
-                    className={`combo-trigger ${domainOpen ? "open" : ""}`}
-                    onClick={() => setDomainOpen(prev => !prev)}
-                    >
-                    <span className="material-icons-round inp-icon">
-                        {selectedDomain?.icon || "category"}
-                    </span>
-
-                    <input
-                        type="text"
-                        placeholder="Search or select a domain…"
-                        value={domainSearch || selectedDomain?.label || ""}
-                        onChange={(e) => {
-                        setDomainSearch(e.target.value);
-                        setDomainOpen(true);
-                        }}
-                        readOnly={!domainOpen}
-                    />
-
-                    <span className="material-icons-round combo-chevron">
-                        expand_more
-                    </span>
-                    </div>
-
-                    {/* Dropdown */}
-                    {domainOpen && (
-                    <div className="combo-menu open">
-                        {DOMAINS.map(group => {
-                        const filtered = group.items.filter(item =>
-                            item.label.toLowerCase().includes(domainSearch.toLowerCase())
-                        );
-
-                        if (!filtered.length) return null;
-
-                        return (
-                            <div key={group.group}>
-                            <div className="combo-group-label">{group.group}</div>
-
-                            {filtered.map(item => (
-                                <div
-                                key={item.value}
-                                className={`combo-item ${
-                                    selectedDomain?.value === item.value ? "selected" : ""
-                                }`}
-                                onMouseDown={(e) => {
-                                    e.preventDefault();
-                                    setSelectedDomain(item);
-                                    setDomainSearch("");
-                                    setDomainOpen(false);
-                                    setDomain(item); // IMPORTANT (your main state)
-                                }}
-                                >
-                                <span className="material-icons-round ci-icon">
-                                    {item.icon}
-                                </span>
-
-                                {item.label}
-
-                                {item.tag && (
-                                    <span className={`ci-tag tag-${item.tag}`}>
-                                    {item.tag.toUpperCase()}
-                                    </span>
-                                )}
-                                </div>
-                            ))}
-                            </div>
-                        );
-                        })}
-
-                        {/* No results */}
-                        {!DOMAINS.some(group =>
-                        group.items.some(item =>
-                            item.label.toLowerCase().includes(domainSearch.toLowerCase())
-                        )
-                        ) && (
-                        <div className="combo-empty">
-                            <span className="material-icons-round">search_off</span>
-                            No domains match "{domainSearch}"
-                        </div>
-                        )}
-                    </div>
-                    )}
-                </div>
-
-                {errors.domain && <div className="error-msg">{errors.domain}</div>}
-                </div>
-
-                <div className="field-group">
-                <label className="field-label">
-                    <span className="material-icons-round">description</span>
-                    Project Description
-                </label>
-                <div className="textarea-wrap">
-                    <textarea
-                    id="description" name="description"
-                    placeholder="Describe your project — what problem does it solve, what tech stack will you use, what are your goals? (max 300 words)"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows="5"
-                    />
-                    {/* <p>{countWords(description)}/300 words</p> */}
-                    {errors.description && <span>{errors.description}</span>}
-                    <div className="textarea-footer">
-                    <span className="textarea-hint">Be specific — helps teammates understand your vision</span>
-                    <span className="word-counter" id="wordCounter">{countWords(description)} / 300 words</span>
-                    </div>
-                </div>
-                {/* <div className="error-msg" id="err-description"></div> */}
-                </div>
-            </div>
-
-            <div className="section-card green">
-                <div className="section-label">
-                <span className="material-icons-round">visibility</span>
-                Project Visibility
-                </div>
-
-                <div className="visibility-toggle">
-                <label className="vis-option pub">
-                    <input type="radio" name="visibility" value="public" checked={visibility === "public"} onChange={(e) => setVisibility("public")}/>
-                    <div className="vis-inner">
-                    <div className="vis-icon">
-                        <span className="material-icons-round">public</span>
-                    </div>
-                    <div className="vis-text">
-                        <strong>Public</strong>
-                        <span>Anyone can view this project. Great for open source and showcasing work.</span>
-                    </div>
-                    <div className="vis-dot"></div>
-                    </div>
-                </label>
-
-                <label className="vis-option priv">
-                    <input type="radio" name="visibility" value="private" checked={visibility === "private"} onChange={(e) => setVisibility("private")}/>
-                    <div className="vis-inner">
-                    <div className="vis-icon">
-                        <span className="material-icons-round">lock</span>
-                    </div>
-                    <div className="vis-text">
-                        <strong>Private</strong>
-                        <span>Only invited members can access. Ideal for teams and private builds.</span>
-                    </div>
-                    <div className="vis-dot"></div>
-                    </div>
-                </label>
-                </div>
-            </div>
-
-            <div className="section-card violet">
-                <div className="section-label">
-                <span className="material-icons-round">upload_file</span>
-                Upload Project Files
-                </div>
-
-                <div className="upload-zone" id="dropZone">
-                <input type="file" id="fileInput" multiple onChange={handleFileUpload}/>
-                <div className="upload-icon">
-                    <span className="material-icons-round">cloud_upload</span>
-                </div>
-                <h4>Drag &amp; drop files or folders here</h4>
-                <p>Supports any file type · Max 50MB per file</p>
-                <div className="upload-or">
-                    <div className="upload-or-line"></div>
-                    <span>or</span>
-                    <div className="upload-or-line"></div>
-                </div>
-                <div className="upload-btns">
-                    <button type="button" className="btn-upload-type" id="browseFiles">
-                    <span className="material-icons-round">insert_drive_file</span>
-                    Browse Files
-                    </button>
-                    <button type="button" className="btn-upload-type" id="browseFolder">
-                    <span className="material-icons-round">folder_open</span>
-                    Upload Folder
-                    </button>
-                </div>
-                </div>
-
-                <input type="file" id="folderInput" webkitdirectory="true" multiple style={{display:'none'}}/>
-
-                <div className="file-tree-wrap" id="fileTreeWrap" style={{display:'none'}}>
-                <div className="file-tree-header">
-                    <div className="file-tree-header-left">
-                    <span className="material-icons-round">account_tree</span>
-                    Project Structure
-                    </div>
-                    <button type="button" className="file-tree-clear" id="clearAllFiles">
-                    <span className="material-icons-round">delete_sweep</span>
-                    Clear all
-                    </button>
-                </div>
-                <div className="file-tree" id="fileTree"></div>
-                <div className="upload-stats" id="uploadStats"></div>
-                </div>
-
-                <div className="error-msg" style={{marginTop:'8px'}} id="err-files"></div>
-            </div>
-
-            <div className="section-card">
-                <div className="section-label">
-                <span className="material-icons-round">verified_user</span>
-                Human Verification
-                </div>
-
-                <div className="captcha-box" id="captchaBox" role="button" tabIndex={0} onClick={handleCaptcha}>
-                <div className="captcha-left">
-                    <div className="captcha-checkbox" id="captchaCheck">
-                    <span className="material-icons-round">check</span>
-                    </div>
-                    <div className="captcha-label">
-                    I'm not a robot
-                    <small id="captchaSubtext">Click to verify</small>
-                    </div>
-                </div>
-                <div className="captcha-right">
-                    <div className="captcha-logo">reCAPTCHA</div>
-                    <div className="captcha-badge">Protected by<br/>TeamUp Shield</div>
-                </div>
-                </div>
-                <div className="error-msg" id="err-captcha"></div>
-                <small>
-                    {captchaVerified ? "Verified ✓" : "Click to verify"}
-                </small>
-
-                {errors.captcha && <span className="error-msg">{errors.captcha}</span>}
-            </div>
-
-            <div className="actions-bar">
-                <button type="button" className="btn-discard" id="discardBtn">
-                <span className="material-icons-round">close</span>
-                Discard
-                </button>
-                <button type="submit" className="btn-upload" id="submitBtn">
-                <span id="submitText">
-                    <span className="material-icons-round">rocket_launch</span>
-                    Upload Project
-                </span>
-                <span className="btn-loader" id="submitLoader"></span>
-                </button>
-            </div>
-
-            </form>
-        </main>
-        <div className="success-overlay" id="successOverlay">
-            <div className="success-card">
-            <div className="success-ring-wrap">
-                <div className="success-ring"></div>
-                <span className="material-icons-round">check</span>
-            </div>
-            <h2>Project Created! 🎉</h2>
-            <p>Your project has been uploaded and is now live on TeamUp.</p>
-            <div className="success-meta" id="successMeta"></div>
-                <button className="btn-view-proj">
-                <span className="material-icons-round">open_in_new</span>
-                View Project
-            </button>
-            </div>
-        </div>
-        <div className="toast-container" id="toastContainer"></div>
-    </div>
-  )
+  return [...skills].slice(0, 10);
 }
 
-export default CreateProject
+/* ════════════════════════════════════════════════════════════
+   TAG INPUT
+════════════════════════════════════════════════════════════ */
+function TagInput({ tags, onChange, placeholder }) {
+  const [input, setInput] = useState("");
+  function add(text) {
+    const t = text.replace(/,/g,"").trim();
+    if (!t || tags.includes(t) || tags.length >= 12) return;
+    onChange([...tags, t]);
+  }
+  function remove(tag) { onChange(tags.filter(t => t !== tag)); }
+  function handleKey(e) {
+    if (["Enter",",","Tab"].includes(e.key) && input.trim()) { e.preventDefault(); add(input); setInput(""); }
+    if (e.key === "Backspace" && !input && tags.length) remove(tags[tags.length-1]);
+  }
+  return (
+    <div className="cp-tag-input-wrap" onClick={e => e.currentTarget.querySelector("input")?.focus()}>
+      {tags.map(t => (
+        <span key={t} className="cp-tag">
+          {t}
+          <button className="cp-tag-remove" type="button" onClick={() => remove(t)}>×</button>
+        </span>
+      ))}
+      <input
+        type="text" value={input} placeholder={tags.length ? "" : placeholder}
+        onChange={e => setInput(e.target.value)}
+        onKeyDown={handleKey}
+        onBlur={() => { if (input.trim()) { add(input); setInput(""); }}}
+        autoComplete="off"
+      />
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   TOAST HOOK
+════════════════════════════════════════════════════════════ */
+function useToasts() {
+  const [toasts, setToasts] = useState([]);
+  const id = useRef(0);
+  const show = useCallback((msg, type = "info", icon = "info", ms = 3000) => {
+    const tid = ++id.current;
+    setToasts(p => [...p, { id: tid, msg, type, icon }]);
+    setTimeout(() => setToasts(p => p.filter(t => t.id !== tid)), ms);
+  }, []);
+  return { toasts, show };
+}
+
+/* ════════════════════════════════════════════════════════════
+   MAIN COMPONENT
+════════════════════════════════════════════════════════════ */
+export default function CreateProject() {
+  // Form state
+  const [title,       setTitle]       = useState("");
+  const [description, setDescription] = useState("");
+  const [selectedDomains, setDomains] = useState([]);
+  const [skills,      setSkills]      = useState([]);
+  const [teamSize,    setTeamSize]    = useState(3);
+  const [rolesNeeded, setRoles]       = useState([]);
+  const [privacy,     setPrivacy]     = useState("public");
+
+  // AI suggestion state
+  const [aiSuggestions,  setAiSuggestions]  = useState([]);
+  const [aiLoading,      setAiLoading]      = useState(false);
+  const [aiTriggered,    setAiTriggered]    = useState(false);
+  const descDebounce = useRef(null);
+
+  // Submit state
+  const [submitting, setSubmitting]  = useState(false);
+  const [submitted,  setSubmitted]   = useState(false);
+  const [createdId,  setCreatedId]   = useState("");
+
+  const { toasts, show: showToast } = useToasts();
+
+  /* ── AI suggestions trigger ─────────────────────────── */
+  useEffect(() => {
+    if (descDebounce.current) clearTimeout(descDebounce.current);
+    if ((description.length > 30 || selectedDomains.length > 0) && (title.length > 3 || description.length > 20)) {
+      descDebounce.current = setTimeout(() => runAiSuggestion(), 900);
+    }
+    return () => clearTimeout(descDebounce.current);
+  }, [description, title, selectedDomains]);
+
+  function runAiSuggestion() {
+    setAiLoading(true);
+    setAiTriggered(true);
+    setTimeout(() => {
+      const suggested = suggestSkills(title, description, selectedDomains);
+      setAiSuggestions(suggested);
+      setAiLoading(false);
+    }, 1200);
+  }
+
+  function addAiSkill(skill) {
+    if (!skills.includes(skill)) setSkills(p => [...p, skill]);
+  }
+  function toggleDomain(id) {
+    setDomains(p => p.includes(id) ? p.filter(d => d !== id) : [...p, id]);
+  }
+  function toggleRole(id) {
+    setRoles(p => p.includes(id) ? p.filter(r => r !== id) : [...p, id]);
+  }
+
+  /* ── Submit ─────────────────────────────────────────── */
+async function handleSubmit() {
+  if (!title.trim()) return showToast("Title required", "error");
+
+  try {
+    setSubmitting(true);
+
+    const token = localStorage.getItem("token");
+
+    const res = await axios.post(
+      "http://localhost:3001/api/projects",
+      {
+        title,
+        description,
+        domains: selectedDomains,
+        skills,
+        teamSize,
+        rolesNeeded,
+        privacy,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setCreatedId(res.data._id);
+    setSubmitted(true);
+  } catch (err) {
+    console.error(err);
+    showToast("Failed to create project", "error");
+  } finally {
+    setSubmitting(false);
+  }
+}
+
+  /* ── SUCCESS SCREEN ─────────────────────────────────── */
+  if (submitted) return (
+    <>
+      <div className="cp-bg-grid" />
+      <div className="cp-orb cp-orb-1" />
+      <div className="cp-orb cp-orb-2" />
+      <div className="cp-root">
+        <header className="cp-topbar">
+          <a href="/" className="cp-topbar-logo">
+            <span className="material-icons-round cp-logo-icon">bolt</span>
+            Team<span className="cp-logo-accent">Up</span>
+          </a>
+        </header>
+        <div className="cp-page">
+          <div className="cp-success">
+            <div className="cp-success-ring">
+              <div className="cp-success-ring-circle" />
+              <span className="material-icons-round cp-success-check">check</span>
+            </div>
+            <h2 className="cp-success-title">Project Created! 🚀</h2>
+            <p className="cp-success-sub">
+              <strong style={{ color:"var(--text)" }}>{title}</strong> is live. Start building your team now.
+            </p>
+            <p style={{ fontSize:"0.76rem", color:"var(--text-muted)", fontFamily:"'Syne',sans-serif", letterSpacing:"0.08em" }}>
+              Project ID: {createdId}
+            </p>
+            <div className="cp-success-actions">
+              <a href={`/find-team/${createdId}`} className="cp-success-action">
+                <span className="material-icons-round">group_add</span>
+                Find Team Members
+              </a>
+              <a href={`/projects/${createdId}`} className="cp-success-sec">
+                <span className="material-icons-round">open_in_new</span>
+                View Project
+              </a>
+              <Link to="/dashboard" className="cp-success-sec">
+                <span className="material-icons-round">dashboard</span>
+                Dashboard
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+
+  return (
+    <>
+      <div className="cp-bg-grid" />
+      <div className="cp-orb cp-orb-1" />
+      <div className="cp-orb cp-orb-2" />
+
+      <div className="cp-root">
+        <header className="cp-topbar">
+          <a href="/" className="cp-topbar-logo">
+            <span className="material-icons-round cp-logo-icon">bolt</span>
+            Team<span className="cp-logo-accent">Up</span>
+          </a>
+          <div className="cp-topbar-spacer" />
+          <a href="/dashboard" className="cp-back-btn">
+            <span className="material-icons-round">arrow_back</span>
+            Dashboard
+          </a>
+        </header>
+
+        <div className="cp-page">
+          {/* HEADER */}
+          <div className="cp-header">
+            <div className="cp-header-eyebrow">New Project</div>
+            <h1 className="cp-header-title">Create Your Project</h1>
+            <p className="cp-header-sub">Describe your idea and we'll automatically suggest the skills your team needs.</p>
+          </div>
+
+          {/* ══ CARD 1: BASICS ══ */}
+          <div className="cp-card">
+            <div className="cp-card-head">
+              <div className="cp-card-icon" style={{ background:"rgba(99,218,255,0.1)" }}>
+                <span className="material-icons-round" style={{ color:"var(--cyan)" }}>edit_note</span>
+              </div>
+              <div>
+                <div className="cp-card-title">Project Basics</div>
+                <div className="cp-card-subtitle">Give your project a name and description</div>
+              </div>
+            </div>
+            <div className="cp-card-body">
+              <div className="cp-field">
+                <label className="cp-label">
+                  <span className="material-icons-round">label</span>
+                  Project Title
+                </label>
+                <div className="cp-input-wrap">
+                  <span className="material-icons-round cp-input-icon">rocket_launch</span>
+                  <input
+                    type="text" placeholder="e.g. SmartResume AI, CampusMarket, HackTracker…"
+                    value={title} onChange={e => setTitle(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="cp-field">
+                <label className="cp-label">
+                  <span className="material-icons-round">description</span>
+                  Description
+                </label>
+                <textarea
+                  className="cp-textarea"
+                  placeholder="Describe what your project does, the problem it solves, and who it's for. The more detail, the better our skill suggestions will be…"
+                  rows={5} maxLength={600}
+                  value={description} onChange={e => setDescription(e.target.value)}
+                />
+                <div className="cp-char-hint">{description.length}/600</div>
+              </div>
+            </div>
+          </div>
+
+          {/* ══ CARD 2: DOMAIN ══ */}
+          <div className="cp-card">
+            <div className="cp-card-head">
+              <div className="cp-card-icon" style={{ background:"rgba(167,139,250,0.1)" }}>
+                <span className="material-icons-round" style={{ color:"var(--violet)" }}>category</span>
+              </div>
+              <div>
+                <div className="cp-card-title">Domain</div>
+                <div className="cp-card-subtitle">What tech area does your project fall under?</div>
+              </div>
+            </div>
+            <div className="cp-card-body">
+              <div className="cp-domain-chips">
+                {DOMAINS.map(d => (
+                  <button
+                    key={d.id}
+                    className={`cp-domain-chip ${selectedDomains.includes(d.id) ? "selected" : ""}`}
+                    onClick={() => toggleDomain(d.id)}
+                  >
+                    <span className="material-icons-round">{d.icon}</span>
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ══ CARD 3: SKILLS (with AI) ══ */}
+          <div className="cp-card">
+            <div className="cp-card-head">
+              <div className="cp-card-icon" style={{ background:"rgba(99,218,255,0.1)" }}>
+                <span className="material-icons-round" style={{ color:"var(--cyan)" }}>code</span>
+              </div>
+              <div>
+                <div className="cp-card-title">Required Skills</div>
+                <div className="cp-card-subtitle">Add skills manually or use our AI suggestions</div>
+              </div>
+            </div>
+            <div className="cp-card-body">
+              <div className="cp-field">
+                <label className="cp-label">
+                  <span className="material-icons-round">code</span>
+                  Skills Required
+                </label>
+                <TagInput
+                  tags={skills} onChange={setSkills}
+                  placeholder="Type a skill and press Enter…"
+                />
+              </div>
+
+              {/* AI Suggestion Box */}
+              {aiTriggered && (
+                <div className="cp-ai-box">
+                  <div className="cp-ai-head">
+                    <span className="material-icons-round cp-ai-spark">auto_awesome</span>
+                    <div style={{ flex:1 }}>
+                      <div className="cp-ai-head-text">AI Suggested Skills</div>
+                      <div className="cp-ai-head-sub">Based on your description and domain</div>
+                    </div>
+                    <button className="cp-ai-regen" onClick={runAiSuggestion}>
+                      <span className="material-icons-round">refresh</span>
+                      Refresh
+                    </button>
+                  </div>
+                  {aiLoading ? (
+                    <div className="cp-ai-loading">
+                      <div className="cp-ai-loader" />
+                      Analysing your description…
+                    </div>
+                  ) : (
+                    <div className="cp-ai-body">
+                      {aiSuggestions.map((sk, i) => {
+                        const isAdded = skills.includes(sk);
+                        return (
+                          <button
+                            key={sk}
+                            className={`cp-ai-skill ${isAdded ? "added" : "pending"}`}
+                            style={{ animationDelay: `${i * 0.04}s` }}
+                            onClick={() => !isAdded && addAiSkill(sk)}
+                          >
+                            <span className="material-icons-round">
+                              {isAdded ? "check" : "add"}
+                            </span>
+                            {sk}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!aiTriggered && (description.length < 30 && selectedDomains.length === 0) && (
+                <div style={{ display:"flex", alignItems:"center", gap:"8px", padding:"12px 14px", background:"var(--surface2)", borderRadius:"var(--radius-sm)", border:"1px solid var(--border)", fontSize:"0.8rem", color:"var(--text-muted)" }}>
+                  <span className="material-icons-round" style={{ fontSize:"16px", color:"var(--cyan)" }}>tips_and_updates</span>
+                  Fill in your description and domain to get AI skill suggestions automatically.
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ══ CARD 4: TEAM ══ */}
+          <div className="cp-card">
+            <div className="cp-card-head">
+              <div className="cp-card-icon" style={{ background:"rgba(52,211,153,0.1)" }}>
+                <span className="material-icons-round" style={{ color:"var(--green)" }}>group</span>
+              </div>
+              <div>
+                <div className="cp-card-title">Team Requirements</div>
+                <div className="cp-card-subtitle">Set your team size and roles you need</div>
+              </div>
+            </div>
+            <div className="cp-card-body">
+              <div className="cp-grid-2">
+                <div className="cp-field">
+                  <label className="cp-label">
+                    <span className="material-icons-round">groups</span>
+                    Team Size
+                  </label>
+                  <div className="cp-input-wrap">
+                    <span className="material-icons-round cp-input-icon">people</span>
+                    <input
+                      type="number" min={1} max={10} value={teamSize}
+                      onChange={e => setTeamSize(Math.min(10,Math.max(1,+e.target.value)))}
+                      style={{ textAlign:"center" }}
+                    />
+                  </div>
+                </div>
+                <div className="cp-field">
+                  <label className="cp-label">
+                    <span className="material-icons-round">assignment_ind</span>
+                    Open Positions
+                  </label>
+                  <div className="cp-input-wrap" style={{ padding:"11px 14px", cursor:"default", pointerEvents:"none", justifyContent:"center" }}>
+                    <span style={{ color:"var(--cyan)", fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:"1rem" }}>
+                      {Math.max(0, teamSize - 1)}
+                    </span>
+                    <span style={{ color:"var(--text-muted)", fontSize:"0.82rem", marginLeft:"6px" }}>spots available</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="cp-field">
+                <label className="cp-label">
+                  <span className="material-icons-round">work</span>
+                  Roles Needed
+                  <span className="cp-optional">select all that apply</span>
+                </label>
+                <div className="cp-roles-grid">
+                  {ROLES_NEEDED.map(r => (
+                    <div
+                      key={r.id}
+                      className={`cp-role-toggle ${rolesNeeded.includes(r.id) ? "selected" : ""}`}
+                      onClick={() => toggleRole(r.id)}
+                    >
+                      <span className="material-icons-round">{r.icon}</span>
+                      {r.label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ══ CARD 5: PRIVACY ══ */}
+          <div className="cp-card">
+            <div className="cp-card-head">
+              <div className="cp-card-icon" style={{ background:"rgba(251,191,36,0.1)" }}>
+                <span className="material-icons-round" style={{ color:"var(--yellow)" }}>lock</span>
+              </div>
+              <div>
+                <div className="cp-card-title">Privacy</div>
+                <div className="cp-card-subtitle">Who can see and join your project?</div>
+              </div>
+            </div>
+            <div className="cp-card-body">
+              <div className="cp-privacy-options">
+                <div
+                  className={`cp-privacy-option ${privacy === "public" ? "selected" : ""}`}
+                  onClick={() => setPrivacy("public")}
+                >
+                  <div className="cp-privacy-icon" style={{ background:"rgba(52,211,153,0.1)" }}>
+                    <span className="material-icons-round" style={{ color:"var(--green)" }}>public</span>
+                  </div>
+                  <div>
+                    <div className="cp-privacy-label">Public</div>
+                    <div className="cp-privacy-desc">Anyone on TeamUp can discover and request to join</div>
+                  </div>
+                </div>
+                <div
+                  className={`cp-privacy-option ${privacy === "private" ? "selected" : ""}`}
+                  onClick={() => setPrivacy("private")}
+                >
+                  <div className="cp-privacy-icon" style={{ background:"rgba(251,191,36,0.1)" }}>
+                    <span className="material-icons-round" style={{ color:"var(--yellow)" }}>lock</span>
+                  </div>
+                  <div>
+                    <div className="cp-privacy-label">Private</div>
+                    <div className="cp-privacy-desc">Invite-only — only people you invite can see it</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ══ SUBMIT ROW ══ */}
+          <div className="cp-submit-row">
+            <button className="cp-draft-btn" onClick={() => showToast("Saved as draft!", "info", "save")}>
+              <span className="material-icons-round" style={{ fontSize:"16px" }}>save</span>
+              Save Draft
+            </button>
+            <button className="cp-submit-btn" onClick={handleSubmit} disabled={submitting}>
+              {submitting ? (
+                <span className="cp-submit-loader" />
+              ) : (
+                <>
+                  <span className="material-icons-round">rocket_launch</span>
+                  Create Project
+                </>
+              )}
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      {/* TOASTS */}
+      <div className="cp-toast-container">
+        {toasts.map(t => (
+          <div key={t.id} className={`cp-toast ${t.type}`}>
+            <span className="material-icons-round">{t.icon}</span>
+            {t.msg}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
