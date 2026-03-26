@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ToastContainer, toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
 import './Register.css'
 import axios from 'axios'
 
@@ -12,6 +13,7 @@ const Register = () => {
     const [profilePhoto, setProfilePhoto] = useState(null);
     const [passwordStrength, setPasswordStrength] = useState(0);
     const [errors, setErrors] = useState({});
+    const navigate = useNavigate();
 
     const strengthConfig = [
         { pct: 0,   color: "transparent", text: "Password strength" },
@@ -38,7 +40,8 @@ const Register = () => {
         linkedin: '',
         instagram: '',
         youtube: '',
-        bio: ''
+        bio: '',
+        terms: false
     });
 
     const years = ["School", "1", "2", "3", "4", "PG", "PhD", "Others"];
@@ -101,15 +104,25 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        if (!formData.terms) {
+            toast.warn("Please accept Terms & Conditions");
+            return;
+        }
         try {
             const data = new FormData();
 
             Object.keys(formData).forEach(key => {
-                data.append(key, formData[key]);
+                if (key === "skills" || key === "interests") {
+                    data.append(key, JSON.stringify(formData[key]));
+                } else {
+                    data.append(key, formData[key]);
+                }
             });
 
-            data.append("profilePhoto", profilePhoto);
+            if (profilePhoto) {
+                data.append("profilePhoto", profilePhoto);
+            }
+
 
             const res = await axios.post(
                 "http://localhost:3001/register",
@@ -123,13 +136,14 @@ const Register = () => {
 
             console.log(res.data);
             // alert("Registered successfully!");
-            toast.success("Registered successfully!")
+            toast.success("Registered successfully!");
+            navigate('/login');
             
 
-        } catch (err) {
-            console.error(err);
-            // alert("Registration failed");
-            toast.error("Registration failed");
+        }
+        catch (err) {
+            console.error(err.response?.data || err.message);
+            toast.error(err.response?.data?.message || "Registration failed");
         }
     };
 
@@ -194,7 +208,7 @@ const Register = () => {
     }, [interests]);
   return (
     <main>
-        <ToastContainer position='top-right' autoClose={3000}/>
+        <ToastContainer position='top-right' theme='dark' autoClose={3000}/>
         <div className="bg-grid"></div>
         <div className="orb orb-1"></div>
         <div className="orb orb-2"></div>
@@ -668,7 +682,15 @@ const Register = () => {
                </div>
 
                <label className="checkbox-label">
-                 <input type="checkbox" id="terms" name="terms"/>
+                 <input 
+                    type="checkbox" 
+                    id="terms" 
+                    name="terms" 
+                    checked={formData.terms}
+                    onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        terms: e.target.checked
+                    }))}/>
                  <span className="custom-check">
                    <span className="material-icons-round check-icon">check</span>
                  </span>
@@ -680,7 +702,7 @@ const Register = () => {
                  <button type="button" className="btn-back" onClick={prevStep}>
                    <span className="material-icons-round btn-arrow-back">arrow_back</span> Back
                  </button>
-                 <button type="submit" className="btn-submit" id="submitBtn">
+                 <button type="submit" className="btn-submit" id="submitBtn" disabled={!formData.terms}>
                    <span id="submitText">
                      <span className="material-icons-round" style={{fontSize:'17px',verticalAlign:'-3px',marginRight:'4px'}}>rocket_launch</span>Create Account
                    </span>

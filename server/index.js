@@ -2,9 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const connectDB = require('./db.js');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
 const multer = require("multer");
 const path = require("path");
-const userModel = require('./models/User.js');
+const authRoutes = require('./routes/authRoutes.js');
+
 
 const app = express();
 app.use(express.json());
@@ -23,11 +25,16 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+app.use('/', authRoutes);
+
 app.post('/register', upload.single("profilePhoto"), async (req, res) => {
     try {
         const userData = req.body;
 
-        // file info
+        // hash password
+        const salt = await bcrypt.genSalt(10);
+        userData.password = await bcrypt.hash(userData.password, salt);
+
         if (req.file) {
             userData.profilePhoto = req.file.filename;
         }

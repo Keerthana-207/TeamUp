@@ -399,6 +399,16 @@ label {
   cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
   transition: box-shadow var(--transition), transform var(--transition);
 }
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-submit:disabled:hover {
+  /* background: inherit; */
+  transform: none;
+  box-shadow: none;
+}
 .btn-next:hover, .btn-submit:hover {
   box-shadow: 0 0 32px rgba(99,218,255,0.45); transform: translateY(-1px);
 }

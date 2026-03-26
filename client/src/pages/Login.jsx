@@ -78,7 +78,23 @@ export default function Login() {
     try {
       // ── Swap fakeLogin with your real API call ──────────────
       // await fetch("/api/login", { method:"POST", body: JSON.stringify({email, password}) })
-      await fakeLogin({ email, password, remember });
+      const res = await fetch("http://localhost:3001/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message);
+      }
+
+      // Save token (IMPORTANT)
+      localStorage.setItem("token", data.token);
+
       showToast("Welcome back! Redirecting…", "success", "celebration");
     } catch (err) {
       showToast(err.message || "Login failed. Please try again.", "error", "error");
@@ -87,16 +103,16 @@ export default function Login() {
     }
   }
 
-  // ── Fake async login (replace with real call) ───────────────
-  function fakeLogin(payload) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        Math.random() < 0.9
-          ? resolve({ token: "tok_demo" })
-          : reject(new Error("Invalid credentials. Please try again."));
-      }, 1600);
-    });
-  }
+  // // ── Fake async login (replace with real call) ───────────────
+  // function fakeLogin(payload) {
+  //   return new Promise((resolve, reject) => {
+  //     setTimeout(() => {
+  //       Math.random() < 0.9
+  //         ? resolve({ token: "tok_demo" })
+  //         : reject(new Error("Invalid credentials. Please try again."));
+  //     }, 1600);
+  //   });
+  // }
 
   return (
     <>
