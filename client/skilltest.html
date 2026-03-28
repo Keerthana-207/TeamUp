@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TeamUp — Skill Assessment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+  <style>
+/* ─── RESET & BASE ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #07080f;
+  --surface:    #0e1018;
+  --surface2:   #161924;
+  --surface3:   #1c2130;
+  --border:     rgba(255,255,255,0.07);
+  --border-h:   rgba(99,218,255,0.35);
+  --cyan:       #63daff;
+  --cyan-glow:  rgba(99,218,255,0.18);
+  --violet:     #a78bfa;
+  --green:      #34d399;
+  --red:        #f87171;
+  --yellow:     #fbbf24;
+  --text:       #e8eaf0;
+  --text-muted: #6b7280;
+  --radius:     14px;
+  --radius-sm:  9px;
+  --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── BACKGROUND FX ─────────────────────────────────────── */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(99,218,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,218,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.orb {
+  position: fixed; border-radius: 50%;
+  filter: blur(90px); pointer-events: none; z-index: 0;
+  animation: floatOrb 12s ease-in-out infinite alternate;
+}
+.orb-1 { width: 520px; height: 520px; background: rgba(99,218,255,0.07); top:-180px; left:-160px; }
+.orb-2 { width: 400px; height: 400px; background: rgba(167,139,250,0.07); bottom:-100px; right:-100px; animation-delay:-4s; }
+.orb-3 { width: 280px; height: 280px; background: rgba(52,211,153,0.05); top:50%; left:60%; animation-delay:-8s; }
+
+@keyframes floatOrb {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(30px,40px) scale(1.08); }
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────────── */
+.page-wrapper {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-start;
+  padding: 40px 16px 60px; gap: 20px;
+}
+
+/* ─── HEADER ─────────────────────────────────────────────── */
+.site-header { text-align: center; }
+
+.logo {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem; font-weight: 800; letter-spacing: -0.5px;
+}
+.logo-icon {
+  font-size: 2rem !important;
+  color: var(--cyan);
+  filter: drop-shadow(0 0 8px rgba(99,218,255,0.6));
+}
+.logo-accent { color: var(--cyan); }
+
+.tagline {
+  font-size: 0.78rem; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--text-muted); margin-top: 4px;
+}
+
+/* ─── CARD ───────────────────────────────────────────────── */
+.card {
+  width: 100%; max-width: 680px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 36px 40px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 32px 64px rgba(0,0,0,0.5),
+    0 0 80px rgba(99,218,255,0.04);
+  animation: cardIn 0.5s cubic-bezier(0.4,0,0.2,1) both;
+}
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(28px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.card-wide { max-width: 760px; }
+
+/* ─── SCREEN TITLES ──────────────────────────────────────── */
+.screen-header { margin-bottom: 28px; }
+.screen-header h2 {
+  font-family: 'Syne', sans-serif; font-size: 1.5rem;
+  font-weight: 800; letter-spacing: -0.3px; line-height: 1.2;
+}
+.screen-header p { color: var(--text-muted); font-size: 0.87rem; margin-top: 6px; }
+
+/* ─── PHASE INDICATOR ────────────────────────────────────── */
+.phase-bar {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 28px;
+}
+.phase-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.phase-pill.select { background: rgba(99,218,255,0.1); border: 1px solid rgba(99,218,255,0.25); color: var(--cyan); }
+.phase-pill.quiz   { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); color: var(--violet); }
+.phase-pill.result { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25); color: var(--green); }
+.phase-pill .material-icons-round { font-size: 14px !important; }
+
+/* ─── SKILL GRID ─────────────────────────────────────────── */
+.skill-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 10px;
+  margin-bottom: 28px;
+}
+.skill-tile {
+  cursor: pointer; user-select: none;
+}
+.skill-tile input[type="checkbox"] { display: none; }
+.skill-inner {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; padding: 16px 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); text-align: center;
+  transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+}
+.skill-inner .skill-icon { font-size: 28px !important; color: var(--text-muted); transition: color var(--transition); }
+.skill-inner .skill-name { font-size: 0.82rem; font-weight: 500; color: var(--text-muted); transition: color var(--transition); }
+.skill-tile:hover .skill-inner { border-color: rgba(99,218,255,0.25); }
+.skill-tile input:checked + .skill-inner {
+  border-color: var(--cyan); background: rgba(99,218,255,0.08);
+  box-shadow: 0 0 0 1px rgba(99,218,255,0.2), 0 0 20px rgba(99,218,255,0.1);
+}
+.skill-tile input:checked + .skill-inner .skill-icon { color: var(--cyan); }
+.skill-tile input:checked + .skill-inner .skill-name { color: var(--cyan); }
+
+.selected-count {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.82rem; color: var(--text-muted); margin-bottom: 20px;
+}
+.count-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(99,218,255,0.15); border: 1px solid rgba(99,218,255,0.3);
+  color: var(--cyan); font-size: 0.72rem; font-weight: 700;
+}
+
+/* ─── QUIZ PROGRESS ──────────────────────────────────────── */
+.quiz-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.quiz-skill-label {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem;
+  color: var(--violet);
+}
+.quiz-skill-label .material-icons-round { font-size: 18px !important; }
+.q-counter { font-size: 0.8rem; color: var(--text-muted); }
+.q-counter span { color: var(--text); font-weight: 600; }
+
+.progress-track {
+  height: 5px; background: var(--surface3); border-radius: 3px;
+  margin-bottom: 28px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--cyan), var(--violet));
+  transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ─── QUESTION CARD ──────────────────────────────────────── */
+.question-area { animation: stepIn 0.3s cubic-bezier(0.4,0,0.2,1) both; }
+@keyframes stepIn {
+  from { opacity:0; transform:translateX(20px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+.question-text {
+  font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700;
+  line-height: 1.45; margin-bottom: 20px; color: var(--text);
+}
+.question-num {
+  display: inline-block; padding: 2px 10px;
+  background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.25);
+  border-radius: 12px; font-size: 0.72rem; color: var(--violet);
+  font-family: 'DM Sans', sans-serif; font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.options-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+
+.option-btn {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; width: 100%;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); text-align: left;
+  color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+  cursor: pointer; transition: border-color var(--transition), background var(--transition), color var(--transition);
+}
+.option-btn:hover { border-color: rgba(99,218,255,0.3); color: var(--text); background: rgba(99,218,255,0.04); }
+.option-btn.selected {
+  border-color: var(--cyan); background: rgba(99,218,255,0.1); color: var(--cyan);
+}
+.option-btn.correct {
+  border-color: var(--green); background: rgba(52,211,153,0.1); color: var(--green);
+}
+.option-btn.wrong {
+  border-color: var(--red); background: rgba(248,113,113,0.08); color: var(--red);
+}
+.option-btn.reveal-correct {
+  border-color: var(--green); background: rgba(52,211,153,0.07); color: var(--green);
+}
+.option-btn:disabled { cursor: not-allowed; }
+
+.option-letter {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface3); border: 1px solid var(--border);
+  font-size: 0.73rem; font-weight: 700; font-family: 'Syne', sans-serif;
+  color: var(--text-muted); transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.option-btn.selected .option-letter { background: rgba(99,218,255,0.2); border-color: var(--cyan); color: var(--cyan); }
+.option-btn.correct .option-letter, .option-btn.reveal-correct .option-letter {
+  background: rgba(52,211,153,0.2); border-color: var(--green); color: var(--green);
+}
+.option-btn.wrong .option-letter { background: rgba(248,113,113,0.2); border-color: var(--red); color: var(--red); }
+
+/* ─── FEEDBACK BOX ───────────────────────────────────────── */
+.feedback-box {
+  padding: 12px 16px; border-radius: var(--radius-sm);
+  font-size: 0.84rem; display: flex; align-items: flex-start; gap: 8px;
+  margin-bottom: 20px; animation: feedIn 0.25s ease both;
+}
+@keyframes feedIn { from {opacity:0;transform:translateY(-6px);} to {opacity:1;transform:translateY(0);} }
+.feedback-box .material-icons-round { font-size: 18px !important; flex-shrink: 0; margin-top: 1px; }
+.feedback-box.correct-fb { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.2); color: var(--green); }
+.feedback-box.wrong-fb   { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); color: var(--red); }
+
+/* ─── SKILL TABS ─────────────────────────────────────────── */
+.skill-tabs {
+  display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.skill-tab {
+  padding: 6px 14px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 20px; font-size: 0.8rem; color: var(--text-muted);
+  cursor: pointer; font-family: 'DM Sans', sans-serif; transition: var(--transition);
+}
+.skill-tab.active-tab { border-color: var(--violet); color: var(--violet); background: rgba(167,139,250,0.1); }
+.skill-tab.done-tab   { border-color: rgba(52,211,153,0.3); color: var(--green); background: rgba(52,211,153,0.07); }
+
+/* ─── BUTTONS ────────────────────────────────────────────── */
+.btn-row {
+  display: flex; justify-content: space-between; align-items: center; margin-top: 8px;
+}
+.btn-primary {
+  padding: 11px 26px; background: var(--cyan); color: #07080f;
+  border: none; border-radius: 24px;
+  font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+.btn-primary:hover { box-shadow: 0 0 32px rgba(99,218,255,0.45); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(1px); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-violet {
+  padding: 11px 26px; background: var(--violet); color: #07080f;
+  border: none; border-radius: 24px;
+  font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+.btn-violet:hover { box-shadow: 0 0 32px rgba(167,139,250,0.4); transform: translateY(-1px); }
+.btn-violet:disabled { opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none; }
+
+.btn-ghost {
+  padding: 10px 20px; background: transparent;
+  border: 1px solid var(--border); border-radius: 24px;
+  color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+  transition: border-color var(--transition), color var(--transition);
+}
+.btn-ghost:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+
+.btn-arrow { font-size: 18px !important; }
+
+/* ─── RESULTS ────────────────────────────────────────────── */
+.results-grid { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+
+.result-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+  animation: cardIn 0.4s cubic-bezier(0.4,0,0.2,1) both;
+}
+.result-card-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+}
+.result-skill-name {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+}
+.result-skill-name .material-icons-round { font-size: 20px !important; color: var(--text-muted); }
+.result-score-badge {
+  padding: 4px 14px; border-radius: 20px; font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 0.9rem;
+}
+.badge-expert    { background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3); color: var(--green); }
+.badge-proficient{ background: rgba(99,218,255,0.15); border: 1px solid rgba(99,218,255,0.3); color: var(--cyan); }
+.badge-familiar  { background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.3); color: var(--yellow); }
+.badge-beginner  { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
+
+.score-bar-track {
+  height: 6px; background: var(--surface3); border-radius: 3px; margin-bottom: 10px; overflow: hidden;
+}
+.score-bar-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+}
+.fill-expert     { background: linear-gradient(90deg, var(--green), #6ee7b7); }
+.fill-proficient { background: linear-gradient(90deg, var(--cyan), #93e5ff); }
+.fill-familiar   { background: linear-gradient(90deg, var(--yellow), #fde68a); }
+.fill-beginner   { background: linear-gradient(90deg, var(--red), #fca5a5); }
+
+.result-detail {
+  font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;
+}
+.result-detail strong { color: var(--text); }
+
+.improvement-list {
+  list-style: none; display: flex; flex-direction: column; gap: 4px; margin-top: 6px;
+}
+.improvement-list li {
+  display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--text-muted);
+}
+.improvement-list li .material-icons-round { font-size: 14px !important; color: var(--yellow); }
+
+/* ─── OVERALL SUMMARY ────────────────────────────────────── */
+.overall-summary {
+  background: var(--surface2); border: 1px solid rgba(99,218,255,0.15);
+  border-radius: var(--radius); padding: 22px 24px; margin-bottom: 24px;
+  text-align: center;
+}
+.overall-score-ring {
+  width: 96px; height: 96px; border-radius: 50%;
+  border: 4px solid var(--surface3); position: relative;
+  margin: 0 auto 14px; display: flex; align-items: center; justify-content: center;
+  background: conic-gradient(var(--cyan) 0%, transparent 0%);
+}
+.overall-score-text {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--cyan);
+  position: relative; z-index: 1;
+}
+.overall-verdict {
+  font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;
+}
+.overall-verdict-sub { font-size: 0.84rem; color: var(--text-muted); }
+
+/* ─── SCREENS ────────────────────────────────────────────── */
+.screen { display: none; }
+.screen.active { display: block; animation: stepIn 0.35s cubic-bezier(0.4,0,0.2,1) both; }
+
+/* ─── TOAST ──────────────────────────────────────────────── */
+.toast-container {
+  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  padding: 11px 16px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 0.84rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  animation: toastIn 0.3s ease both; max-width: 300px;
+  display: flex; align-items: center; gap: 8px;
+}
+.toast .material-icons-round { font-size: 18px !important; flex-shrink: 0; }
+.toast.success { border-color: rgba(52,211,153,0.3); color: var(--green); }
+.toast.error   { border-color: rgba(248,113,113,0.3); color: var(--red); }
+.toast.info    { border-color: rgba(99,218,255,0.3);  color: var(--cyan); }
+@keyframes toastIn  { from {opacity:0;transform:translateX(16px);} to {opacity:1;transform:translateX(0);} }
+@keyframes toastOut { from {opacity:1;transform:translateX(0);}    to {opacity:0;transform:translateX(16px);} }
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .card { padding: 24px 18px; }
+  .skill-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+}
+
+/* ─── DIVIDER ─────────────────────────────────────────────── */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="page-wrapper">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="logo">
+      <span class="material-icons-round logo-icon">bolt</span>
+      <span>Team<span class="logo-accent">Up</span></span>
+    </div>
+    <p class="tagline">Skill Assessment Engine</p>
+  </header>
+
+  <!-- ══ SCREEN 1: SELECT SKILLS ══ -->
+  <div class="card screen active" id="screen-select">
+    <div class="phase-bar">
+      <div class="phase-pill select">
+        <span class="material-icons-round">tune</span> Step 1
+      </div>
+      <span style="font-size:0.8rem; color:var(--text-muted);">Choose your skills to test</span>
+    </div>
+    <div class="screen-header">
+      <h2>What are your skills?</h2>
+      <p>Select one or more skills. A 10-question quiz will be generated for each one.</p>
+    </div>
+
+    <div class="skill-grid" id="skillGrid"></div>
+
+    <div class="selected-count">
+      <div class="count-badge" id="selCount">0</div>
+      <span id="selLabel">skills selected</span>
+    </div>
+
+    <div class="btn-row" style="justify-content:flex-end;">
+      <button class="btn-primary" id="startBtn" disabled onclick="startQuiz()">
+        Start Assessment
+        <span class="material-icons-round btn-arrow">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 2: QUIZ ══ -->
+  <div class="card card-wide screen" id="screen-quiz">
+    <div class="phase-bar">
+      <div class="phase-pill quiz">
+        <span class="material-icons-round">quiz</span> Assessment
+      </div>
+    </div>
+
+    <!-- Skill tabs -->
+    <div class="skill-tabs" id="skillTabs"></div>
+
+    <div class="quiz-meta">
+      <div class="quiz-skill-label" id="currentSkillLabel">
+        <span class="material-icons-round" id="currentSkillIcon">code</span>
+        <span id="currentSkillName">Skill</span>
+      </div>
+      <div class="q-counter">Question <span id="qCurrent">1</span> of <span id="qTotal">10</span></div>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:10%"></div>
+    </div>
+
+    <div class="question-area" id="questionArea">
+      <div class="question-num" id="questionNum">Q1</div>
+      <div class="question-text" id="questionText">Loading question…</div>
+      <div class="options-list" id="optionsList"></div>
+      <div id="feedbackBox" style="display:none"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-ghost" onclick="skipQuestion()">
+        <span class="material-icons-round btn-arrow" style="font-size:16px!important">skip_next</span>
+        Skip
+      </button>
+      <button class="btn-violet" id="nextBtn" onclick="nextQuestion()" disabled>
+        Next
+        <span class="material-icons-round btn-arrow">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 3: RESULTS ══ -->
+  <div class="card card-wide screen" id="screen-results">
+    <div class="phase-bar">
+      <div class="phase-pill result">
+        <span class="material-icons-round">emoji_events</span> Results
+      </div>
+    </div>
+    <div class="screen-header">
+      <h2>Your Assessment Report</h2>
+      <p>Here's a detailed breakdown of your performance across all skills.</p>
+    </div>
+
+    <!-- Overall -->
+    <div class="overall-summary" id="overallSummary"></div>
+
+    <div class="divider"></div>
+
+    <!-- Per-skill results -->
+    <div class="results-grid" id="resultsGrid"></div>
+
+    <div class="btn-row" style="justify-content:center; gap:12px; flex-wrap:wrap;">
+      <button class="btn-ghost" onclick="retakeAll()">
+        <span class="material-icons-round btn-arrow" style="font-size:16px!important">refresh</span>
+        Retake Assessment
+      </button>
+      <button class="btn-primary" onclick="goHome()">
+        <span class="material-icons-round btn-arrow" style="font-size:16px!important">home</span>
+        Back to Home
+      </button>
+    </div>
+  </div>
+
+</div><!-- end page-wrapper -->
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   DATA — SKILLS + QUESTION BANKS
+══════════════════════════════════════════════════════════ */
+const SKILLS = [
+  { id:'js',      name:'JavaScript',    icon:'code',               color:'var(--yellow)' },
+  { id:'python',  name:'Python',        icon:'terminal',           color:'var(--cyan)' },
+  { id:'react',   name:'React',         icon:'widgets',            color:'#61DAFB' },
+  { id:'css',     name:'CSS',           icon:'palette',            color:'var(--violet)' },
+  { id:'sql',     name:'SQL',           icon:'storage',            color:'var(--green)' },
+  { id:'git',     name:'Git',           icon:'merge_type',         color:'var(--red)' },
+  { id:'node',    name:'Node.js',       icon:'hub',                color:'#68A063' },
+  { id:'ds',      name:'Data Structures',icon:'account_tree',     color:'var(--cyan)' },
+  { id:'ml',      name:'Machine Learning',icon:'psychology',      color:'var(--violet)' },
+  { id:'system',  name:'System Design', icon:'architecture',      color:'var(--yellow)' },
+  { id:'docker',  name:'Docker',        icon:'cloud',              color:'#2496ED' },
+  { id:'ts',      name:'TypeScript',    icon:'data_object',        color:'#3178C6' },
+];
+
+/* Each skill has 20+ questions; we randomly pick 10 per session */
+const QUESTION_BANK = {
+  js: [
+    { q:'What does `typeof null` return in JavaScript?', opts:['null','object','undefined','boolean'], ans:1,
+      explain:'This is a known JavaScript quirk — typeof null returns "object" due to a legacy bug.' },
+    { q:'Which method creates a shallow copy of an array?', opts:['Array.clone()','arr.slice()','arr.copy()','arr.duplicate()'], ans:1,
+      explain:'arr.slice() without arguments returns a shallow copy of the array.' },
+    { q:'What is the output of `0.1 + 0.2 === 0.3` in JavaScript?', opts:['true','false','NaN','undefined'], ans:1,
+      explain:'Floating-point precision issues cause 0.1 + 0.2 to equal 0.30000000000000004, not 0.3.' },
+    { q:'What does the `===` operator check?', opts:['Value only','Type only','Value and type','Reference equality'], ans:2,
+      explain:'=== is strict equality, checking both value and type without coercion.' },
+    { q:'Which keyword declares a block-scoped variable?', opts:['var','let','function','global'], ans:1,
+      explain:'let is block-scoped; var is function-scoped.' },
+    { q:'What does `Array.isArray([])` return?', opts:['false','true','null','undefined'], ans:1,
+      explain:'Array.isArray() returns true for arrays and false for everything else.' },
+    { q:'Which of these is NOT a JavaScript data type?', opts:['Symbol','BigInt','Float','String'], ans:2,
+      explain:'Float is not a distinct JS type; numbers are all Number (or BigInt).' },
+    { q:'What does `Promise.all()` do when one promise rejects?', opts:['Ignores it','Waits for all','Rejects immediately','Returns undefined'], ans:2,
+      explain:'Promise.all() rejects immediately when any one promise in the array rejects.' },
+    { q:'What is a closure in JavaScript?', opts:['A loop construct','A function with access to its outer scope','An error handler','An async function'], ans:1,
+      explain:'A closure is a function that retains access to variables from its enclosing scope.' },
+    { q:'Which method stops event propagation?', opts:['event.stop()','event.preventDefault()','event.stopPropagation()','event.cancel()'], ans:2,
+      explain:'stopPropagation() prevents the event from bubbling up the DOM tree.' },
+    { q:'What is the result of `"5" - 3` in JavaScript?', opts:['"53"','Error','2','NaN'], ans:2,
+      explain:'The minus operator triggers numeric coercion, so "5" becomes 5, giving 2.' },
+    { q:'What does the `spread` operator (`...`) do?', opts:['Deletes elements','Expands iterable into individual elements','Creates a Promise','Binds `this`'], ans:1,
+      explain:'Spread expands an iterable (array, string, etc.) into its individual elements.' },
+    { q:'Which built-in method removes the last element of an array?', opts:['shift()','pop()','splice()','delete()'], ans:1,
+      explain:'pop() removes and returns the last element of an array.' },
+    { q:'What is `NaN === NaN` in JavaScript?', opts:['true','false','undefined','TypeError'], ans:1,
+      explain:'NaN is the only value that is not equal to itself. Use Number.isNaN() to check.' },
+    { q:'What does `localStorage.setItem()` do?', opts:['Reads a value','Deletes a key','Stores a key-value pair persistently','Sends data to a server'], ans:2,
+      explain:'setItem() stores a string value at a given key in the browser\'s localStorage.' },
+    { q:'What is the purpose of `async/await`?', opts:['To create classes','To write synchronous-style code for async operations','To define prototypes','To handle CSS'], ans:1,
+      explain:'async/await is syntactic sugar over Promises for cleaner asynchronous code.' },
+    { q:'Which method is used to parse a JSON string?', opts:['JSON.stringify()','JSON.parse()','JSON.decode()','JSON.read()'], ans:1,
+      explain:'JSON.parse() converts a JSON string into a JavaScript object.' },
+    { q:'What does `Array.prototype.map()` return?', opts:['The original array','undefined','A new transformed array','A boolean'], ans:2,
+      explain:'map() returns a new array with results of calling the callback on each element.' },
+    { q:'What is the event loop responsible for?', opts:['Rendering HTML','Handling asynchronous callbacks','Parsing CSS','Managing memory'], ans:1,
+      explain:'The event loop processes the callback queue after the call stack is empty.' },
+    { q:'Which symbol is used for template literals?', opts:['Single quotes','Double quotes','Backticks','Forward slashes'], ans:2,
+      explain:'Template literals use backticks (`) and support embedded expressions via ${}.' },
+  ],
+
+  python: [
+    { q:'Which of these is a valid Python list?', opts:['(1,2,3)','[1,2,3]','{1,2,3}','<1,2,3>'], ans:1,
+      explain:'Square brackets define a list in Python. () is a tuple, {} is a set/dict.' },
+    { q:'What does `len("hello")` return?', opts:['4','5','6','Error'], ans:1,
+      explain:'len() returns the number of characters in the string, which is 5 for "hello".' },
+    { q:'How do you start a comment in Python?', opts:['//','/* */','#','--'], ans:2,
+      explain:'Python uses # for single-line comments.' },
+    { q:'Which keyword defines a function in Python?', opts:['function','func','def','fn'], ans:2,
+      explain:'def is used to define functions in Python.' },
+    { q:'What is the output of `type(3.14)`?', opts:["<class 'int'>","<class 'float'>","<class 'double'>","<class 'number'>"], ans:1,
+      explain:'3.14 is a float, so type() returns <class "float">.' },
+    { q:'What does `range(5)` produce?', opts:['[1,2,3,4,5]','[0,1,2,3,4]','(0,1,2,3,4)','A generator of 5 items starting from 0'], ans:3,
+      explain:'range(5) generates numbers 0–4 as a lazy sequence object.' },
+    { q:'Which method removes whitespace from both ends of a string?', opts:['clean()','strip()','trim()','remove()'], ans:1,
+      explain:'strip() removes leading and trailing whitespace from a string.' },
+    { q:'What is a Python dictionary?', opts:['An ordered list','A key-value pair collection','A tuple','A function'], ans:1,
+      explain:'A dictionary is an unordered (insertion-ordered in Python 3.7+) collection of key-value pairs.' },
+    { q:'What does `__init__` do in a class?', opts:['Deletes an object','Initializes a new object','Defines a method','Imports a module'], ans:1,
+      explain:'__init__ is the constructor method called when a new instance is created.' },
+    { q:'Which statement is used to handle exceptions?', opts:['catch','rescue','try/except','handle'], ans:2,
+      explain:'Python uses try/except for exception handling.' },
+    { q:'What does `list.append(x)` do?', opts:['Inserts x at position 0','Removes x from the list','Adds x to the end','Returns x'], ans:2,
+      explain:'append() adds the element to the end of the list in place.' },
+    { q:'What is a generator in Python?', opts:['A function returning a list','A function that yields values lazily','A class decorator','A file reader'], ans:1,
+      explain:'Generators use yield to produce values lazily, one at a time.' },
+    { q:'What is the output of `bool(0)`?', opts:['True','False','None','Error'], ans:1,
+      explain:'In Python, 0 is falsy, so bool(0) returns False.' },
+    { q:'Which keyword is used for a loop over a sequence?', opts:['loop','while','foreach','for'], ans:3,
+      explain:'"for" iterates over sequences, ranges, and iterables.' },
+    { q:'What does `*args` allow in a function?', opts:['Named keyword args','Variable number of positional args','Type hints','Default values'], ans:1,
+      explain:'*args collects extra positional arguments into a tuple.' },
+    { q:'How do you open a file in Python?', opts:['open()','file()','read()','load()'], ans:0,
+      explain:'The built-in open() function opens a file and returns a file object.' },
+    { q:'What does `enumerate()` do?', opts:['Sorts a list','Adds index-value pairs to iteration','Converts to set','Counts items'], ans:1,
+      explain:'enumerate() adds a counter to an iterable, yielding (index, value) tuples.' },
+    { q:'What is a lambda function?', opts:['A named function','An anonymous one-line function','A class method','A module'], ans:1,
+      explain:'lambda creates an anonymous function with a single expression.' },
+    { q:'What is pip?', opts:['A Python interpreter','A package manager for Python','A testing framework','A code formatter'], ans:1,
+      explain:'pip is the standard package installer for Python.' },
+    { q:'What does `is` operator check?', opts:['Value equality','Type equality','Identity (same object)','Length'], ans:2,
+      explain:'"is" checks if two variables refer to the exact same object in memory.' },
+  ],
+
+  react: [
+    { q:'What is JSX?', opts:['A CSS framework','A JavaScript syntax extension for writing HTML-like code','A database query language','A build tool'], ans:1,
+      explain:'JSX is syntactic sugar that lets you write HTML-like markup inside JavaScript.' },
+    { q:'Which hook manages local component state?', opts:['useEffect','useContext','useState','useRef'], ans:2,
+      explain:'useState returns a state variable and a setter function for local component state.' },
+    { q:'What does `useEffect` with an empty dependency array `[]` do?', opts:['Runs on every render','Runs only on unmount','Runs once after initial mount','Never runs'], ans:2,
+      explain:'Empty [] means the effect runs once after the first render, like componentDidMount.' },
+    { q:'How do you pass data from parent to child in React?', opts:['State','Props','Context only','Redux only'], ans:1,
+      explain:'Props are the primary mechanism for passing data down the component tree.' },
+    { q:'What is the virtual DOM?', opts:['A real browser DOM','A lightweight JS representation of the DOM','A CSS engine','A server-side render'], ans:1,
+      explain:'React maintains a virtual DOM to efficiently diff and batch DOM updates.' },
+    { q:'Which method updates component state?', opts:['this.state = {}','setState() or the setter from useState','forceUpdate()','render()'], ans:1,
+      explain:'In class components use setState(); in functional components use the useState setter.' },
+    { q:'What is the purpose of `key` in a list render?', opts:['Styling','Animation','Helping React identify changed items','SEO'], ans:2,
+      explain:'Keys help React efficiently determine which list items changed, were added, or removed.' },
+    { q:'What does `React.memo` do?', opts:['Memoizes state','Prevents re-render if props are unchanged','Caches API calls','Replaces useEffect'], ans:1,
+      explain:'React.memo is a HOC that skips re-rendering if the props haven\'t changed.' },
+    { q:'What is Context used for?', opts:['Styling','Routing','Sharing state across many components without prop drilling','Animation'], ans:2,
+      explain:'Context provides a way to pass data through the component tree without prop drilling.' },
+    { q:'What does `useRef` return?', opts:['A state value','A mutable ref object with a .current property','A promise','A callback'], ans:1,
+      explain:'useRef returns a mutable object whose .current property persists across renders.' },
+    { q:'What triggers a re-render in a functional component?', opts:['Only state changes','State or prop changes','Only prop changes','Manual calls only'], ans:1,
+      explain:'A functional component re-renders when its state or props change.' },
+    { q:'What is a controlled component?', opts:['A component managed by Redux','A form element whose value is controlled by React state','A lazy-loaded component','A class component'], ans:1,
+      explain:'Controlled components have their form input values managed by React state.' },
+    { q:'What does `useMemo` do?', opts:['Creates a ref','Memoizes the result of an expensive computation','Fetches data','Replaces useState'], ans:1,
+      explain:'useMemo caches a computed value, recalculating only when dependencies change.' },
+    { q:'What is a Higher-Order Component (HOC)?', opts:['A component with more than 100 lines','A function that takes a component and returns a new component','A Redux pattern','A CSS-in-JS method'], ans:1,
+      explain:'An HOC is a function that takes a component and returns an enhanced component.' },
+    { q:'How do you handle side effects in functional components?', opts:['render()','componentDidMount()','useEffect()','useState()'], ans:2,
+      explain:'useEffect handles side effects like data fetching, subscriptions, and DOM manipulation.' },
+    { q:'What does `ReactDOM.render()` do?', opts:['Creates a component','Mounts a React element into a DOM node','Fetches data','Deletes elements'], ans:1,
+      explain:'ReactDOM.render() mounts the root React component into a specified DOM container.' },
+    { q:'Which lifecycle method is called before a component unmounts?', opts:['componentDidMount','componentDidUpdate','componentWillUnmount','render'], ans:2,
+      explain:'componentWillUnmount (or useEffect cleanup) is called just before unmounting.' },
+    { q:'What is the purpose of `useCallback`?', opts:['Cache computed values','Memoize a function reference','Manage state','Create refs'], ans:1,
+      explain:'useCallback memoizes a function so it\'s not recreated on every render.' },
+    { q:'What does lifting state up mean?', opts:['Using Redux','Moving state to a common ancestor component','Using server state','Using context'], ans:1,
+      explain:'Lifting state up means moving shared state to the nearest common ancestor.' },
+    { q:'What is React Fragments used for?', opts:['CSS styling','Grouping children without adding extra DOM nodes','Code splitting','API calls'], ans:1,
+      explain:'Fragments let you group a list of children without adding extra nodes to the DOM.' },
+  ],
+
+  css: [
+    { q:'What does CSS stand for?', opts:['Colorful Style Sheets','Cascading Style Sheets','Computer Style Sheets','Creative Styling System'], ans:1,
+      explain:'CSS stands for Cascading Style Sheets.' },
+    { q:'Which property controls the space between elements outside their border?', opts:['padding','margin','border-spacing','spacing'], ans:1,
+      explain:'Margin controls the space outside an element\'s border.' },
+    { q:'What does `display: flex` do?', opts:['Hides the element','Creates a block-level flex container','Creates an inline element','Removes margin'], ans:1,
+      explain:'display: flex creates a flex container, enabling flexbox layout for its children.' },
+    { q:'Which CSS unit is relative to the root element\'s font size?', opts:['em','px','rem','vh'], ans:2,
+      explain:'rem (root em) is relative to the <html> element\'s font size.' },
+    { q:'What does `position: absolute` do?', opts:['Stays in normal flow','Positions relative to viewport','Positions relative to nearest positioned ancestor','Removes element from page'], ans:2,
+      explain:'Absolute positioning removes the element from normal flow and positions it relative to its nearest positioned ancestor.' },
+    { q:'Which property adds shadow to text?', opts:['box-shadow','text-shadow','shadow','drop-shadow'], ans:1,
+      explain:'text-shadow adds shadow effects directly to text.' },
+    { q:'What does `z-index` control?', opts:['Zoom level','Stacking order of elements','Zero-indexed arrays','Zoom in CSS'], ans:1,
+      explain:'z-index controls the stacking order of positioned elements on the z-axis.' },
+    { q:'What is the box model composed of?', opts:['Content, border, outline','Content, padding, border, margin','Margin, font, border','None of these'], ans:1,
+      explain:'The CSS box model consists of content, padding, border, and margin.' },
+    { q:'Which value of `display` makes an element take up the full width?', opts:['inline','flex','block','grid'], ans:2,
+      explain:'block-level elements take up the full available width by default.' },
+    { q:'What does `opacity: 0` do?', opts:['Deletes the element','Makes it invisible but still takes up space','Removes it from layout','Sets white background'], ans:1,
+      explain:'opacity: 0 makes an element fully transparent but it still occupies space in the layout.' },
+    { q:'Which CSS property controls how overflowing content is handled?', opts:['clip','overflow','hidden','display'], ans:1,
+      explain:'overflow controls whether content that exceeds the box dimensions is clipped, scrolled, or visible.' },
+    { q:'What does `align-items: center` do in flexbox?', opts:['Centers items horizontally','Centers items along the cross axis','Centers text','Centers the container'], ans:1,
+      explain:'align-items controls alignment along the cross axis (vertical in a row flex container).' },
+    { q:'Which selector has the highest specificity?', opts:['Element','Class','ID','Universal (*)'], ans:2,
+      explain:'ID selectors (#id) have higher specificity than class or element selectors.' },
+    { q:'What does `transition` do?', opts:['Creates animations that loop','Smoothly animates property changes over time','Changes DOM structure','Loads fonts'], ans:1,
+      explain:'transition allows CSS property changes to animate smoothly over a specified duration.' },
+    { q:'What does `grid-template-columns: repeat(3, 1fr)` create?', opts:['3 rows','3 equal-width columns','3 cells','A 3x3 grid'], ans:1,
+      explain:'This creates 3 columns each taking an equal fraction of available space.' },
+    { q:'What is a CSS pseudo-class?', opts:['A fake class','A keyword for special element states like :hover','An SCSS feature','A font class'], ans:1,
+      explain:'Pseudo-classes like :hover, :focus, :nth-child target elements in specific states.' },
+    { q:'What does `box-sizing: border-box` do?', opts:['Removes borders','Includes padding and border in element\'s total width/height','Makes element a square','Adds a box shadow'], ans:1,
+      explain:'border-box makes padding and border included in the element\'s specified width/height.' },
+    { q:'Which property makes content scroll within a container?', opts:['overflow: scroll','position: fixed','float: left','clip: rect'], ans:0,
+      explain:'overflow: scroll (or auto) enables scrolling for overflowing content.' },
+    { q:'What does `@media` query do?', opts:['Imports media files','Applies styles based on device characteristics','Animates elements','Loads fonts'], ans:1,
+      explain:'Media queries apply CSS rules conditionally based on screen size, resolution, etc.' },
+    { q:'Which value centers a block element horizontally?', opts:['text-align: center','margin: auto','padding: auto','align: center'], ans:1,
+      explain:'margin: auto on a block element with a set width centers it horizontally.' },
+  ],
+
+  sql: [
+    { q:'What does SQL stand for?', opts:['Structured Query Language','Simple Query Logic','Standard Query List','Sequential Query Language'], ans:0,
+      explain:'SQL stands for Structured Query Language.' },
+    { q:'Which clause filters rows in a SELECT statement?', opts:['GROUP BY','HAVING','WHERE','ORDER BY'], ans:2,
+      explain:'WHERE filters rows before grouping; HAVING filters after grouping.' },
+    { q:'What does `SELECT *` do?', opts:['Deletes all rows','Selects all columns','Creates a table','Counts rows'], ans:1,
+      explain:'SELECT * retrieves all columns from the specified table.' },
+    { q:'Which JOIN returns only matching rows from both tables?', opts:['LEFT JOIN','RIGHT JOIN','FULL JOIN','INNER JOIN'], ans:3,
+      explain:'INNER JOIN returns only the rows where there is a match in both tables.' },
+    { q:'What does `GROUP BY` do?', opts:['Sorts results','Groups rows with same values for aggregation','Filters rows','Joins tables'], ans:1,
+      explain:'GROUP BY groups rows that have the same values, typically used with aggregate functions.' },
+    { q:'Which aggregate function counts non-null values?', opts:['SUM()','AVG()','COUNT()','MAX()'], ans:2,
+      explain:'COUNT() counts the number of non-null values in a column or all rows with COUNT(*).' },
+    { q:'What does `DISTINCT` do in a query?', opts:['Returns the first row','Returns unique values only','Sorts results','Limits rows'], ans:1,
+      explain:'DISTINCT eliminates duplicate rows from the result set.' },
+    { q:'Which statement adds a new row to a table?', opts:['UPDATE','INSERT INTO','CREATE','ALTER'], ans:1,
+      explain:'INSERT INTO adds new rows to a table.' },
+    { q:'What does `ORDER BY DESC` do?', opts:['Ascending sort','Descending sort','Groups data','Filters nulls'], ans:1,
+      explain:'ORDER BY DESC sorts results in descending order (highest to lowest).' },
+    { q:'What is a PRIMARY KEY?', opts:['Any indexed column','A column that uniquely identifies each row','A foreign reference','An auto-increment column only'], ans:1,
+      explain:'A PRIMARY KEY uniquely identifies each record in a table and cannot be null.' },
+    { q:'What does `HAVING` filter?', opts:['Individual rows','Groups after GROUP BY','Null values','Column names'], ans:1,
+      explain:'HAVING filters the results of GROUP BY aggregations.' },
+    { q:'What does a LEFT JOIN return?', opts:['Only matching rows','All rows from left + matches from right','All rows from both','Only right rows'], ans:1,
+      explain:'LEFT JOIN returns all rows from the left table and matched rows from the right (NULL if no match).' },
+    { q:'What is a FOREIGN KEY?', opts:['A primary key of another table referenced in this table','A unique column','An encrypted key','An indexed column'], ans:0,
+      explain:'A FOREIGN KEY references the PRIMARY KEY of another table to enforce referential integrity.' },
+    { q:'Which function returns the current date in SQL?', opts:['NOW()','DATE()','GETDATE()','CURDATE() / CURRENT_DATE'], ans:3,
+      explain:'CURDATE() (MySQL) or CURRENT_DATE returns today\'s date; GETDATE() is SQL Server.' },
+    { q:'What does `LIMIT 10` do?', opts:['Skips 10 rows','Returns only the first 10 rows','Counts 10 rows','Deletes 10 rows'], ans:1,
+      explain:'LIMIT restricts the number of rows returned by the query.' },
+    { q:'What does `UPDATE` do?', opts:['Adds new rows','Deletes rows','Modifies existing rows','Creates a table'], ans:2,
+      explain:'UPDATE modifies existing records in a table, typically combined with WHERE.' },
+    { q:'What is an INDEX used for in SQL?', opts:['Data encryption','Speeding up query lookups','Adding constraints','Joining tables'], ans:1,
+      explain:'Indexes speed up data retrieval at the cost of additional storage and write overhead.' },
+    { q:'Which keyword removes duplicates when combining two queries?', opts:['JOIN','UNION','INTERSECT','MINUS'], ans:1,
+      explain:'UNION combines result sets from two SELECT statements, removing duplicates by default.' },
+    { q:'What does NULL represent in SQL?', opts:['Zero','An empty string','An unknown or missing value','False'], ans:2,
+      explain:'NULL represents the absence of a value or an unknown value.' },
+    { q:'Which clause is used to give a column or table an alias?', opts:['RENAME','AS','ALIAS','LABEL'], ans:1,
+      explain:'AS gives a column or table a temporary alias in the query result.' },
+  ],
+
+  git: [
+    { q:'What does `git init` do?', opts:['Clones a repo','Creates a new local git repository','Stages all files','Pushes to remote'], ans:1,
+      explain:'git init initializes a new empty Git repository in the current directory.' },
+    { q:'What does `git status` show?', opts:['Commit history','Working tree status and staged changes','Remote branches','Stashed changes'], ans:1,
+      explain:'git status shows modified, staged, and untracked files in the working directory.' },
+    { q:'What does `git add .` do?', opts:['Commits all files','Stages all modified/new files','Pushes to origin','Creates a branch'], ans:1,
+      explain:'git add . stages all changes in the current directory for the next commit.' },
+    { q:'What does `git commit -m "msg"` do?', opts:['Pushes changes','Saves staged changes as a commit with a message','Merges branches','Tags a release'], ans:1,
+      explain:'git commit creates a snapshot of staged changes with the given message.' },
+    { q:'What does `git pull` do?', opts:['Pushes local commits','Fetches and merges remote changes','Creates a branch','Deletes a branch'], ans:1,
+      explain:'git pull fetches changes from the remote and merges them into the current branch.' },
+    { q:'What is a branch in Git?', opts:['A backup','A pointer to a specific commit, allowing parallel work','A remote repository','A merge conflict'], ans:1,
+      explain:'A branch is a lightweight movable pointer to a commit, enabling parallel workflows.' },
+    { q:'What does `git merge` do?', opts:['Deletes a branch','Integrates changes from one branch into another','Creates a tag','Resets commits'], ans:1,
+      explain:'git merge combines the history of two branches together.' },
+    { q:'What is a merge conflict?', opts:['A deleted file','A permission error','A situation where two branches have conflicting changes','A network error'], ans:2,
+      explain:'A merge conflict occurs when two branches modify the same part of a file differently.' },
+    { q:'What does `git stash` do?', opts:['Commits all changes','Temporarily shelves uncommitted changes','Deletes untracked files','Resets HEAD'], ans:1,
+      explain:'git stash saves your uncommitted changes temporarily so you can switch contexts.' },
+    { q:'What is `origin` in Git?', opts:['Your local branch','The default name for the remote repository','A commit hash','A tag'], ans:1,
+      explain:'origin is the conventional name given to the remote repository you cloned from.' },
+    { q:'What does `git rebase` do?', opts:['Merges branches','Moves or combines commits onto a new base commit','Resets history','Tags a commit'], ans:1,
+      explain:'git rebase replays commits on top of another branch, creating a linear history.' },
+    { q:'What is `HEAD` in Git?', opts:['The latest remote commit','A pointer to the current checked-out commit/branch','A deleted commit','A merge marker'], ans:1,
+      explain:'HEAD points to the currently checked-out commit or branch tip.' },
+    { q:'What does `git clone` do?', opts:['Creates a new repo','Copies a remote repository to your local machine','Merges branches','Pushes changes'], ans:1,
+      explain:'git clone creates a local copy of a remote repository including its full history.' },
+    { q:'What does `git log` show?', opts:['Current status','Stashed changes','Commit history','Branch list'], ans:2,
+      explain:'git log displays the commit history of the current branch.' },
+    { q:'What is `.gitignore` used for?', opts:['Staging files','Deleting branches','Specifying files Git should ignore','Configuring remotes'], ans:2,
+      explain:'.gitignore lists files and patterns that Git should not track.' },
+    { q:'What does `git reset --hard` do?', opts:['Resets staging area only','Discards all changes and resets to a previous commit','Stashes changes','Merges branches'], ans:1,
+      explain:'git reset --hard discards all uncommitted changes and resets to the specified commit.' },
+    { q:'What is a `tag` in Git?', opts:['A branch alias','A marked reference to a specific commit, often for releases','A remote name','A file label'], ans:1,
+      explain:'Tags mark specific commits, commonly used to mark release versions like v1.0.' },
+    { q:'Which command shows the differences between working directory and staged?', opts:['git log','git diff','git status','git show'], ans:1,
+      explain:'git diff shows unstaged changes; git diff --staged shows staged vs last commit.' },
+    { q:'What does `git fetch` do?', opts:['Merges remote changes','Downloads remote changes without merging','Creates a branch','Pushes changes'], ans:1,
+      explain:'git fetch retrieves remote changes but does not merge them into your working branch.' },
+    { q:'What does `git cherry-pick` do?', opts:['Selects a random commit','Applies a specific commit to the current branch','Deletes commits','Compares branches'], ans:1,
+      explain:'git cherry-pick applies the changes from a specific commit onto the current branch.' },
+  ],
+
+  node: [
+    { q:'What is Node.js?', opts:['A browser plugin','A JavaScript runtime built on Chrome\'s V8 engine','A database','A CSS framework'], ans:1,
+      explain:'Node.js is a server-side JavaScript runtime environment built on Chrome\'s V8 engine.' },
+    { q:'What is npm?', opts:['A Node module','A package manager for Node.js','A testing library','A build tool'], ans:1,
+      explain:'npm (Node Package Manager) is used to install, share, and manage Node.js packages.' },
+    { q:'Which object provides HTTP functionality in Node.js?', opts:['fs','path','http','os'], ans:2,
+      explain:'The built-in http module lets you create web servers and handle HTTP requests.' },
+    { q:'What is Express.js?', opts:['A Node.js database','A minimalist web framework for Node.js','A testing framework','A module bundler'], ans:1,
+      explain:'Express.js is a popular, minimal web framework that simplifies building servers with Node.js.' },
+    { q:'What does `require()` do in Node.js?', opts:['Runs a script','Imports a module','Creates a server','Deletes a file'], ans:1,
+      explain:'require() imports a CommonJS module (built-in, npm package, or local file).' },
+    { q:'What is `process.env` used for?', opts:['File paths','Environment variables','Process IDs','Memory usage'], ans:1,
+      explain:'process.env contains environment variables, commonly used for secrets and config.' },
+    { q:'What is the `fs` module used for?', opts:['HTTP requests','File system operations','Event handling','Crypto'], ans:1,
+      explain:'The fs (file system) module allows reading, writing, and manipulating files.' },
+    { q:'What does `module.exports` do?', opts:['Imports a module','Deletes a module','Exports values from a module','Installs packages'], ans:2,
+      explain:'module.exports defines what a module exposes when required by another file.' },
+    { q:'What is middleware in Express?', opts:['A database layer','Functions that process requests before reaching route handlers','A template engine','A logging library'], ans:1,
+      explain:'Middleware functions have access to req, res, and next; they process requests in a pipeline.' },
+    { q:'What does `npm install` do?', opts:['Runs the app','Installs dependencies listed in package.json','Creates a server','Builds the project'], ans:1,
+      explain:'npm install reads package.json and installs all listed dependencies into node_modules.' },
+    { q:'What is `package.json` for?', opts:['Storing API keys','Defining project metadata and dependencies','HTML templates','Database config'], ans:1,
+      explain:'package.json describes the project, its dependencies, and scripts.' },
+    { q:'What is an EventEmitter in Node.js?', opts:['A timer','An object that can emit and listen for named events','A stream','A thread'], ans:1,
+      explain:'EventEmitter allows objects to emit events and attach listener functions.' },
+    { q:'What does `async/await` require in Node.js?', opts:['Callbacks','Promises','Synchronous code','C++ addons'], ans:1,
+      explain:'async/await is syntactic sugar over Promises; the awaited expression must return a Promise.' },
+    { q:'What is a stream in Node.js?', opts:['A database connection','Data handled chunk by chunk rather than all at once','A timer','A thread pool'], ans:1,
+      explain:'Streams process data incrementally, making them memory-efficient for large data.' },
+    { q:'Which HTTP status code means "Not Found"?', opts:['200','301','403','404'], ans:3,
+      explain:'404 is the standard HTTP status code for a resource that could not be found.' },
+    { q:'What is `nodemon` used for?', opts:['Testing','Auto-restarting the server on file changes','Package management','Deployment'], ans:1,
+      explain:'nodemon watches for file changes and automatically restarts your Node server.' },
+    { q:'How do you start a basic HTTP server in Node.js?', opts:['fs.createServer()','http.createServer()','server.listen()','express.listen()'], ans:1,
+      explain:'http.createServer() creates an HTTP server; .listen() binds it to a port.' },
+    { q:'What does `res.json()` do in Express?', opts:['Sends an HTML response','Sends a JSON response with proper headers','Reads a JSON file','Parses a request'], ans:1,
+      explain:'res.json() serializes an object to JSON and sends it with Content-Type: application/json.' },
+    { q:'What is the purpose of `.env` files?', opts:['Storing HTML templates','Storing environment-specific config and secrets','Caching data','Logging errors'], ans:1,
+      explain:'.env files store environment variables (like API keys) outside of source code.' },
+    { q:'What does `app.use()` do in Express?', opts:['Creates a route','Mounts middleware or routers','Starts the server','Connects to a database'], ans:1,
+      explain:'app.use() mounts middleware at a path, executing it for every matching request.' },
+  ],
+
+  ds: [
+    { q:'What is a stack data structure?', opts:['First In First Out','Last In First Out','Random access','Priority-based access'], ans:1,
+      explain:'A stack follows LIFO — the last element pushed is the first one popped.' },
+    { q:'What is a queue?', opts:['Last In First Out','First In First Out','Tree structure','Graph structure'], ans:1,
+      explain:'A queue follows FIFO — elements are enqueued at the rear and dequeued from the front.' },
+    { q:'What is the time complexity of binary search?', opts:['O(n)','O(n²)','O(log n)','O(1)'], ans:2,
+      explain:'Binary search halves the search space each step, yielding O(log n) complexity.' },
+    { q:'What is a linked list?', opts:['An array with pointers','A sequence of nodes where each node points to the next','A binary tree','A hash table'], ans:1,
+      explain:'A linked list consists of nodes, each containing data and a pointer to the next node.' },
+    { q:'What is the time complexity of accessing an element in an array by index?', opts:['O(n)','O(log n)','O(1)','O(n log n)'], ans:2,
+      explain:'Array access by index is O(1) — direct memory addressing.' },
+    { q:'What is a binary tree?', opts:['A tree with exactly 2 nodes','A tree where each node has at most 2 children','A tree with 2 levels','A sorted array'], ans:1,
+      explain:'In a binary tree, each node has at most two children: left and right.' },
+    { q:'What is a hash table used for?', opts:['Sorting elements','Fast key-value lookups','Traversing trees','Sorting graphs'], ans:1,
+      explain:'Hash tables offer average O(1) time complexity for insertions, deletions, and lookups.' },
+    { q:'What is the worst-case time complexity of bubble sort?', opts:['O(n)','O(n log n)','O(n²)','O(log n)'], ans:2,
+      explain:'Bubble sort compares adjacent elements and repeats, resulting in O(n²) worst case.' },
+    { q:'What is a graph?', opts:['A sorted array','A collection of nodes connected by edges','A type of linked list','A two-dimensional array'], ans:1,
+      explain:'A graph consists of vertices (nodes) and edges (connections between nodes).' },
+    { q:'What is recursion?', opts:['A loop construct','A function that calls itself to solve a sub-problem','A sorting algorithm','A data type'], ans:1,
+      explain:'Recursion is when a function calls itself, typically with a base case to stop.' },
+    { q:'What is a min-heap?', opts:['A tree where the root is the maximum','A tree where each parent is ≤ its children','A balanced BST','A hash table'], ans:1,
+      explain:'In a min-heap, the parent node is always less than or equal to its children, so the minimum is at the root.' },
+    { q:'What is the time complexity of quicksort on average?', opts:['O(n²)','O(n log n)','O(n)','O(log n)'], ans:1,
+      explain:'Quicksort averages O(n log n) but degrades to O(n²) in the worst case (sorted input with bad pivot).' },
+    { q:'What is a BST (Binary Search Tree)?', opts:['A tree where left < node < right','A tree where all nodes are equal','A balanced tree only','A graph'], ans:0,
+      explain:'In a BST, the left subtree contains smaller values and the right subtree contains larger values.' },
+    { q:'What is DFS (Depth-First Search)?', opts:['Explores all neighbors first','Explores as deep as possible before backtracking','Sorts a graph','Finds shortest paths'], ans:1,
+      explain:'DFS traverses as far as possible down each branch before backtracking.' },
+    { q:'What is BFS (Breadth-First Search)?', opts:['Explores deepest nodes first','Explores all neighbors at the current depth first','Sorts nodes','Deletes duplicates'], ans:1,
+      explain:'BFS explores all nodes at the current level before moving to the next level.' },
+    { q:'What is the space complexity of merge sort?', opts:['O(1)','O(log n)','O(n)','O(n²)'], ans:2,
+      explain:'Merge sort requires O(n) auxiliary space for the temporary arrays used in merging.' },
+    { q:'What is memoization?', opts:['Memory management','Caching results of expensive function calls','A sorting technique','A graph algorithm'], ans:1,
+      explain:'Memoization stores results of function calls to avoid redundant computation.' },
+    { q:'What is a doubly linked list?', opts:['A list with two heads','A list where each node has next and prev pointers','A two-dimensional list','A list of pairs'], ans:1,
+      explain:'In a doubly linked list, each node has pointers to both the next and previous nodes.' },
+    { q:'What is Big O notation used for?', opts:['Measuring file size','Describing algorithm time/space complexity','Counting lines of code','Measuring memory'], ans:1,
+      explain:'Big O notation describes the upper bound of an algorithm\'s time or space complexity.' },
+    { q:'What is a trie?', opts:['A type of graph','A tree used for efficient string prefix searching','A balanced BST','A hash map'], ans:1,
+      explain:'A trie (prefix tree) stores strings character by character, enabling fast prefix searches.' },
+  ],
+
+  ml: [
+    { q:'What is supervised learning?', opts:['Learning without labels','Learning from labeled examples','Reinforcement learning','Clustering'], ans:1,
+      explain:'Supervised learning trains on labeled data to learn the mapping from inputs to outputs.' },
+    { q:'What is overfitting?', opts:['Underfitting the training data','When a model performs well on training but poorly on unseen data','When a model has too few parameters','A regularization technique'], ans:1,
+      explain:'Overfitting occurs when a model memorizes training data and fails to generalize.' },
+    { q:'What is a neural network?', opts:['A decision tree','A set of algorithms inspired by biological neurons','A statistical model','A clustering algorithm'], ans:1,
+      explain:'Neural networks are layers of interconnected nodes (neurons) that learn representations from data.' },
+    { q:'What is gradient descent?', opts:['A regularization method','An optimization algorithm that minimizes a loss function','A data normalization technique','A feature selection method'], ans:1,
+      explain:'Gradient descent iteratively updates parameters in the direction that reduces the loss function.' },
+    { q:'What is the purpose of a train/test split?', opts:['To duplicate data','To evaluate model generalization on unseen data','To clean data','To balance classes'], ans:1,
+      explain:'Splitting data lets you train on one portion and evaluate on a separate, unseen portion.' },
+    { q:'What is a loss function?', opts:['A function that increases model accuracy','A function measuring the difference between predictions and true values','A feature extractor','A layer in a neural network'], ans:1,
+      explain:'The loss function quantifies how wrong the model\'s predictions are.' },
+    { q:'What is regularization used for?', opts:['Data augmentation','Preventing overfitting by penalizing complexity','Increasing model size','Speeding up training'], ans:1,
+      explain:'Regularization (L1/L2) adds a penalty to the loss to discourage overly complex models.' },
+    { q:'What is a confusion matrix?', opts:['A visualization of model layers','A table showing TP, TN, FP, FN predictions','A loss function','A clustering result'], ans:1,
+      explain:'A confusion matrix shows the actual vs predicted classifications across all classes.' },
+    { q:'What does "epoch" mean in ML training?', opts:['A single data point','One complete pass through the training dataset','A batch of data','A learning rate step'], ans:1,
+      explain:'An epoch is one full cycle through the entire training dataset.' },
+    { q:'What is unsupervised learning?', opts:['Learning with labels','Learning patterns from unlabeled data','Reinforcement learning','Transfer learning'], ans:1,
+      explain:'Unsupervised learning finds structure in data without labeled examples (e.g., clustering, PCA).' },
+    { q:'What is k-fold cross-validation?', opts:['Splitting data once','Dividing data into k folds and rotating which fold is the test set','A clustering method','A neural architecture'], ans:1,
+      explain:'k-fold CV trains k models each using a different fold as the validation set, averaging results.' },
+    { q:'What is the activation function in a neural network?', opts:['A weight initializer','A non-linear function applied to neuron outputs','A loss function','A normalization layer'], ans:1,
+      explain:'Activation functions (ReLU, sigmoid, tanh) introduce non-linearity, enabling complex learning.' },
+    { q:'What is precision in classification?', opts:['TP / (TP + FN)','TP / (TP + FP)','TN / (TN + FP)','Accuracy'], ans:1,
+      explain:'Precision = TP / (TP + FP) — of all predicted positives, how many are actually positive.' },
+    { q:'What is recall in classification?', opts:['TP / (TP + FP)','TN / (TN + FN)','TP / (TP + FN)','Accuracy'], ans:2,
+      explain:'Recall = TP / (TP + FN) — of all actual positives, how many did we correctly predict.' },
+    { q:'What is a hyperparameter?', opts:['A model weight','A parameter set before training (not learned)','A feature','A layer'], ans:1,
+      explain:'Hyperparameters (like learning rate, number of layers) are set before training begins.' },
+    { q:'What is transfer learning?', opts:['Moving data between systems','Using a pre-trained model on a new task','Training from scratch','Data augmentation'], ans:1,
+      explain:'Transfer learning reuses a model trained on one task as the starting point for another.' },
+    { q:'What is feature engineering?', opts:['Building neural networks','Creating or transforming features to improve model performance','Data collection','Model evaluation'], ans:1,
+      explain:'Feature engineering creates, selects, or transforms variables to improve model learning.' },
+    { q:'What is a decision tree?', opts:['A neural network layer','A flowchart-like model that makes decisions based on feature thresholds','A clustering algorithm','A regression model'], ans:1,
+      explain:'Decision trees recursively split data by feature thresholds to make predictions.' },
+    { q:'What is the vanishing gradient problem?', opts:['Overfitting','Gradients becoming too small to update early network layers','Slow data loading','Memory overflow'], ans:1,
+      explain:'In deep networks, gradients can become exponentially small during backprop, stalling learning.' },
+    { q:'What does CNN stand for?', opts:['Central Neural Node','Convolutional Neural Network','Clustered Node Network','Continuous Neural Node'], ans:1,
+      explain:'CNNs use convolutional layers to automatically learn spatial features from images.' },
+  ],
+
+  system: [
+    { q:'What is horizontal scaling?', opts:['Making a server more powerful','Adding more servers to handle load','Reducing database size','Increasing RAM'], ans:1,
+      explain:'Horizontal scaling adds more machines to distribute load across multiple nodes.' },
+    { q:'What is a load balancer?', opts:['A database optimizer','A system that distributes traffic across multiple servers','A caching layer','A CDN'], ans:1,
+      explain:'Load balancers distribute incoming requests across servers for better availability and reliability.' },
+    { q:'What is caching used for?', opts:['Long-term storage','Speeding up data access by storing frequently used data closer to the requester','Encryption','Authentication'], ans:1,
+      explain:'Caching reduces latency and database load by storing results of expensive operations.' },
+    { q:'What is a CDN?', opts:['A type of database','A network of geographically distributed servers delivering content closer to users','A caching algorithm','A load balancer'], ans:1,
+      explain:'CDNs (Content Delivery Networks) cache content at edge locations close to users worldwide.' },
+    { q:'What is the CAP theorem?', opts:['A sorting theorem','States a distributed system can only guarantee 2 of: Consistency, Availability, Partition Tolerance','A caching rule','A networking protocol'], ans:1,
+      explain:'CAP theorem states distributed systems must trade off between consistency, availability, and partition tolerance.' },
+    { q:'What is a microservices architecture?', opts:['A monolithic codebase','Breaking an application into small, independently deployable services','A database design','A testing method'], ans:1,
+      explain:'Microservices decompose an app into small, loosely coupled services that communicate over APIs.' },
+    { q:'What is a message queue?', opts:['A database table','An asynchronous communication mechanism between services','A caching tool','A load balancer'], ans:1,
+      explain:'Message queues (like Kafka, RabbitMQ) decouple services by buffering messages between them.' },
+    { q:'What is a reverse proxy?', opts:['A client-side proxy','A server that forwards client requests to backend servers','A database proxy','A DNS server'], ans:1,
+      explain:'A reverse proxy sits in front of backend servers, routing client requests and providing load balancing, SSL, etc.' },
+    { q:'What is database sharding?', opts:['Backing up a database','Partitioning data across multiple databases for scalability','Indexing a table','Encrypting data'], ans:1,
+      explain:'Sharding splits a large database into smaller pieces (shards) distributed across servers.' },
+    { q:'What is eventual consistency?', opts:['Immediate consistency after every write','Given no new updates, all replicas will eventually converge to the same value','Strong consistency','Database locking'], ans:1,
+      explain:'Eventual consistency means replicas will agree eventually, accepting temporary divergence for availability.' },
+    { q:'What does REST stand for?', opts:['Remote Execution State Transfer','Representational State Transfer','Remote Entity Server Technology','Request-Entity-State Transfer'], ans:1,
+      explain:'REST (Representational State Transfer) is an architectural style for designing networked APIs.' },
+    { q:'What is the purpose of an API gateway?', opts:['Database management','Single entry point managing auth, routing, and rate limiting for microservices','A CDN','A message queue'], ans:1,
+      explain:'An API gateway acts as a single entry point for clients, handling routing, authentication, and rate limiting.' },
+    { q:'What is rate limiting?', opts:['Slowing down a database','Restricting the number of requests a client can make in a time window','Caching responses','Load balancing'], ans:1,
+      explain:'Rate limiting prevents abuse and ensures fair usage by capping request frequency per client.' },
+    { q:'What is a distributed system?', opts:['A single server with multiple CPUs','Multiple computers working together, appearing as one to end users','A database cluster','A virtual machine'], ans:1,
+      explain:'Distributed systems span multiple networked computers to achieve a common goal with fault tolerance and scalability.' },
+    { q:'What is a SQL database?', opts:['A NoSQL database','A relational database using structured tables and SQL queries','A cache','A file system'], ans:1,
+      explain:'SQL databases use tabular schemas and support ACID transactions and relational queries.' },
+    { q:'What is NoSQL used for?', opts:['Only big data','Flexible schemas, high throughput, and unstructured data use cases','Only caching','Only key-value stores'], ans:1,
+      explain:'NoSQL encompasses document, key-value, column-family, and graph databases for varied non-relational use cases.' },
+    { q:'What is a single point of failure?', opts:['A bug in code','A component whose failure brings down the entire system','A network issue','A database lock'], ans:1,
+      explain:'Eliminating SPOFs through redundancy is a core goal of resilient system design.' },
+    { q:'What does "idempotent" mean in API design?', opts:['The API is fast','Making the same request multiple times produces the same result','The API is stateless','The API has no auth'], ans:1,
+      explain:'Idempotent operations can be repeated without changing the result beyond the first call (e.g., PUT, DELETE).' },
+    { q:'What is a circuit breaker pattern?', opts:['An electrical concept only','A fault-tolerance pattern that stops calling a failing service temporarily','A caching strategy','A database pattern'], ans:1,
+      explain:'Circuit breakers prevent cascading failures by stopping calls to a failing service until it recovers.' },
+    { q:'What is WebSocket used for?', opts:['Database queries','Full-duplex real-time communication between client and server','Static file serving','DNS resolution'], ans:1,
+      explain:'WebSockets provide a persistent, bidirectional connection for real-time apps like chat or live feeds.' },
+  ],
+
+  docker: [
+    { q:'What is Docker?', opts:['A virtual machine','A platform for building and running containerized applications','A cloud provider','A programming language'], ans:1,
+      explain:'Docker packages apps and their dependencies into containers for consistent, portable execution.' },
+    { q:'What is a Docker image?', opts:['A running container','A read-only template used to create containers','A Dockerfile','A network'], ans:1,
+      explain:'Images are immutable blueprints; containers are running instances of images.' },
+    { q:'What is a Dockerfile?', opts:['A shell script','A text file with instructions to build a Docker image','A compose file','A network config'], ans:1,
+      explain:'A Dockerfile contains a series of commands to assemble a Docker image layer by layer.' },
+    { q:'What does `docker run` do?', opts:['Builds an image','Creates and starts a container from an image','Stops a container','Removes a container'], ans:1,
+      explain:'docker run creates and starts a new container from the specified image.' },
+    { q:'What is Docker Compose?', opts:['A build tool','A tool for defining and running multi-container Docker apps with a YAML file','A container registry','A monitoring tool'], ans:1,
+      explain:'Docker Compose uses docker-compose.yml to define and orchestrate multi-container applications.' },
+    { q:'What is a Docker volume?', opts:['A container','Persistent storage that exists outside the container lifecycle','A network bridge','An environment variable'], ans:1,
+      explain:'Volumes provide persistent storage for containers; data survives container restarts.' },
+    { q:'What does `docker build` do?', opts:['Runs a container','Pushes an image','Builds a Docker image from a Dockerfile','Removes images'], ans:2,
+      explain:'docker build reads the Dockerfile and creates a new image.' },
+    { q:'What is a container registry?', opts:['A running container','A storage service for Docker images','A network policy','A Dockerfile'], ans:1,
+      explain:'Container registries (Docker Hub, ECR, GCR) store and distribute Docker images.' },
+    { q:'What does `docker ps` show?', opts:['All images','Running containers','Stopped containers','Networks'], ans:1,
+      explain:'docker ps lists currently running containers; docker ps -a shows all containers.' },
+    { q:'What is the difference between CMD and ENTRYPOINT in a Dockerfile?', opts:['No difference','CMD provides defaults; ENTRYPOINT sets the main executable','CMD runs at build time','ENTRYPOINT is optional'], ans:1,
+      explain:'ENTRYPOINT sets the main command; CMD provides default arguments that can be overridden.' },
+    { q:'What does `docker stop` do?', opts:['Removes a container','Gracefully stops a running container','Pauses a container','Kills a container immediately'], ans:1,
+      explain:'docker stop sends SIGTERM then SIGKILL after a grace period to stop a container.' },
+    { q:'What is a Docker network?', opts:['A file system','A virtual network enabling containers to communicate','A volume type','A registry'], ans:1,
+      explain:'Docker networks allow containers to communicate with each other and the outside world.' },
+    { q:'What is the base instruction in a Dockerfile?', opts:['RUN','CMD','FROM','ENV'], ans:2,
+      explain:'FROM specifies the base image; every Dockerfile must start with a FROM instruction.' },
+    { q:'What does `docker pull` do?', opts:['Pushes an image','Downloads an image from a registry','Builds an image','Runs a container'], ans:1,
+      explain:'docker pull downloads an image from a container registry to your local machine.' },
+    { q:'What is the purpose of `.dockerignore`?', opts:['Ignoring containers','Excluding files from the build context sent to Docker daemon','Ignoring volumes','Removing images'], ans:1,
+      explain:'.dockerignore excludes files from the build context, reducing image size and build time.' },
+    { q:'What does `EXPOSE` do in a Dockerfile?', opts:['Opens a port on the host','Documents which port the container listens on at runtime','Creates a network','Binds a volume'], ans:1,
+      explain:'EXPOSE is documentation; it doesn\'t publish the port — you must use -p in docker run.' },
+    { q:'What is a multi-stage build?', opts:['Building multiple images','Using multiple FROM stages to create smaller final images','Running parallel builds','A Compose feature'], ans:1,
+      explain:'Multi-stage builds use multiple FROM statements to keep the final image small by discarding build tools.' },
+    { q:'What does `docker exec` do?', opts:['Creates a container','Runs a command inside a running container','Builds an image','Removes a container'], ans:1,
+      explain:'docker exec runs an additional command in a running container (e.g., opening a shell).' },
+    { q:'What does `RUN` do in a Dockerfile?', opts:['Runs a container','Executes a command during image build','Sets environment variables','Exposes a port'], ans:1,
+      explain:'RUN executes a command in a new layer during the image build process.' },
+    { q:'What is Kubernetes?', opts:['A container runtime','A container orchestration platform for automating deployment and scaling','A Docker replacement','A registry'], ans:1,
+      explain:'Kubernetes (k8s) automates deployment, scaling, and management of containerized applications.' },
+  ],
+
+  ts: [
+    { q:'What is TypeScript?', opts:['A new programming language','A typed superset of JavaScript that compiles to plain JS','A CSS preprocessor','A testing framework'], ans:1,
+      explain:'TypeScript adds optional static typing and modern features on top of JavaScript.' },
+    { q:'What does the `:` symbol do in TypeScript?', opts:['Concatenates strings','Annotates a variable with a type','Creates a ternary','Accesses object properties'], ans:1,
+      explain:'The colon annotates variables, parameters, and return values with their expected types.' },
+    { q:'What is `interface` in TypeScript?', opts:['A class blueprint','A named type definition describing the shape of an object','An abstract class','A module'], ans:1,
+      explain:'Interfaces define the structure (shape) of objects or function signatures.' },
+    { q:'What is `type` in TypeScript?', opts:['Same as interface (no difference)','A type alias for any type including unions, intersections, and primitives','A class modifier','A runtime check'], ans:1,
+      explain:'type aliases can define unions, intersections, tuples, and mapped types — more flexible than interfaces.' },
+    { q:'What is `any` type in TypeScript?', opts:['A type that must be a string','A type that opts out of type checking','The default type','A null type'], ans:1,
+      explain:'any disables type checking for that variable, essentially reverting to plain JavaScript behavior.' },
+    { q:'What is `unknown` in TypeScript?', opts:['Same as any','A type-safe counterpart to any — requires type narrowing before use','A null value','An undefined check'], ans:1,
+      explain:'unknown requires you to narrow the type before using it, unlike any which skips all checks.' },
+    { q:'What is a union type?', opts:['An intersection of two types','A type that can be one of several specified types','A generic type','A tuple'], ans:1,
+      explain:'Union types (A | B) allow a value to be of one of multiple types.' },
+    { q:'What are generics in TypeScript?', opts:['A type for arrays only','Reusable type parameters that make components work with any type','An interface feature','A class-only feature'], ans:1,
+      explain:'Generics allow you to write flexible, reusable functions and types parameterized by type.' },
+    { q:'What does `readonly` do?', opts:['Makes a property required','Prevents a property from being reassigned after initialization','Makes a class abstract','Marks a parameter optional'], ans:1,
+      explain:'readonly prevents a property from being modified after it is initially set.' },
+    { q:'What is type narrowing?', opts:['Making a type smaller','Refining a broader type to a more specific one using type guards','Removing type annotations','Casting a type'], ans:1,
+      explain:'Type narrowing uses checks (typeof, instanceof, in) to refine types within a block.' },
+    { q:'What does the `?` operator do in an interface property?', opts:['Makes it a union','Marks the property as optional','Adds null','Creates a tuple'], ans:1,
+      explain:'A trailing ? makes the property optional — it can be omitted or undefined.' },
+    { q:'What is `never` type?', opts:['A null type','An undefined type','A type for values that never occur (impossible states, infinite loops)','An empty array'], ans:2,
+      explain:'never represents values that never exist, such as functions that always throw or never return.' },
+    { q:'What is an enum in TypeScript?', opts:['An array of strings','A way to define a set of named constants','A generic type','A class modifier'], ans:1,
+      explain:'Enums define a set of named numeric or string constants.' },
+    { q:'What is the `as` keyword used for?', opts:['Type assertions — telling the compiler to treat a value as a specific type','Renaming imports','Defining generics','Creating aliases'], ans:0,
+      explain:'Type assertions (as) override the inferred type when you know more than the compiler.' },
+    { q:'What is `Partial<T>` utility type?', opts:['Makes all properties required','Makes all properties of T optional','Picks certain properties','Removes properties'], ans:1,
+      explain:'Partial<T> constructs a type with all properties of T set to optional.' },
+    { q:'What is `Required<T>`?', opts:['Makes all properties optional','Makes all properties required','Adds a new property','Removes null'], ans:1,
+      explain:'Required<T> constructs a type with all properties of T set to required.' },
+    { q:'What is `Pick<T, K>` utility type?', opts:['Omits properties','Creates a type with only specific keys K from T','Makes all optional','Creates a union'], ans:1,
+      explain:'Pick<T, K> constructs a type by selecting a subset of keys K from T.' },
+    { q:'What is `Record<K, V>`?', opts:['An array type','A type with keys of type K and values of type V','A generic class','A mapped interface'], ans:1,
+      explain:'Record<K, V> constructs an object type with keys of type K and values of type V.' },
+    { q:'What does `tsc` do?', opts:['Runs tests','Compiles TypeScript to JavaScript','Starts a dev server','Lints code'], ans:1,
+      explain:'tsc is the TypeScript compiler that transforms .ts files into .js files.' },
+    { q:'What is a mapped type in TypeScript?', opts:['A type for Maps','A type that transforms each property of another type','An array type','A generic constraint'], ans:1,
+      explain:'Mapped types iterate over keys of a type and transform each property (e.g., Readonly<T>).' },
+  ],
+};
+
+/* ══════════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════════ */
+let selectedSkills = [];
+let quiz = {
+  skillOrder: [],
+  questions: {},    // skillId -> array of 10 questions
+  current: { skillIdx: 0, qIdx: 0 },
+  answers: {},      // skillId -> { qIdx: selectedOptionIdx }
+  scores: {},       // skillId -> { correct, total, wrongTopics }
+};
+
+/* ══════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════ */
+function init() {
+  const grid = document.getElementById('skillGrid');
+  SKILLS.forEach(sk => {
+    const tile = document.createElement('label');
+    tile.className = 'skill-tile';
+    tile.innerHTML = `
+      <input type="checkbox" value="${sk.id}" onchange="toggleSkill('${sk.id}', this.checked)">
+      <div class="skill-inner">
+        <span class="material-icons-round skill-icon" style="color:${sk.color}">${sk.icon}</span>
+        <span class="skill-name">${sk.name}</span>
+      </div>`;
+    grid.appendChild(tile);
+  });
+}
+
+function toggleSkill(id, checked) {
+  if (checked) {
+    if (!selectedSkills.includes(id)) selectedSkills.push(id);
+  } else {
+    selectedSkills = selectedSkills.filter(s => s !== id);
+  }
+  document.getElementById('selCount').textContent = selectedSkills.length;
+  document.getElementById('selLabel').textContent = selectedSkills.length === 1 ? 'skill selected' : 'skills selected';
+  document.getElementById('startBtn').disabled = selectedSkills.length === 0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   START QUIZ
+══════════════════════════════════════════════════════════ */
+function startQuiz() {
+  quiz.skillOrder = [...selectedSkills];
+  quiz.questions = {};
+  quiz.answers = {};
+  quiz.scores = {};
+
+  quiz.skillOrder.forEach(skId => {
+    const pool = [...QUESTION_BANK[skId]];
+    // Shuffle and pick 10
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    quiz.questions[skId] = pool.slice(0, 10);
+    quiz.answers[skId] = {};
+    quiz.scores[skId] = { correct: 0, total: 10, wrongTopics: [] };
+  });
+
+  quiz.current = { skillIdx: 0, qIdx: 0 };
+
+  buildSkillTabs();
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function buildSkillTabs() {
+  const tabs = document.getElementById('skillTabs');
+  tabs.innerHTML = '';
+  quiz.skillOrder.forEach((skId, idx) => {
+    const sk = SKILLS.find(s => s.id === skId);
+    const tab = document.createElement('div');
+    tab.className = 'skill-tab' + (idx === 0 ? ' active-tab' : '');
+    tab.id = `tab-${skId}`;
+    tab.textContent = sk.name;
+    tabs.appendChild(tab);
+  });
+}
+
+function updateTabs() {
+  quiz.skillOrder.forEach((skId, idx) => {
+    const tab = document.getElementById(`tab-${skId}`);
+    if (!tab) return;
+    tab.className = 'skill-tab';
+    if (idx < quiz.current.skillIdx) tab.classList.add('done-tab');
+    else if (idx === quiz.current.skillIdx) tab.classList.add('active-tab');
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   RENDER QUESTION
+══════════════════════════════════════════════════════════ */
+function renderQuestion() {
+  const { skillIdx, qIdx } = quiz.current;
+  const skId = quiz.skillOrder[skillIdx];
+  const sk = SKILLS.find(s => s.id === skId);
+  const q = quiz.questions[skId][qIdx];
+
+  // Skill label
+  document.getElementById('currentSkillIcon').textContent = sk.icon;
+  document.getElementById('currentSkillName').textContent = sk.name;
+
+  // Counter
+  const totalQs = quiz.skillOrder.length * 10;
+  const doneQs = skillIdx * 10 + qIdx + 1;
+  document.getElementById('qCurrent').textContent = doneQs;
+  document.getElementById('qTotal').textContent = totalQs;
+  document.getElementById('progressFill').style.width = `${(doneQs / totalQs) * 100}%`;
+
+  // Question
+  document.getElementById('questionNum').textContent = `Q${qIdx + 1} · ${sk.name}`;
+  document.getElementById('questionText').textContent = q.q;
+
+  // Options
+  const list = document.getElementById('optionsList');
+  list.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.onclick = () => selectOption(i);
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span>${opt}`;
+    list.appendChild(btn);
+  });
+
+  // Feedback
+  const fb = document.getElementById('feedbackBox');
+  fb.style.display = 'none';
+  fb.innerHTML = '';
+
+  // Next btn
+  document.getElementById('nextBtn').disabled = true;
+
+  // Animate
+  const area = document.getElementById('questionArea');
+  area.style.animation = 'none';
+  area.offsetHeight; // reflow
+  area.style.animation = 'stepIn 0.3s cubic-bezier(0.4,0,0.2,1) both';
+
+  updateTabs();
+}
+
+/* ══════════════════════════════════════════════════════════
+   SELECT OPTION
+══════════════════════════════════════════════════════════ */
+function selectOption(idx) {
+  const { skillIdx, qIdx } = quiz.current;
+  const skId = quiz.skillOrder[skillIdx];
+  const q = quiz.questions[skId][qIdx];
+
+  // If already answered, ignore
+  if (quiz.answers[skId][qIdx] !== undefined) return;
+
+  quiz.answers[skId][qIdx] = idx;
+
+  const btns = document.querySelectorAll('.option-btn');
+  const correct = idx === q.ans;
+
+  if (correct) {
+    quiz.scores[skId].correct++;
+    btns[idx].classList.add('correct');
+    btns[idx].querySelector('.option-letter').style.background = 'rgba(52,211,153,0.2)';
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[q.ans].classList.add('reveal-correct');
+    quiz.scores[skId].wrongTopics.push(q.q.slice(0, 60) + '…');
+  }
+
+  btns.forEach(b => b.disabled = true);
+
+  // Feedback
+  const fb = document.getElementById('feedbackBox');
+  fb.style.display = 'flex';
+  fb.className = 'feedback-box ' + (correct ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = `<span class="material-icons-round">${correct ? 'check_circle' : 'cancel'}</span>
+    <span>${correct ? '✓ Correct! ' : '✗ Incorrect. '}<strong>${q.explain}</strong></span>`;
+
+  document.getElementById('nextBtn').disabled = false;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SKIP
+══════════════════════════════════════════════════════════ */
+function skipQuestion() {
+  const { skillIdx, qIdx } = quiz.current;
+  const skId = quiz.skillOrder[skillIdx];
+
+  if (quiz.answers[skId][qIdx] === undefined) {
+    quiz.answers[skId][qIdx] = -1; // skipped
+  }
+  nextQuestion();
+}
+
+/* ══════════════════════════════════════════════════════════
+   NEXT QUESTION
+══════════════════════════════════════════════════════════ */
+function nextQuestion() {
+  let { skillIdx, qIdx } = quiz.current;
+
+  qIdx++;
+  if (qIdx >= 10) {
+    // Move to next skill
+    skillIdx++;
+    qIdx = 0;
+  }
+
+  if (skillIdx >= quiz.skillOrder.length) {
+    // Quiz complete!
+    showResults();
+    return;
+  }
+
+  quiz.current = { skillIdx, qIdx };
+  renderQuestion();
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESULTS
+══════════════════════════════════════════════════════════ */
+function getLevel(correct) {
+  if (correct >= 9) return { label:'Expert',     cls:'badge-expert',     fillCls:'fill-expert',     color:'var(--green)',  tip:'Outstanding! You have mastered this skill.' };
+  if (correct >= 7) return { label:'Proficient', cls:'badge-proficient', fillCls:'fill-proficient', color:'var(--cyan)',   tip:'Great work! You have a solid understanding of this skill.' };
+  if (correct >= 5) return { label:'Familiar',   cls:'badge-familiar',   fillCls:'fill-familiar',   color:'var(--yellow)', tip:'Decent foundation. A bit more practice will take you far.' };
+  return              { label:'Beginner',   cls:'badge-beginner',   fillCls:'fill-beginner',   color:'var(--red)',    tip:'Keep learning! Focus on the fundamentals of this skill.' };
+}
+
+function showResults() {
+  const grid = document.getElementById('resultsGrid');
+  grid.innerHTML = '';
+
+  let totalCorrect = 0;
+  let totalQs = 0;
+
+  quiz.skillOrder.forEach((skId, i) => {
+    const sk = SKILLS.find(s => s.id === skId);
+    const score = quiz.scores[skId];
+    const pct = Math.round((score.correct / score.total) * 100);
+    const lv = getLevel(score.correct);
+
+    totalCorrect += score.correct;
+    totalQs += score.total;
+
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.style.animationDelay = `${i * 0.08}s`;
+
+    const wrongHTML = score.wrongTopics.length > 0
+      ? `<p style="margin-top:8px;font-size:0.78rem;color:var(--text-muted)">Areas to revisit:</p>
+         <ul class="improvement-list">${score.wrongTopics.slice(0,3).map(t => `<li><span class="material-icons-round">arrow_right</span>${t}</li>`).join('')}</ul>`
+      : `<p style="margin-top:6px;font-size:0.78rem;color:var(--green)">✓ Flawless — no areas need attention!</p>`;
+
+    card.innerHTML = `
+      <div class="result-card-header">
+        <div class="result-skill-name">
+          <span class="material-icons-round" style="color:${sk.color}">${sk.icon}</span>
+          ${sk.name}
+        </div>
+        <div class="result-score-badge ${lv.cls}">${lv.label}</div>
+      </div>
+      <div class="score-bar-track">
+        <div class="score-bar-fill ${lv.fillCls}" style="width:0%" id="bar-${skId}"></div>
+      </div>
+      <div class="result-detail">
+        <strong>${score.correct} / ${score.total} correct (${pct}%)</strong> — ${lv.tip}
+        ${wrongHTML}
+      </div>`;
+
+    grid.appendChild(card);
+
+    // Animate bar
+    setTimeout(() => {
+      const bar = document.getElementById(`bar-${skId}`);
+      if (bar) bar.style.width = `${pct}%`;
+    }, 100 + i * 80);
+  });
+
+  // Overall
+  const overallPct = Math.round((totalCorrect / totalQs) * 100);
+  const overallLv = getLevel(Math.round(totalCorrect / quiz.skillOrder.length));
+  const overallSummary = document.getElementById('overallSummary');
+
+  overallSummary.innerHTML = `
+    <div style="position:relative;width:96px;height:96px;margin:0 auto 14px;">
+      <svg viewBox="0 0 96 96" style="width:96px;height:96px;transform:rotate(-90deg)">
+        <circle cx="48" cy="48" r="42" fill="none" stroke="var(--surface3)" stroke-width="8"/>
+        <circle cx="48" cy="48" r="42" fill="none" stroke="var(--cyan)" stroke-width="8"
+          stroke-dasharray="${2*Math.PI*42}" stroke-dashoffset="${2*Math.PI*42*(1-overallPct/100)}"
+          stroke-linecap="round" style="transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);"/>
+      </svg>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;color:var(--cyan);">${overallPct}%</div>
+    </div>
+    <div class="overall-verdict" style="color:${overallLv.color}">${overallLv.label} Overall</div>
+    <div class="overall-verdict-sub">${totalCorrect} of ${totalQs} questions correct across ${quiz.skillOrder.length} skill${quiz.skillOrder.length>1?'s':''}</div>`;
+
+  showScreen('screen-results');
+  showToast(`Assessment complete! You scored ${overallPct}%`, 'success', 'emoji_events');
+}
+
+/* ══════════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function retakeAll() {
+  // Uncheck all and reset
+  document.querySelectorAll('.skill-tile input[type="checkbox"]').forEach(cb => cb.checked = false);
+  selectedSkills = [];
+  document.getElementById('selCount').textContent = '0';
+  document.getElementById('selLabel').textContent = 'skills selected';
+  document.getElementById('startBtn').disabled = true;
+  showScreen('screen-select');
+}
+
+function goHome() {
+  retakeAll();
+}
+
+/* ══════════════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════════════ */
+function showToast(message, type = 'info', icon = 'info', duration = 3200) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span class="material-icons-round">${icon}</span>${message}`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.animation = 'toastOut 0.3s ease both';
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+/* ══════════════════════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════════════════════ */
+init();
+</script>
+</body>
+</html>
