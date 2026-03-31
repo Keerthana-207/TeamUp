@@ -53,6 +53,7 @@ const userSchema = new mongoose.Schema({
     ],
     default: []
     },
+    
     interests: {
         type: [String],
         default: []

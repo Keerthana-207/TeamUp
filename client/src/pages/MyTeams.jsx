@@ -1,70 +1,127 @@
-import React, { useState } from "react";
-import { TEAMS } from "../constants";
+import React, { useState, useEffect } from "react";
+import { MAIN_NAV, ACCOUNT_NAV } from "../constants";
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 import "./MyTeams.css";
 
 const MyTeams = () => {
-    const [teams, setTeams] = useState(TEAMS);
+    const [teams, setTeams] = useState([]);
     const [search, setSearch] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+
     const [newTeamName, setNewTeamName] = useState("");
     const [newProjectName, setNewProjectName] = useState("");
+    const [projectDescription, setProjectDescription] = useState("");
     const [members, setMembers] = useState([]);
     const [memberInput, setMemberInput] = useState("");
     const [inviteLink, setInviteLink] = useState("");
+
+    const [activeNav, setActiveNav] = useState("teams");
     const [toast, setToast] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-  const filteredTeams = teams.filter(
-    (t) =>
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      t.project.toLowerCase().includes(search.toLowerCase())
-  );
+    let currentUser = null;
 
-    const handleCreateTeam = () => {
-    if (!newTeamName.trim()) {
-        showToast("Please enter a team name", "error");
-        return;
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser && storedUser !== "undefined") {
+        currentUser = JSON.parse(storedUser);
+      }
+    } catch (err) {
+      console.error("Invalid user in localStorage");
     }
+    const fetchTeams = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("http://localhost:3001/api/teams");
 
-    if (!newProjectName.trim()) {
-        showToast("Please enter a project name", "error");
-        return;
-    }
+        const data = await res.json();
 
-    const colors = ["#63daff","#34d399","#a78bfa","#fbbf24","#f87171","#fb923c","#f472b6"];
-    const icons = ["groups","hub","rocket_launch","science","code","palette","language"];
-
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    const icon = icons[Math.floor(Math.random() * icons.length)];
-
-    const newTeam = {
-        id: "t" + Date.now(),
-        name: newTeamName,
-        project: newProjectName,
-        desc: members.length
-        ? `Members: ${members.slice(0, 3).join(", ")}${members.length > 3 ? ` +${members.length - 3} more` : ""}`
-        : "New team — add description later",
-        domain: "Custom",
-        domainIcon: icon,
-        color,
-        accent: `${color}20`,
-        dot: `${color}30`,
-        role: "Lead",
-        members: [
-        { init: "AS", bg: color },
-        ...members.slice(0, 4).map((m, i) => ({
-            init: m.slice(0, 2).toUpperCase(),
-            bg: colors[(i + 2) % colors.length],
-        })),
-        ],
-        memberCount: 1 + members.length,
+        setTeams(data);
+      } catch (err) {
+        showToast("Failed to load teams", "error");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // update teams (IMPORTANT)
-    setTeams((prev) => [newTeam, ...prev]);
+    useEffect(() => {
+      fetchTeams();
+    },[]);
 
+  const filteredTeams = teams.filter((t) => {
+    const teamName = t.name?.toLowerCase() || "";
+    const projectName = t.project?.name?.toLowerCase() || "";
+
+    return (
+      teamName.includes(search.toLowerCase()) ||
+      projectName.includes(search.toLowerCase())
+    );
+  });
+
+const handleCreateTeam = async () => {
+  try {
+    if (!currentUser?._id) {
+      showToast("User not logged in", "error");
+      return;
+    }
+
+    const res = await axios.post("http://localhost:3001/api/teams/create", {
+      teamName: newTeamName,
+      projectName: newProjectName,
+      description: projectDescription,
+      domain: "Web Dev",
+      members: [currentUser._id], // ✅ MUST be valid ObjectId
+      lead: currentUser._id,
+    });
+
+    const createdTeam = res.data.team;
+
+    setTeams((prev) => [createdTeam, ...prev]);
+
+    showToast("Team created successfully!", "success");
     setIsModalOpen(false);
-    showToast(`Team "${newTeamName}" created!`, "success");
-    };
+
+  } catch (err) {
+    console.error("ERROR:", err.response?.data || err.message);
+    showToast(err.response?.data?.error || "Error creating team", "error");
+  }
+};
+
+  // const openModal = () => {
+  //   setMembers([]);
+  //   setNewTeamName("");
+  //   setNewProjectName("");
+  //   setMemberInput("");
+
+  //   const link =
+  //       "https://teamup.dev/join/" +
+  //       Math.random().toString(36).slice(2, 10).toUpperCase();
+
+  //   setInviteLink(link);
+  //   setIsModalOpen(true);
+  //   };
+
+  const handleMemberKeyDown = (e) => {
+    if (e.key === "Enter" && memberInput.trim()) {
+      e.preventDefault();
+
+      if (!members.includes(memberInput) && members.length < 15) {
+        setMembers([...members, memberInput.trim()]);
+      }
+
+      setMemberInput("");
+    }
+  };
+
+  const removeMember = (member) => {
+    setMembers((prev) => prev.filter((m) => m !== member));
+  };
+
+  const copyLink = () => {
+      navigator.clipboard?.writeText(inviteLink);
+      showToast("Invite link copied!", "success");
+  };
 
   const openModal = () => {
     setMembers([]);
@@ -73,37 +130,20 @@ const MyTeams = () => {
     setMemberInput("");
 
     const link =
-        "https://teamup.dev/join/" +
-        Math.random().toString(36).slice(2, 10).toUpperCase();
+      "https://teamup.dev/join/" +
+      Math.random().toString(36).slice(2, 10).toUpperCase();
 
     setInviteLink(link);
     setIsModalOpen(true);
-    };
+  };
 
-    const handleMemberKeyDown = (e) => {
-        if (e.key === "Enter" && memberInput.trim()) {
-            e.preventDefault();
+  const showToast = (msg, type = "info") => {
+      setToast({ msg, type });
 
-            if (!members.includes(memberInput) && members.length < 15) {
-            setMembers([...members, memberInput.trim()]);
-            }
-
-            setMemberInput("");
-        }
-    };
-
-    const copyLink = () => {
-        navigator.clipboard?.writeText(inviteLink);
-        showToast("Invite link copied!", "success");
-    };
-
-    const showToast = (msg, type = "info") => {
-        setToast({ msg, type });
-
-        setTimeout(() => {
-            setToast(null);
-        }, 3000);
-    };
+      setTimeout(() => {
+          setToast(null);
+      }, 3000);
+  };
 
   return (
     <div>
@@ -128,115 +168,158 @@ const MyTeams = () => {
         </div>
       </nav>
 
-      <main className="page">
-        <div className="page-header">
-          <div className="page-title-block">
-            <div className="page-title-icon">
-              <span className="material-icons-round">groups</span>
-            </div>
-            <div className="page-title-text">
-              <h1>My Teams</h1>
-              <p>Collaborate, build and launch together</p>
-            </div>
-          </div>
-          <span className="header-stat">
-            <span className="material-icons-round">groups</span>{" "}
-            {teams.length} Teams
-          </span>
-        </div>
+      <div className="app-layout">
+          <aside className="db-sidebar">
+            <div className="db-nav-section-label">Main</div>
+            {MAIN_NAV.map(item => (
+              <Link
+                key={item.id}
+                to={item.href}
+                className={`db-nav-item ${activeNav === item.id ? "active" : ""}`}
+                onClick={() => setActiveNav(item.id)}
+              >
+                <span className="material-icons-round">{item.icon}</span>
+                {item.label}
+                {item.badge && (
+                  <span className={`db-nav-badge ${item.badge.cls}`}>{item.badge.text}</span>
+                )}
+              </Link>
+            ))}
 
-        <div className="toolbar">
-          <div className="search-wrap">
-            <span className="material-icons-round">search</span>
-            <input
-              type="text"
-              placeholder="Search teams or projects…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className="teams-grid">
-          {filteredTeams.length === 0 && (
-            <div className="empty-state visible">
-              <div className="empty-icon">
-                <span className="material-icons-round">search_off</span>
-              </div>
-              <h3>No teams found</h3>
-              <p>Try a different search term.</p>
-            </div>
-          )}
-
-          {filteredTeams.map((team) => (
-            <div
-              className="team-card"
-              key={team.id}
-              style={{ borderColor: team.color }}
-            >
-              <div className="card-bar" style={{ background: team.color }}></div>
-              <div className="card-banner" style={{ background: team.color + "20" }}>
-                <div className="banner-pattern"></div>
-                <div className="banner-icon">
-                  <span className="material-icons-round">{team.domainIcon}</span>
-                </div>
-                <span
-                  className={`card-role-badge ${
-                    team.role === "Lead" ? "role-lead" : "role-member"
-                  }`}
+            <div className="db-sidebar-footer">
+              <div className="db-nav-section-label" style={{ marginTop: 0 }}>Account</div>
+              {ACCOUNT_NAV.map(item => (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  className={`db-nav-item ${activeNav === item.id ? "active" : ""}`}
+                  onClick={() => setActiveNav(item.id)}
                 >
-                  {team.role === "Lead" ? "⭐ Lead" : "Member"}
-                </span>
-              </div>
-              <div className="card-body">
-                <div className="card-team-name" style={{color: team.color}}>{team.name}</div>
-                <div className="card-project-label">
-                  <span className="material-icons-round">folder_special</span> Project
-                </div>
-                <div className="card-project-name">{team.project}</div>
-                <div className="card-desc">{team.desc}</div>
-              </div>
-                <div className="card-footer">
-                <div className="card-members">
-                    <div className="member-avatars">
-                    {team.members?.slice(0, 5).map((m, index) => (
-                        <div
-                        key={index}
-                        className="member-av"
-                        style={{
-                            background: m.bg + "22",
-                            borderColor: m.bg + "44",
-                            color: m.bg,
-                        }}
-                        >
-                        {m.init}
-                        </div>
-                    ))}
-                    </div>
+                  <span className="material-icons-round">{item.icon}</span>
+                  {item.label}
+                </a>
+              ))}
 
-                    <span className="member-count">
-                    {team.memberCount || team.members?.length} members
-                    </span>
-                </div>
-
-                <button className="card-open-btn">
-                    Open <span className="material-icons-round">arrow_forward</span>
-                </button>
-                </div>
+              {/* Logout */}
+              <button
+                className="db-nav-item"
+                style={{ color: "var(--red)", marginTop: "4px" }}
+                onClick={() => showToast("Signing out…", "info", "logout")}
+              >
+                <span className="material-icons-round">logout</span>
+                Sign out
+              </button>
             </div>
-          ))}
-
-          {/* Create Team Card */}
-          <div className="create-card" onClick={() => setIsModalOpen(true)}>
-            <div className="create-icon">
-              <span className="material-icons-round">add</span>
+          </aside>
+        <main className="page">
+          <div className="page-header">
+            <div className="page-title-block">
+              <div className="page-title-icon">
+                <span className="material-icons-round">groups</span>
+              </div>
+              <div className="page-title-text">
+                <h1>My Teams</h1>
+                <p>Collaborate, build and launch together</p>
+              </div>
             </div>
-            <div className="create-label">Create Team</div>
-            <div className="create-hint">Start a new collaboration</div>
+            <span className="header-stat">
+              <span className="material-icons-round">groups</span>{" "}
+              {teams.length} Teams
+            </span>
           </div>
-        </div>
-      </main>
 
+          <div className="toolbar">
+            <div className="search-wrap">
+              <span className="material-icons-round">search</span>
+              <input
+                type="text"
+                placeholder="Search teams or projects…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="teams-grid">
+            {filteredTeams.length === 0 && (
+              <div className="empty-state visible">
+                <div className="empty-icon">
+                  <span className="material-icons-round">search_off</span>
+                </div>
+                <h3>No teams found</h3>
+                <p>Try a different search term.</p>
+              </div>
+            )}
+
+            {filteredTeams.map((team) => (
+              <div
+                className="team-card"
+                key={team._id}
+                style={{ borderColor: team.color || '"#6366f1"' }}
+              >
+                <div className="card-bar" style={{ background: team.color || "#6366f1" }}></div>
+                <div className="card-banner" style={{ background: (team.color || "#6366f1") + "20" }}>
+                  <div className="banner-pattern"></div>
+                  <div className="banner-icon">
+                    <span className="material-icons-round">{team.domainIcon}</span>
+                  </div>
+                  <span
+                    className={`card-role-badge ${
+                      team.role === "Lead" ? "role-lead" : "role-member"
+                    }`}
+                  >
+                    {team.role === "Lead" ? "⭐ Lead" : "Member"}
+                  </span>
+                </div>
+                <div className="card-body">
+                  <div className="card-team-name" style={{color: team.color}}>{team.name}</div>
+                  <div className="card-project-label">
+                    <span className="material-icons-round">folder_special</span> Project
+                  </div>
+                  <div className="card-project-name">{team.project?.name || 'No Project'}</div>
+                  <div className="card-desc">{team.description}</div>
+                </div>
+                  <div className="card-footer">
+                  <div className="card-members">
+                      <div className="member-avatars">
+                      {team.members?.slice(0, 5).map((m, index) => (
+                          <div
+                          key={index}
+                          className="member-av"
+                          style={{
+                              background: m.bg + "22",
+                              borderColor: m.bg + "44",
+                              color: m.bg,
+                          }}
+                          >
+                          {m.init}
+                          </div>
+                      ))}
+                      </div>
+
+                      <span className="member-count">
+                      {team.members?.length || 0} members
+                      </span>
+                  </div>
+
+                  <button className="card-open-btn">
+                      Open <span className="material-icons-round">arrow_forward</span>
+                  </button>
+                  </div>
+              </div>
+            ))}
+
+            {/* Create Team Card */}
+            <div className="create-card" onClick={openModal}>
+              <div className="create-icon">
+                <span className="material-icons-round">add</span>
+              </div>
+              <div className="create-label">Create Team</div>
+              <div className="create-hint">Start a new collaboration</div>
+            </div>
+          </div>
+        </main>
+      </div>
       {/* Modal */}
     {isModalOpen && (
     <div className="modal-backdrop open" id="createModal" onClick={() => setIsModalOpen(false)}>
@@ -258,7 +341,7 @@ const MyTeams = () => {
 
         {/* Team Name */}
         <div className="field">
-            <label><span class="material-icons-round">drive_file_rename_outline</span>Team Name</label>
+            <label><span className="material-icons-round">drive_file_rename_outline</span>Team Name</label>
             <div className="input-wrap">
             <span className="material-icons-round i-icon">groups</span>
             <input
@@ -273,21 +356,36 @@ const MyTeams = () => {
 
         {/* Project Name */}
         <div className="field">
-            <label><span class="material-icons-round">folder_special</span>Project Name</label>
+            <label><span className="material-icons-round">folder_special</span>Project Name</label>
             <div className="input-wrap">
             <span className="material-icons-round i-icon">rocket_launch</span>
             <input
                 type="text"
                 id="newProjectName"
-                placeholder="e.g. HackBot — AI Assistant"
+                placeholder="e.g. HackBot"
                 value={newProjectName}
                 onChange={(e) => setNewProjectName(e.target.value)}
             />
             </div>
         </div>
 
-        {/* Members */}
+        {/* Description */}
         <div className="field">
+            <label><span className="material-icons-round">folder_special</span>Project Name</label>
+            <div className="input-wrap">
+            <span className="material-icons-round i-icon">rocket_launch</span>
+            <input
+                type="text"
+                id="projectDescription"
+                placeholder="e.g. AI Assistant"
+                value={projectDescription}
+                onChange={(e) => setProjectDescription(e.target.value)}
+            />
+            </div>
+        </div>
+
+        {/* Members */}
+        {/* <div className="field">
             <label><span class="material-icons-round">person_add</span>Add Members</label>
             <div className="member-tag-wrap">
             {members.map((m, i) => (
@@ -305,10 +403,10 @@ const MyTeams = () => {
                 placeholder="Type a name or email…"
             />
             </div>
-        </div>
+        </div> */}
 
         {/* Invite Link */}
-        <div className="field">
+        {/* <div className="field">
             <label><span class="material-icons-round">link</span>Invite Link</label>
             <div className="invite-row">
             <div className="invite-input-wrap">
@@ -319,7 +417,7 @@ const MyTeams = () => {
                 <span class="material-icons-round">share</span>Share Link
             </button>
             </div>
-        </div>
+        </div> */}
 
         {/* Footer */}
         <div className="modal-footer">

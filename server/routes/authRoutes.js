@@ -203,4 +203,66 @@ router.post("/skill-score", verifyToken, async (req, res) => {
     }
 })
 
+    router.post("/match", async (req, res) => {
+    try {
+        const { skills = [], level, search, sort = "match" } = req.body;
+
+        let users = await User.find().select("-password");
+
+        if (search) {
+        users = users.filter(u =>
+            u.fullName.toLowerCase().includes(search.toLowerCase())
+        );
+        }
+
+        const scoredUsers = users.map(user => {
+        let totalScore = 0;
+        let matchedSkills = 0;
+
+        skills.forEach(skill => {
+            const found = user.skills.find(s => s.name === skill);
+
+            if (found) {
+            totalScore += found.score || 50; 
+            matchedSkills++;
+            }
+        });
+
+        let match = 0;
+
+        if (skills.length > 0) {
+            match = Math.round(totalScore / skills.length);
+        } else {
+
+            const avg =
+            user.skills.reduce((sum, s) => sum + (s.score || 0), 0) /
+            (user.skills.length || 1);
+            match = Math.round(avg);
+        }
+
+        if (level) {
+            const hasLevel = user.skills.some(s => s.level === level);
+            if (hasLevel) match += 10;
+        }
+
+        // ⭐ Optional: rating / experience boost (if added later)
+
+        return {
+            ...user.toObject(),
+            match: Math.min(match, 100)
+        };
+        });
+
+        // 🔥 Sorting
+        if (sort === "match") {
+        scoredUsers.sort((a, b) => b.match - a.match);
+        }
+
+        res.json(scoredUsers);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+    });
+
 module.exports = router;

@@ -76,6 +76,7 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [activeNav, setActiveNav] = useState("dashboard");
   const { toasts, show: showToast } = useToasts();
+  const [openMenu, setOpenMenu] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -165,12 +166,39 @@ if (!user) return (
             </div>
 
             {/* Avatar → profile */}
-            <a href="/profile" className="db-topbar-avatar" title="My Profile">
-              {user.photoUrl
-                ? <img src={user.photoUrl} alt={user.fullName} />
-                : <span className="material-icons-round">person</span>
-              }
-            </a>
+            <div className="db-topbar-avatar-wrap">
+              <div
+                className="db-topbar-avatar"
+                onClick={() => setOpenMenu(prev => !prev)}
+              >
+                {user.photoUrl
+                  ? <img src={user.photoUrl} alt={user.fullName} />
+                  : <span className="material-icons-round">person</span>
+                }
+              </div>
+
+              {openMenu && (
+                <div className="db-dropdown">
+                  {ACCOUNT_NAV.map(item => (
+                    <a key={item.id} href={item.href} className="db-nav-item">
+                      <span className="material-icons-round">{item.icon}</span>
+                      {item.label}
+                    </a>
+                  ))}
+
+                  <div className="db-dropdown-divider" />
+
+                  <button
+                    className="db-nav-item logout"
+                    style={{ color: "var(--red)", marginTop: "4px" }}
+                    onClick={() => showToast("Signing out…", "info", "logout")}
+                  >
+                    <span className="material-icons-round">logout</span>
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
@@ -197,30 +225,7 @@ if (!user) return (
               </Link>
             ))}
 
-            <div className="db-sidebar-footer">
-              <div className="db-nav-section-label" style={{ marginTop: 0 }}>Account</div>
-              {ACCOUNT_NAV.map(item => (
-                <a
-                  key={item.id}
-                  href={item.href}
-                  className={`db-nav-item ${activeNav === item.id ? "active" : ""}`}
-                  onClick={() => setActiveNav(item.id)}
-                >
-                  <span className="material-icons-round">{item.icon}</span>
-                  {item.label}
-                </a>
-              ))}
-
-              {/* Logout */}
-              <button
-                className="db-nav-item"
-                style={{ color: "var(--red)", marginTop: "4px" }}
-                onClick={() => showToast("Signing out…", "info", "logout")}
-              >
-                <span className="material-icons-round">logout</span>
-                Sign out
-              </button>
-            </div>
+ 
           </aside>
 
           {/* ── MAIN CONTENT ──────────────────────────── */}
@@ -245,6 +250,26 @@ if (!user) return (
                 <span className="material-icons-round">add</span>
                 New Project
               </a>
+            </div>
+
+            <div className="db-cta">
+              <div className="db-cta-left">
+                <div className="db-cta-icon">
+                  <span className="material-icons-round">quiz</span>
+                </div>
+
+                <div>
+                  <div className="db-cta-title">Test Your Skills 🚀</div>
+                  <div className="db-cta-sub">
+                    Take a quick assessment and showcase your expertise to teams.
+                  </div>
+                </div>
+              </div>
+
+              <Link to="/skills-test" className="db-cta-btn">
+                Start Test
+                <span className="material-icons-round">arrow_forward</span>
+              </Link>
             </div>
 
             {/* ══ STATS ROW ═════════════════════════════ */}
@@ -384,9 +409,11 @@ if (!user) return (
                   <div className="db-profile-sum-name">{user.fullName}</div>
                   <div className="db-profile-sum-email">{user.email}</div>
                   <div className="db-profile-sum-tags">
-                    {user.skills.slice(0, 4).map(s => (
-                      <span key={s} className="db-tag-mini skill">{s}</span>
-                    ))}
+                  {user.skills.slice(0, 4).map(s => (
+                    <span key={s._id} className="db-tag-mini skill">
+                      {s.name}
+                    </span>
+                  ))}
                     {user.interests.slice(0, 3).map(s => (
                       <span key={s} className="db-tag-mini interest">{s}</span>
                     ))}

@@ -61,25 +61,6 @@ const NAV_SECTIONS = [
   { id: "sec-danger",   icon: "warning_amber",    label: "Danger Zone"     },
 ];
 
-/* ════════════════════════════════════════════════════════════
-   MOCK INITIAL PROFILE  (replace with your API data)
-════════════════════════════════════════════════════════════ */
-const INIT_PROFILE = {
-  photoUrl:   "",
-  fullName:   "Aryan Sharma",
-  email:      "aryan@college.edu",
-  role:       "Student",
-  college:    "IIT Bombay",
-  department: "Computer Science & Engineering (CSE)",
-  year:       "2",
-  skills:     ["React","Python","UI/UX"],
-  interests:  ["Hackathons","Open Source","Startups"],
-  github:     "https://github.com/aryan",
-  linkedin:   "https://linkedin.com/in/aryan",
-  instagram:  "",
-  youtube:    "",
-  bio:        "Full-stack developer passionate about building tools that empower students.",
-};
 
 /* ════════════════════════════════════════════════════════════
    TOAST HOOK
@@ -312,7 +293,23 @@ function Section({ id, icon, title, subtitle, editing, onEdit, onCancel, onSave,
 ════════════════════════════════════════════════════════════ */
 export default function Profile() {
   /* ── profile data ────────────────────────────────────── */
-  const [profile, setProfile] = useState(INIT_PROFILE);
+  const [profile, setProfile] = useState({
+  fullName: "",
+  email: "",
+  role: "",
+  college: "",
+  department: "",
+  year: "",
+  skills: [],        // ✅ string array (for UI)
+  skillsRaw: [],     // ✅ full objects (from backend)
+  interests: [],
+  github: "",
+  linkedin: "",
+  instagram: "",
+  youtube: "",
+  bio: "",
+  photoUrl: ""
+});
 
   /* ── draft state per section ─────────────────────────── */
   const [drafts, setDrafts] = useState({});
@@ -336,17 +333,43 @@ export default function Profile() {
 
   /* ── Intersection Observer for sidebar ──────────────── */
   useEffect(() => {
-    const options = { root: null, rootMargin: "-20% 0px -70% 0px", threshold: 0 };
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) setActiveNav(entry.target.id);
-      });
-    }, options);
-    NAV_SECTIONS.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (el) { sectionRefs.current[id] = el; observer.observe(el); }
-    });
-    return () => observer.disconnect();
+    async function fetchProfile() {
+      try {
+        const res = await fetch("http://localhost:3001/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        });
+
+        const data = await res.json();
+
+        setProfile({
+          fullName: data.fullName || "",
+          email: data.email || "",
+          role: data.role || "",
+          college: data.college || "",
+          department: data.department || "",
+          year: data.yearOfStudy || "",
+
+          // 🔥 IMPORTANT TRANSFORMATION
+          skills: data.skills?.map(s => s.name) || [],
+          skillsRaw: data.skills || [],
+
+          interests: data.interests || [],
+          github: data.github || "",
+          linkedin: data.linkedin || "",
+          instagram: data.instagram || "",
+          youtube: data.youtube || "",
+          bio: data.bio || "",
+          photoUrl: data.profilePhoto || ""
+        });
+
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      }
+    }
+
+    fetchProfile();
   }, []);
 
   /* ── Section edit helpers ────────────────────────────── */
@@ -490,9 +513,6 @@ export default function Profile() {
   const activeRole = isEditingAcct ? (acct.role || profile.role) : profile.role;
   const roleObj = ROLES.find(r => r.value === profile.role);
 
-  /* ════════════════════════════════════════════════════════
-     RENDER
-  ════════════════════════════════════════════════════════ */
   return (
     <>
       <div className="pf-bg-grid" />

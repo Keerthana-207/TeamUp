@@ -155,6 +155,65 @@
     .card-open-btn:hover { color: #c4b5fd; }
     .card-open-btn .material-icons-round { font-size: 15px!important; }
 
+    /* SIDEBAR */
+    .app-layout {
+      display: flex;
+    }
+
+    .db-sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  position: sticky; top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto; scrollbar-width: none;
+  padding: 24px 12px;
+  border-right: 1px solid var(--border);
+  background: rgba(14,16,24,0.55);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.db-sidebar::-webkit-scrollbar { display: none; }
+
+.db-nav-section-label {
+  font-size: 0.67rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-muted); font-weight: 600;
+  padding: 0 10px; margin: 14px 0 6px;
+}
+.db-nav-section-label:first-child { margin-top: 0; }
+
+.db-nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  cursor: pointer; border: 1px solid transparent;
+  color: var(--text-muted); font-size: 0.875rem; font-weight: 500;
+  background: transparent; width: 100%; text-align: left;
+  text-decoration: none; transition: background var(--t), border-color var(--t), color var(--t);
+}
+.db-nav-item .material-icons-round { font-size: 18px !important; flex-shrink: 0; }
+.db-nav-item:hover { background: var(--surface2); color: var(--text); }
+.db-nav-item.active {
+  background: rgba(99,218,255,0.08); border-color: rgba(99,218,255,0.18); color: var(--cyan);
+}
+.db-nav-item.active .material-icons-round { color: var(--cyan); }
+
+.db-nav-badge {
+  margin-left: auto; font-size: 0.68rem; font-weight: 600;
+  padding: 2px 7px; border-radius: 10px;
+  background: rgba(99,218,255,0.12); color: var(--cyan);
+  border: 1px solid rgba(99,218,255,0.2);
+}
+.db-nav-badge.green {
+  background: rgba(52,211,153,0.12); color: var(--green); border-color: rgba(52,211,153,0.2);
+}
+.db-nav-badge.violet {
+  background: rgba(167,139,250,0.12); color: var(--violet); border-color: rgba(167,139,250,0.2);
+}
+
+.db-sidebar-footer {
+  margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 2px;
+}
+
+
+
     /* ── CREATE TEAM CARD ── */
     .create-card {
       background: var(--surface);

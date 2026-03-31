@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { INITIAL_PROJECTS } from "../constants";
-import './MyProject.css'
+import { MAIN_NAV, ACCOUNT_NAV } from "../constants";
+import { ThreeDots } from "react-loader-spinner";
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import './MyProject.css';
 
 function formatDate(str) {
   return new Date(str).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
@@ -26,101 +29,101 @@ function ProjectCard({ project: p, onShare, onEdit, onDelete, onOpen }) {
   const domainBorder = p.color + "44";
 
   return (
-    <div className="project-card">
-      <div className="card-bar" style={{ background: p.color }} />
+      <div className="project-card">
+        <div className="card-bar" style={{ background: p.color }} />
 
-      {/* Banner */}
-      <div className="card-banner">
-        <div className="card-banner-bg" style={{ background: p.accent }} />
-        <div
-          className="card-banner-pattern"
-          style={{ "--dot-color": p.dotColor }}
-        />
-        <div className={`card-vis-badge ${p.visibility === "public" ? "badge-public" : "badge-private"}`}>
-          <span className="material-icons-round">
-            {p.visibility === "public" ? "public" : "lock"}
-          </span>
-          {p.visibility === "public" ? "Public" : "Private"}
-        </div>
-        <div
-          className="card-banner-icon"
-          style={{ background: p.accent, borderColor: p.color + "33" }}
-        >
-          <span className="material-icons-round" style={{ color: p.color }}>
-            {p.domainIcon}
-          </span>
-        </div>
-      </div>
-
-      {/* Body */}
-      <div className="card-body" onClick={() => onOpen(p)}>
-        <div className="card-title-block">
+        {/* Banner */}
+        <div className="card-banner">
+          <div className="card-banner-bg" style={{ background: p.accent }} />
           <div
-            className="card-domain"
-            style={{ background: p.accent, borderColor: domainBorder, color: p.color }}
+            className="card-banner-pattern"
+            style={{ "--dot-color": p.dotColor }}
+          />
+          <div className={`card-vis-badge ${p.visibility === "public" ? "badge-public" : "badge-private"}`}>
+            <span className="material-icons-round">
+              {p.visibility === "public" ? "public" : "lock"}
+            </span>
+            {p.visibility === "public" ? "Public" : "Private"}
+          </div>
+          <div
+            className="card-banner-icon"
+            style={{ background: p.accent, borderColor: p.color + "33" }}
           >
-            <span className="material-icons-round">{p.domainIcon}</span>
-            {p.domain}
+            <span className="material-icons-round" style={{ color: p.color }}>
+              {p.domainIcon}
+            </span>
           </div>
-          <div className="card-title">
-            {p.name}
-            {p.status === "wip" && (
-              <span style={{
-                fontSize: ".68rem", padding: "2px 7px", borderRadius: "8px",
-                background: "rgba(251,191,36,.12)", border: "1px solid rgba(251,191,36,.3)",
-                color: "var(--yellow)", fontWeight: 700, marginLeft: 6, verticalAlign: "middle",
-              }}>WIP</span>
-            )}
-          </div>
-          <div className="card-desc">{p.description}</div>
         </div>
 
-        {/* Tags */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 10 }}>
-          {p.tags.map(tag => (
-            <span key={tag} style={{
-              fontSize: ".68rem", padding: "2px 8px", borderRadius: "8px",
-              background: "var(--surface3)", border: "1px solid var(--border)", color: "var(--muted)",
-            }}>{tag}</span>
-          ))}
+        {/* Body */}
+        <div className="card-body" onClick={() => onOpen(p)}>
+          <div className="card-title-block">
+            <div
+              className="card-domain"
+              style={{ background: p.accent, borderColor: domainBorder, color: p.color }}
+            >
+              <span className="material-icons-round">{p.domainIcon}</span>
+              {p.domain}
+            </div>
+            <div className="card-title">
+              {p.name}
+              {p.status === "wip" && (
+                <span style={{
+                  fontSize: ".68rem", padding: "2px 7px", borderRadius: "8px",
+                  background: "rgba(251,191,36,.12)", border: "1px solid rgba(251,191,36,.3)",
+                  color: "var(--yellow)", fontWeight: 700, marginLeft: 6, verticalAlign: "middle",
+                }}>WIP</span>
+              )}
+            </div>
+            <div className="card-desc">{p.description}</div>
+          </div>
+
+          {/* Tags */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 10 }}>
+            {p.tags.map(tag => (
+              <span key={tag} style={{
+                fontSize: ".68rem", padding: "2px 8px", borderRadius: "8px",
+                background: "var(--surface3)", border: "1px solid var(--border)", color: "var(--muted)",
+              }}>{tag}</span>
+            ))}
+          </div>
+
+          {/* Meta */}
+          <div className="card-meta">
+            <span className="meta-item">
+              <span className="material-icons-round" style={{ color: "var(--cyan)" }}>insert_drive_file</span>
+              {p.files}
+            </span>
+            <span className="meta-item">
+              <span className="material-icons-round" style={{ color: "var(--yellow)" }}>star</span>
+              {p.stars}
+            </span>
+            <span className="meta-item">
+              <span className="material-icons-round" style={{ color: "var(--violet)" }}>fork_right</span>
+              {p.forks}
+            </span>
+          </div>
         </div>
 
-        {/* Meta */}
-        <div className="card-meta">
-          <span className="meta-item">
-            <span className="material-icons-round" style={{ color: "var(--cyan)" }}>insert_drive_file</span>
-            {p.files}
-          </span>
-          <span className="meta-item">
-            <span className="material-icons-round" style={{ color: "var(--yellow)" }}>star</span>
-            {p.stars}
-          </span>
-          <span className="meta-item">
-            <span className="material-icons-round" style={{ color: "var(--violet)" }}>fork_right</span>
-            {p.forks}
-          </span>
+        {/* Footer */}
+        <div className="card-footer">
+          <div className="card-date">
+            <span className="material-icons-round">calendar_today</span>
+            {formatDate(p.date)}
+          </div>
+          <div className="card-actions">
+            <button className="card-action-btn share" title="Share" onClick={e => { e.stopPropagation(); onShare(p); }}>
+              <span className="material-icons-round">share</span>
+            </button>
+            <button className="card-action-btn edit" title="Edit" onClick={e => { e.stopPropagation(); onEdit(p); }}>
+              <span className="material-icons-round">edit</span>
+            </button>
+            <button className="card-action-btn delete" title="Delete" onClick={e => { e.stopPropagation(); onDelete(p); }}>
+              <span className="material-icons-round">delete_outline</span>
+            </button>
+          </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="card-footer">
-        <div className="card-date">
-          <span className="material-icons-round">calendar_today</span>
-          {formatDate(p.date)}
-        </div>
-        <div className="card-actions">
-          <button className="card-action-btn share" title="Share" onClick={e => { e.stopPropagation(); onShare(p); }}>
-            <span className="material-icons-round">share</span>
-          </button>
-          <button className="card-action-btn edit" title="Edit" onClick={e => { e.stopPropagation(); onEdit(p); }}>
-            <span className="material-icons-round">edit</span>
-          </button>
-          <button className="card-action-btn delete" title="Delete" onClick={e => { e.stopPropagation(); onDelete(p); }}>
-            <span className="material-icons-round">delete_outline</span>
-          </button>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -173,16 +176,9 @@ function Toast({ toast }) {
    MAIN COMPONENT
 ══════════════════════════════════════════════════════ */
 export default function MyProjects() {
-  // Inject global CSS once
-  // useEffect(() => {
-  //   const el = document.createElement("style");
-  //   el.textContent = GLOBAL_CSS;
-  //   document.head.appendChild(el);
-  //   return () => document.head.removeChild(el);
-  // }, []);
-
   // ── State ──────────────────────────────────────────
-  const [projects, setProjects]       = useState(INITIAL_PROJECTS);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showAll, setShowAll]         = useState(true);
   const [searchQ, setSearchQ]         = useState("");
   const [sortBy, setSortBy]           = useState("newest");
@@ -190,29 +186,109 @@ export default function MyProjects() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [toasts, setToasts]           = useState([]);
   const toastIdRef                    = useRef(0);
+  const [activeNav, setActiveNav] = useState("projects");
 
-  // ── Toast helper ──────────────────────────────────
+   // ── Toast helper ──────────────────────────────────
   const showToast = useCallback((message, type = "info", icon = "info", duration = 3000) => {
     const id = ++toastIdRef.current;
     setToasts(prev => [...prev, { id, message, type, icon }]);
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), duration);
   }, []);
 
-  // ── Derived list ──────────────────────────────────
-  const filteredProjects = (() => {
-    let list = [...projects];
-    if (!showAll) list = list.filter(p => p.visibility === "public");
-    if (searchQ) {
-      const q = searchQ.toLowerCase();
-      list = list.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.domain.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.tags.some(t => t.toLowerCase().includes(q))
-      );
-    }
-    return sortProjects(list, sortBy);
-  })();
+    useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(
+          "http://localhost:3001/api/projects/my",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const formatted = (res.data.projects || []).map((p) => ({
+          id: p._id,
+          name: p.name,
+          description: p.description,
+          domain: p.domain,
+          domainIcon: "folder",
+          tags: [],
+          files: p.files?.length || 0,
+          stars: p.stars || 0,
+          forks: p.forks || 0,
+          date: p.createdAt,
+          visibility: p.visibility,
+          color: "#63DAFF",
+          accent: "rgba(99,218,255,0.12)",
+          dotColor: "#63DAFF",
+          status: "active",
+        }));
+
+        setProjects(formatted);
+      } catch (err) {
+        console.error("Error fetching projects:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+if (loading) {
+  return (
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh"
+    }}>
+      <ThreeDots
+        visible={true}
+        height="80"
+        width="80"
+        color="#53CBF3"
+        radius="9"
+        ariaLabel="three-dots-loading"
+      />
+    </div>
+  );
+}
+  /* ---------- FILTER ---------- */
+  const filteredProjects = sortProjects(
+    projects.filter((p) =>
+      p.name.toLowerCase().includes(searchQ.toLowerCase())
+    ),
+    sortBy
+  );
+
+  /* ---------- DELETE ---------- */
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+    setProjects((prev) => prev.filter((p) => p.id !== deleteTarget.id));
+    setDeleteTarget(null);
+  };
+
+
+
+  // // ── Derived list ──────────────────────────────────
+  // const filteredProjects = (() => {
+  //   let list = [...projects];
+  //   if (!showAll) list = list.filter(p => p.visibility === "public");
+  //   if (searchQ) {
+  //     const q = searchQ.toLowerCase();
+  //     list = list.filter(p =>
+  //       p.name.toLowerCase().includes(q) ||
+  //       p.domain.toLowerCase().includes(q) ||
+  //       p.description.toLowerCase().includes(q) ||
+  //       p.tags.some(t => t.toLowerCase().includes(q))
+  //     );
+  //   }
+  //   return sortProjects(list, sortBy);
+  // })();
 
   // ── Stats ─────────────────────────────────────────
   const total = projects.length;
@@ -239,12 +315,30 @@ export default function MyProjects() {
   const handleEdit  = p => showToast("Opening editor…", "info", "edit");
   const handleOpen  = p => showToast(`Opening "${p.name}"…`, "info", "open_in_new");
 
-  const confirmDelete = () => {
-    if (!deleteTarget) return;
+const confirmDelete = async () => {
+  if (!deleteTarget) return;
+
+  try {
+    const token = localStorage.getItem("token");
+
+    await axios.delete(
+      `http://localhost:3001/api/projects/${deleteTarget.id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
     setProjects(prev => prev.filter(p => p.id !== deleteTarget.id));
-    showToast(`"${deleteTarget.name}" deleted`, "error", "delete");
-    setDeleteTarget(null);
-  };
+    showToast("Project deleted", "success");
+  } catch (err) {
+    console.error(err);
+    showToast("Delete failed", "error");
+  }
+
+  setDeleteTarget(null);
+};
 
   // ── Render ────────────────────────────────────────
   return (
@@ -272,7 +366,49 @@ export default function MyProjects() {
         </div>
       </nav>
 
-      {/* Page */}
+      <div className="app-layout">
+          <aside className="db-sidebar">
+            <div className="db-nav-section-label">Main</div>
+            {MAIN_NAV.map(item => (
+              <Link
+                key={item.id}
+                to={item.href}
+                className={`db-nav-item ${activeNav === item.id ? "active" : ""}`}
+                onClick={() => setActiveNav(item.id)}
+              >
+                <span className="material-icons-round">{item.icon}</span>
+                {item.label}
+                {item.badge && (
+                  <span className={`db-nav-badge ${item.badge.cls}`}>{item.badge.text}</span>
+                )}
+              </Link>
+            ))}
+
+            <div className="db-sidebar-footer">
+              <div className="db-nav-section-label" style={{ marginTop: 0 }}>Account</div>
+              {ACCOUNT_NAV.map(item => (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  className={`db-nav-item ${activeNav === item.id ? "active" : ""}`}
+                  onClick={() => setActiveNav(item.id)}
+                >
+                  <span className="material-icons-round">{item.icon}</span>
+                  {item.label}
+                </a>
+              ))}
+
+              {/* Logout */}
+              <button
+                className="db-nav-item"
+                style={{ color: "var(--red)", marginTop: "4px" }}
+                onClick={() => showToast("Signing out…", "info", "logout")}
+              >
+                <span className="material-icons-round">logout</span>
+                Sign out
+              </button>
+            </div>
+          </aside>
       <main className="page">
 
         {/* Header */}
@@ -401,9 +537,12 @@ export default function MyProjects() {
         </div>
 
       </main>
+      </div>
+      {/* Page */}
+
 
       {/* FAB */}
-      <button className="fab" onClick={() => (window.location.href = "create_project.html")}>
+      <button className="fab" onClick={() => (window.location.href = "/create-project")}>
         <div className="fab-ring" />
         <span className="material-icons-round">add</span>
         <span className="fab-label">Create Project</span>
