@@ -47,11 +47,11 @@ const userSchema = new mongoose.Schema({
         },
         level: {
             type: String,
-            enum: ["Beginner", "Intermediate", "Advanced"]
+            enum: ["Beginner", "Intermediate", "Expert"]
         }
         }
     ],
-    default: null
+    default: []
     },
     interests: {
         type: [String],

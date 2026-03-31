@@ -159,4 +159,48 @@ router.get("/me", verifyToken, async (req, res) => {
     }
 });
 
+router.post("/skill-score", verifyToken, async (req, res) => {
+    try {
+        const {skillName, score} = req.body;
+
+        if (!skillName || score === undefined){
+            return res.status(500).json({message: "Skill Name and score required"});
+        }
+
+        const user = await User.findById(req.user.id);
+
+        let level = "Beginner";
+        if (score >= 80) level = "Expert";
+        else if (score >= 55) level = "Intermediate";
+
+        const existingSkill = user.skills.find(s => s.name === skillName);
+
+        if (existingSkill) {
+            // ✅ Keep best score only
+            if (score > existingSkill.score) {
+                existingSkill.score = score;
+                existingSkill.level = level;
+            }
+        } else {
+            // ➕ Add new skill
+            user.skills.push({
+                name: skillName,
+                score,
+                level
+            });
+        }
+
+        await user.save();
+
+        res.json({
+            message: "Skill updated successfully",
+            skills: user.skills
+        });
+
+    } catch (err) {
+        console.error("Skill Update Error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+})
+
 module.exports = router;

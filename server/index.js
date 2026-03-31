@@ -7,6 +7,7 @@ const multer = require("multer");
 const path = require("path");
 const authRoutes = require('./routes/authRoutes.js');
 const projectRoutes = require('./routes/projectRoutes.js');
+const teamRoutes = require('./routes/teamRoutes.js');
 
 
 const app = express();
@@ -15,25 +16,11 @@ app.use((req, res, next) => {
   next();
 });
 app.use(express.json());
-// app.use((req, res, next) => {
-//   res.header("Access-Control-Allow-Origin", "http://localhost:5173");
-//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-//   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 
-//   if (req.method === "OPTIONS") {
-//     return res.sendStatus(200);
-//   }
-
-//   next();
-// });
-// app.use(cors({
-//   origin: "http://localhost:5173",
-//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//   allowedHeaders: ["Content-Type", "Authorization"],
-//   credentials: true
-// }));
-// app.options("*", cors());
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+}));
 
 connectDB();
 
@@ -50,6 +37,7 @@ const upload = multer({ storage });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/teams', teamRoutes)
 
 // app.post('/register', upload.single("profilePhoto"), async (req, res) => {
 //     try {
