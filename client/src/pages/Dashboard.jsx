@@ -421,7 +421,7 @@ if (!user) return (
                 </div>
                 {/* View Public Profile button */}
                 <a
-                  href={`/u/${user.email.split("@")[0]}`}
+                  href={`/profile/me`}
                   className="db-create-btn"
                   style={{ alignSelf: "flex-start", flexShrink: 0 }}
                 >

@@ -85,19 +85,29 @@ export default function FindTeam() {
   const location = useLocation();
   const { hackathonId, hackathonTitle, skills } = location.state || {};
 
-  const SKILL_OPTIONS = skills || ["React","Node.js","Python","ML/AI","Blockchain","UI/UX","Data Science","Cloud","Flutter","TypeScript","Java","Figma"];
+  const SKILL_OPTIONS = skills || ["React","Node.js","Python","Machine Learning","Blockchain","UI/UX","Data Science","Cloud","Flutter","TypeScript","Java","Figma"];
 
   /* ── Filter + Sort ──────────────────────────────────── */
   const fetchUsers = async () => {
   try {
     setLoading(true);
 
-    const res = await axios.post("http://localhost:3001/api/users/match", {
-      skills: selectedSkills,
-      level: selectedLevel,
-      search,
-      sort: sortKey
-    });
+    const token = localStorage.getItem("token"); // or wherever you store it
+
+    const res = await axios.post(
+      "http://localhost:3001/api/auth/match",
+      {
+        skills: selectedSkills,
+        level: selectedLevel,
+        search,
+        sort: sortKey
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
 
     setUsers(res.data);
   } catch (err) {
@@ -265,7 +275,7 @@ export default function FindTeam() {
                         <div className="ft-card-info">
                           <div className="ft-card-name">{user.fullName}</div>
                           <div className="ft-card-role">{user.role}</div>
-                          <div className="ft-card-year">{user.College} · {user.yearOfStudy}</div>
+                          <div className="ft-card-year">{user.college} · {user.yearOfStudy}</div>
                         </div>
                         {/* Match ring */}
                         <div className="ft-match-ring" style={{ borderColor: ms.border }}>

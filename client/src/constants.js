@@ -224,7 +224,7 @@ export const MAIN_NAV = [
   { id: "projects",    label: "My Projects",  icon: "rocket_launch",  href: "/project",       badge: { text: "3", cls: "" }         },
   { id: "teams",       label: "My Teams",     icon: "group",          href: "/teams",          badge: { text: "2", cls: "violet" }   },
   { id: "people",      label: "Browse People",icon: "manage_search",  href: "/people",         badge: null         },
-  { id: "competitions",  label: "Competitions",   icon: "emoji_events",   href: "/explore",     badge: { text: "New", cls: "green" }  },
+  { id: "competitions",  label: "Competitions",   icon: "emoji_events",   href: "/events",     badge: { text: "New", cls: "green" }  },
   { id: "skills-test", label: "Skill Test",   icon: "quiz",           href: "/skills-test",      badge: null}
 ];
 export const ACCOUNT_NAV = [

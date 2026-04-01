@@ -203,11 +203,13 @@ router.post("/skill-score", verifyToken, async (req, res) => {
     }
 })
 
-    router.post("/match", async (req, res) => {
+    router.post("/match",verifyToken, async (req, res) => {
     try {
         const { skills = [], level, search, sort = "match" } = req.body;
 
-        let users = await User.find().select("-password");
+        let users = await User.find({
+            _id: { $ne: req.user.id } 
+        }).select("-password");
 
         if (search) {
         users = users.filter(u =>
@@ -219,13 +221,36 @@ router.post("/skill-score", verifyToken, async (req, res) => {
         let totalScore = 0;
         let matchedSkills = 0;
 
-        skills.forEach(skill => {
-            const found = user.skills.find(s => s.name === skill);
+        const normalize = (str) => str.toLowerCase().trim();
 
-            if (found) {
-            totalScore += found.score || 50; 
-            matchedSkills++;
+        const SKILL_MAP = {
+        "ml/ai": ["machine learning", "ml", "ai"],
+        "node.js": ["nodejs", "node"],
+        "react": ["reactjs", "react.js"]
+        };
+
+        skills.forEach(skill => {
+        const found = user.skills.find(s => {
+            const userSkill = normalize(s.name);
+            const selected = normalize(skill);
+
+            if (
+            userSkill === selected ||
+            userSkill.includes(selected) ||
+            selected.includes(userSkill)
+            ) return true;
+
+            if (SKILL_MAP[selected]) {
+            return SKILL_MAP[selected].includes(userSkill);
             }
+
+            return false;
+        });
+
+        if (found) {
+            totalScore += found.score || 50;
+            matchedSkills++;
+        }
         });
 
         let match = 0;
@@ -258,11 +283,42 @@ router.post("/skill-score", verifyToken, async (req, res) => {
         scoredUsers.sort((a, b) => b.match - a.match);
         }
 
-        res.json(scoredUsers);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Server error" });
+        // ✅ Filter users with some match
+        const filteredUsers = scoredUsers.filter(u => u.match > 0);
+
+        // ✅ Fallback if no matches
+        const finalUsers =
+        filteredUsers.length > 0 ? filteredUsers : scoredUsers;
+
+        // ✅ Send response
+        res.json(finalUsers);
+            } catch (err) {
+                console.error(err);
+                res.status(500).json({ error: "Server error" });
+            }
+            });
+router.get("/profile/:id", verifyToken, async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    // 👇 optional: check if it's the logged-in user
+    const isOwnProfile = user._id.toString() === req.user.id;
+
+    res.json({
+      user,
+      isOwnProfile
     });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 module.exports = router;
