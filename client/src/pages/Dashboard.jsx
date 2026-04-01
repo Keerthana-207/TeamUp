@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MAIN_NAV, ACCOUNT_NAV } from "../constants";
 import { ThreeDots } from 'react-loader-spinner';
 import axios from 'axios';
@@ -77,6 +77,7 @@ export default function Dashboard() {
   const [activeNav, setActiveNav] = useState("dashboard");
   const { toasts, show: showToast } = useToasts();
   const [openMenu, setOpenMenu] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -159,7 +160,7 @@ if (!user) return (
             <div
               className="db-icon-btn"
               title="Notifications"
-              onClick={() => showToast("No new notifications.", "info", "notifications")}
+              onClick={() => navigate('/notifications')}
             >
               <span className="material-icons-round">notifications_none</span>
               <div className="db-notif-dot" />

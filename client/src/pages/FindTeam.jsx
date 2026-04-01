@@ -120,9 +120,32 @@ export default function FindTeam() {
   function toggleSkill(sk) {
     setSelectedSkills(p => p.includes(sk) ? p.filter(s => s !== sk) : [...p, sk]);
   }
-  function handleInvite(user) {
-    setInvited(p => ({ ...p, [user._id]: true }));
-    showToast(`Invite sent to ${user.fullName}!`, "success", "person_add");
+
+  async function handleInvite(user) {
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.post(
+        "http://localhost:3001/api/notifications/invite",
+        {
+          receiverId: user._id,
+          hackathonTitle: hackathonTitle || "this hackathon"
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      // UI update after success
+      setInvited(p => ({ ...p, [user._id]: true }));
+      showToast(`Invite sent to ${user.fullName}!`, "success", "person_add");
+
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to send invite", "error", "error");
+    }
   }
   function resetFilters() {
     setSelectedSkills([]); setSelectedLevel(""); setSearch(""); setSortKey("match");
@@ -323,7 +346,7 @@ export default function FindTeam() {
                           </span>
                           {isInvited ? "Invite Sent" : "Invite to Team"}
                         </button>
-                        <a href={`/u/${user._id}`} className="ft-view-btn">
+                        <a href={`/profile/${user._id}`} className="ft-view-btn">
                           <span className="material-icons-round">open_in_new</span>
                           Profile
                         </a>

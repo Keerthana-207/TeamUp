@@ -8,6 +8,7 @@ const path = require("path");
 const authRoutes = require('./routes/authRoutes.js');
 const projectRoutes = require('./routes/projectRoutes.js');
 const teamRoutes = require('./routes/teamRoutes.js');
+const notificationRoutes = require('./routes/notificationRoutes.js')
 
 
 const app = express();
@@ -37,27 +38,8 @@ const upload = multer({ storage });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
-app.use('/api/teams', teamRoutes)
-
-// app.post('/register', upload.single("profilePhoto"), async (req, res) => {
-//     try {
-//         const userData = req.body;
-
-//         // hash password
-//         const salt = await bcrypt.genSalt(10);
-//         userData.password = await bcrypt.hash(userData.password, salt);
-
-//         if (req.file) {
-//             userData.profilePhoto = req.file.filename;
-//         }
-
-//         const user = await userModel.create(userData);
-//         res.json(user);
-
-//     } catch (err) {
-//         res.status(500).json(err);
-//     }
-// });
+app.use('/api/teams', teamRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.listen(3001, () => {
     console.log('App is running')
