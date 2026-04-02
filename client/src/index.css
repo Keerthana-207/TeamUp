@@ -4,7 +4,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body, #root, .app-container {
-  height: auto !important;        /* let the content grow naturally */
+  /* height: auto !important;         */
   overflow-y: auto !important;    /* enable vertical scrolling */
 }
 
@@ -36,5 +36,5 @@ body {
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
-  padding-top: 80px;
+  /* padding-top: 80px; */
 }

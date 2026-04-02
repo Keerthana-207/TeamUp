@@ -90,12 +90,14 @@ nav.scrolled {
 
 /* ── HERO ── */
 .hero {
-  position: relative; z-index: 1;
+  position: relative; 
+  z-index: 1;
   min-height: 100vh;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   text-align: center;
-  padding: 120px 24px 80px;
+  padding: 160px 24px 80px;
+  margin-top: 80px;
 }
 
 .hero-badge {
