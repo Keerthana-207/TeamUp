@@ -226,7 +226,7 @@ export const MAIN_NAV = [
   // { id: "people",      label: "Browse People",icon: "manage_search",  href: "/people",         badge: null         },
   { id: "competitions",  label: "Competitions",   icon: "emoji_events",   href: "/events",     badge: { text: "New", cls: "green" }  },
   { id: "skills-test", label: "Skill Test",   icon: "quiz",           href: "/skills-test",      badge: null},
-  { id: "skills-share", label: "Skill Share", icon: "hat",            href:"/skills-share", badeg:null}
+  { id: "skills-share", label: "Skill Share", icon: "co_present",  href:"/skills-share", badge:null}
 ];
 export const ACCOUNT_NAV = [
   { id: "profile",     label: "My Profile",   icon: "manage_accounts", href: "/profile",       badge: null },
