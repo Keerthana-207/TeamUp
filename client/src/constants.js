@@ -223,9 +223,10 @@ export const MAIN_NAV = [
   { id: "dashboard",   label: "Dashboard",    icon: "dashboard",      href: "/dashboard",      badge: null         },
   { id: "projects",    label: "My Projects",  icon: "rocket_launch",  href: "/project",       badge: { text: "3", cls: "" }         },
   { id: "teams",       label: "My Teams",     icon: "group",          href: "/teams",          badge: { text: "2", cls: "violet" }   },
-  { id: "people",      label: "Browse People",icon: "manage_search",  href: "/people",         badge: null         },
+  // { id: "people",      label: "Browse People",icon: "manage_search",  href: "/people",         badge: null         },
   { id: "competitions",  label: "Competitions",   icon: "emoji_events",   href: "/events",     badge: { text: "New", cls: "green" }  },
-  { id: "skills-test", label: "Skill Test",   icon: "quiz",           href: "/skills-test",      badge: null}
+  { id: "skills-test", label: "Skill Test",   icon: "quiz",           href: "/skills-test",      badge: null},
+  { id: "skills-share", label: "Skill Share", icon: "hat",            href:"/skills-share", badeg:null}
 ];
 export const ACCOUNT_NAV = [
   { id: "profile",     label: "My Profile",   icon: "manage_accounts", href: "/profile",       badge: null },

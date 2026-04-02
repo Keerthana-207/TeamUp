@@ -16,6 +16,8 @@ import SkillAssessment from './pages/SkillAssessment'
 import Explore from './pages/Explore'
 import SkillShare from './pages/SkillShare'
 import Notifications from './pages/Notifications'
+import TeamDetail from './pages/TeamDetail'
+import NotFound from './pages/NotFound'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -43,6 +45,10 @@ function App() {
 
       {/* Notifications */}
       <Route path='/notifications' element={<Notifications />} />
+
+      {/* Team Details */}
+      <Route path='/team-details' element={<TeamDetail />} />
+      <Route path='*' element={<NotFound />} />
     </Routes>
     </>
   )
