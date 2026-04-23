@@ -1,16 +1,14 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import "./PublicProfile.css";
 import { ThreeDots } from 'react-loader-spinner';
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import axios from "axios";
 
 const ROLE_CFG = {
-  Student : { icon: "school",              cls: "student", label: "Student"  },
-  Mentor  : { icon: "psychology",          cls: "mentor",  label: "Mentor"   },
-  Admin   : { icon: "admin_panel_settings",cls: "admin",   label: "Admin"    },
+  Student: { icon: "school",               cls: "student", label: "Student"  },
+  Mentor:  { icon: "psychology",           cls: "mentor",  label: "Mentor"   },
+  Admin:   { icon: "admin_panel_settings", cls: "admin",   label: "Admin"    },
 };
-
 
 function useToasts() {
   const [toasts, setToasts] = useState([]);
@@ -23,16 +21,17 @@ function useToasts() {
   return { toasts, show };
 }
 
-// Star Ratings
-function StarRating({ avg, count, onRate }) {
-  const [hover, setHover]         = useState(0);
+/* ── Circular Rating Ring ───────────────────────────────── */
+function RatingRing({ avg, count, onRate }) {
+  const [hover, setHover]           = useState(0);
   const [userRating, setUserRating] = useState(0);
-  const [submitted, setSubmitted]  = useState(false);
-  const display = hover || userRating || avg;
+  const [submitted, setSubmitted]   = useState(false);
 
-  function handleRate(val) {
-    setUserRating(val);
-  }
+  const safeAvg = avg || 0;
+  const r       = 38;
+  const circ    = 2 * Math.PI * r;
+  const filled  = (safeAvg / 5) * circ;
+
   function handleSubmit() {
     if (!userRating) return;
     setSubmitted(true);
@@ -40,148 +39,124 @@ function StarRating({ avg, count, onRate }) {
   }
 
   return (
-    <div className="pp-rating-strip">
-      {/* Display stars (readonly — shows avg) */}
-      <div className="pp-stars">
-        {[1,2,3,4,5].map(n => {
-          const filled = avg >= n;
-          const half   = !filled && avg >= n - 0.5;
-          return (
-            <span
-              key={n}
-              className={`material-icons-round pp-star readonly ${filled ? "filled" : half ? "half" : "empty"}`}
-            >
-              {filled ? "star" : half ? "star_half" : "star_outline"}
-            </span>
-          );
-        })}
+    <div className="pp-rating-card">
+      {/* Ring */}
+      <div className="pp-ring-wrap">
+        <svg width="92" height="92" viewBox="0 0 92 92">
+          <circle cx="46" cy="46" r={r} fill="none" stroke="var(--border)" strokeWidth="4" />
+          <circle
+            cx="46" cy="46" r={r} fill="none"
+            stroke="var(--cyan)" strokeWidth="4"
+            strokeDasharray={`${filled} ${circ}`}
+            strokeLinecap="round"
+            transform="rotate(-90 46 46)"
+            style={{ transition: "stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1)" }}
+          />
+        </svg>
+        <div className="pp-ring-inner">
+          <span className="pp-ring-val">{safeAvg.toFixed(1)}</span>
+          <span className="pp-ring-sub">/ 5</span>
+        </div>
       </div>
-      <span className="pp-rating-val">{avg?.toFixed(1)}</span>
-      <span className="pp-rating-count">({count} ratings)</span>
 
-      {/* Interactive: user rates */}
-      {!submitted ? (
-        <div className="pp-rating-your">
-          Rate:
-          <div className="pp-stars">
+      {/* Stars + user input */}
+      <div className="pp-rating-info">
+        <div className="pp-rating-label">REPUTATION SCORE</div>
+        <div className="pp-stars-row">
+          {[1,2,3,4,5].map(n => {
+            const f = safeAvg >= n, h = !f && safeAvg >= n - 0.5;
+            return (
+              <span key={n} className={`material-icons-round pp-star readonly ${f ? "filled" : h ? "half" : "empty"}`}>
+                {f ? "star" : h ? "star_half" : "star_outline"}
+              </span>
+            );
+          })}
+          <span className="pp-rating-count">{count} ratings</span>
+        </div>
+
+        {!submitted ? (
+          <div className="pp-rate-row">
+            <span className="pp-rate-prompt">Rate:</span>
             {[1,2,3,4,5].map(n => (
               <span
                 key={n}
-                className={`material-icons-round pp-star ${(hover || userRating) >= n ? "filled" : "empty"}`}
+                className={`material-icons-round pp-star interactive ${(hover || userRating) >= n ? "filled" : "empty"}`}
                 onMouseEnter={() => setHover(n)}
                 onMouseLeave={() => setHover(0)}
-                onClick={() => handleRate(n)}
+                onClick={() => setUserRating(n)}
               >
                 {(hover || userRating) >= n ? "star" : "star_outline"}
               </span>
             ))}
+            {userRating > 0 && (
+              <button className="pp-submit-btn" onClick={handleSubmit}>Submit</button>
+            )}
           </div>
-          {userRating > 0 && (
-            <button className="pp-rating-submit" onClick={handleSubmit}>Submit</button>
-          )}
-        </div>
-      ) : (
-        <div className="pp-rating-your">
-          <span className="material-icons-round" style={{ color: "var(--green)", fontSize: "17px" }}>check_circle</span>
-          Thanks for rating!
-        </div>
-      )}
+        ) : (
+          <div className="pp-rate-thanks">
+            <span className="material-icons-round" style={{ color: "var(--green)", fontSize: 16 }}>check_circle</span>
+            Rating submitted
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-// Public Profile Page
-export default function PublicProfile({ userId }) {
-  const [user, setUser] = useState(null);
-  const [isOwn, setIsOwn] = useState(false);
+/* ── Main Page ──────────────────────────────────────────── */
+export default function PublicProfile() {
+  const [user, setUser]         = useState(null);
+  const [isOwn, setIsOwn]       = useState(false);
+  const [connected, setConnected] = useState(false);
   const { toasts, show: showToast } = useToasts();
-  const [connected, setConnected]   = useState(false);
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id }      = useParams();
+  const navigate    = useNavigate();
 
   function handleConnect() {
     setConnected(true);
-    showToast(`Connection request sent to ${user.fullName}!`, "success", "person_add");
+    showToast(`Request sent to ${user.fullName}`, "success", "person_add");
   }
-
   function handleRate(val) {
-    showToast(`You rated ${user.fullName} ${val} star${val > 1 ? "s" : ""}!`, "success", "star");
+    showToast(`Rated ${val} star${val > 1 ? "s" : ""}`, "success", "star");
   }
-
-  function formatDate(dateString) {
-    const date = new Date(dateString);
-
-    const day = date.getDate();
-    const month = date.toLocaleString("en-IN", { month: "long" });
-    const year = date.getFullYear();
-
-    // Add suffix (st, nd, rd, th)
-    const getSuffix = (d) => {
-      if (d > 3 && d < 21) return "th";
-      switch (d % 10) {
-        case 1: return "st";
-        case 2: return "nd";
-        case 3: return "rd";
-        default: return "th";
-      }
-    };
-
-    return `${day}${getSuffix(day)} ${month} ${year}`;
+  function formatDate(ds) {
+    const d = new Date(ds);
+    const day = d.getDate();
+    const sfx = day > 3 && day < 21 ? "th" : ["th","st","nd","rd"][day % 10] || "th";
+    return `${day}${sfx} ${d.toLocaleString("en-IN",{month:"short"})} ${d.getFullYear()}`;
   }
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem("token");
-
+        const token      = localStorage.getItem("token");
         const loggedInId = JSON.parse(atob(token.split(".")[1])).id;
-
-        const actualId = id === "me" ? loggedInId : id;
-
+        const actualId   = id === "me" ? loggedInId : id;
         const res = await axios.get(
           `http://localhost:3001/api/auth/profile/${actualId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-
         setUser(res.data.user);
-
         setIsOwn(loggedInId === res.data.user._id);
-
       } catch (err) {
         console.error(err);
       }
     };
-
     fetchUser();
   }, [id]);
 
   if (!user) return (
-    <div style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "100vh",       // full viewport height
-      width: "100vw",        // full viewport width
-      background: "var(--bg)" // optional, match your dashboard background
-    }}>
-      <ThreeDots
-        visible={true}
-        height="80"
-        width="80"
-        color="#53CBF3"
-        radius="9"
-        ariaLabel="three-dots-loading"
-      />
+    <div className="pp-loader">
+      <ThreeDots visible height="80" width="80" color="#53CBF3" radius="9" ariaLabel="loading" />
     </div>
   );
-  const role = ROLE_CFG[user?.role] || ROLE_CFG.Student;
+
+  const role   = ROLE_CFG[user?.role] || ROLE_CFG.Student;
+  const uidStr = `USR-${(user._id || "000000").slice(-4).toUpperCase()}`;
+
   return (
     <>
-      {/* ── BG Effects ─────────────────────────────────────── */}
+      {/* BG */}
       <div className="pp-bg-grid" />
       <div className="pp-orb pp-orb-1" />
       <div className="pp-orb pp-orb-2" />
@@ -189,7 +164,7 @@ export default function PublicProfile({ userId }) {
 
       <div className="pp-root">
 
-        {/* ── Top Bar ──────────────────────────────────────── */}
+        {/* Topbar */}
         <header className="pp-topbar">
           <a href="/" className="pp-topbar-logo">
             <span className="material-icons-round pp-topbar-logo-icon">bolt</span>
@@ -198,173 +173,197 @@ export default function PublicProfile({ userId }) {
           <div className="pp-topbar-spacer" />
           <a href="/dashboard" className="pp-back-btn">
             <span className="material-icons-round">arrow_back</span>
-            Back to Dashboard
+            Dashboard
           </a>
         </header>
 
-        {/* ── Page ─────────────────────────────────────────── */}
-        <div className="pp-page">
+        {/* Frame */}
+        <div className="pp-frame">
 
-          {/* ══ HERO CARD ════════════════════════════════════ */}
-          <div className="pp-hero-card">
-            <div className="pp-banner" />
+          {/* ── SIDEBAR ──────────────────────────────── */}
+          <aside className="pp-sidebar">
 
-            <div className="pp-hero-body">
-              {/* Avatar */}
-              <div className="pp-avatar-wrap">
-                <div className="pp-avatar">
-                  {user.photoUrl
-                    ? <img src={user.photoUrl} alt={user.fullName} />
-                    : <span className="material-icons-round">person</span>
-                  }
-                </div>
-                {user.isOnline && <div className="pp-online-dot" title="Online" />}
+            {/* UID chip */}
+            <div className="pp-uid-chip">
+              <span className="pp-uid-dot" />
+              {uidStr}
+            </div>
+
+            {/* Avatar frame */}
+            <div className="pp-avatar-outer">
+              <div className="pp-corner pp-tl" />
+              <div className="pp-corner pp-tr" />
+              <div className="pp-corner pp-bl" />
+              <div className="pp-corner pp-br" />
+              <div className="pp-avatar-frame">
+                {user.profilePhoto
+                  ? <img src={user.profilePhoto} alt={user.fullName} />
+                  : (
+                    <div className="pp-avatar-placeholder">
+                      <span className="material-icons-round">person</span>
+                    </div>
+                  )
+                }
+                <div className="pp-scan-line" />
+                {user.isOnline && <div className="pp-online-pip" title="Online" />}
               </div>
+            </div>
 
-              {/* Name + role */}
-              <div className="pp-name-row">
-                <div className="pp-name-block">
-                  <div className="pp-name">{user.fullName}</div>
-                  <div className="pp-handle">{user.email}</div>
-                </div>
-                <div className={`pp-role-badge ${role.cls}`}>
-                  <span className="material-icons-round">{role.icon}</span>
-                  {role.label}
-                </div>
+            {/* Name block */}
+            <div className="pp-name-block">
+              <h1 className="pp-name">{user.fullName}</h1>
+              <div className="pp-handle">{user.email}</div>
+            </div>
+
+            {/* Role badge */}
+            <div className={`pp-role-badge ${role.cls}`}>
+              <span className="material-icons-round">{role.icon}</span>
+              {role.label}
+            </div>
+
+            <div className="pp-sidebar-divider" />
+
+            {/* Meta grid */}
+            <div className="pp-meta-grid">
+              <div className="pp-meta-row">
+                <span className="pp-meta-label">INSTITUTION</span>
+                <span className="pp-meta-val">{user.college}</span>
               </div>
-
-              {/* Info pills */}
-              <div className="pp-info-row">
-                <div className="pp-info-pill">
-                  <span className="material-icons-round">account_balance</span>
-                  {user.college}
-                </div>
-                <div className="pp-info-pill">
-                  <span className="material-icons-round">biotech</span>
-                  {user.department}
-                </div>
-                {user.year && (
-                  <div className="pp-info-pill">
-                    <span className="material-icons-round">event_note</span>
-                    {user.year}
-                  </div>
-                )}
-                <div className="pp-info-pill">
-                  <span className="material-icons-round">calendar_today</span>
-                  Joined: {formatDate(user.createdAt)}
-                </div>
+              <div className="pp-meta-row">
+                <span className="pp-meta-label">DEPARTMENT</span>
+                <span className="pp-meta-val">{user.department}</span>
               </div>
-
-              {/* Bio */}
-              {user.bio && (
-                <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", lineHeight: 1.65, marginBottom: "20px" }}>
-                  {user.bio}
-                </p>
+              {user.year && (
+                <div className="pp-meta-row">
+                  <span className="pp-meta-label">YEAR</span>
+                  <span className="pp-meta-val">{user.year}</span>
+                </div>
               )}
+              <div className="pp-meta-row">
+                <span className="pp-meta-label">ENROLLED</span>
+                <span className="pp-meta-val">{formatDate(user.createdAt)}</span>
+              </div>
+            </div>
 
-              {/* Star Rating */}
-              <StarRating avg={user?.rating?.avg} count={user?.rating?.count} onRate={handleRate} />
+            <div className="pp-sidebar-divider" />
 
-              {/* Action buttons */}
-              <div className="pp-actions">
-                {isOwn ? (
+            {/* Actions */}
+            <div className="pp-actions">
+              {isOwn ? (
+                <button className="pp-btn-primary" onClick={() => navigate("/profile")}>
+                  <span className="material-icons-round">edit</span>
+                  Edit Profile
+                </button>
+              ) : (
+                <>
                   <button
-                    className="pp-connect-btn"
-                    onClick={() => navigate("/profile")}
+                    className="pp-btn-primary"
+                    onClick={handleConnect}
+                    disabled={connected}
+                    style={connected ? { opacity: 0.6, cursor: "default" } : {}}
                   >
-                    <span className="material-icons-round">edit</span>
-                    Edit Profile
+                    <span className="material-icons-round">
+                      {connected ? "how_to_reg" : "person_add"}
+                    </span>
+                    {connected ? "Requested" : "Connect"}
                   </button>
-                ) : (
-                  <>
-                    <button
-                      className="pp-connect-btn"
-                      onClick={handleConnect}
-                      disabled={connected}
-                      style={connected ? { opacity: 0.65, cursor: "default" } : {}}
-                    >
-                      <span className="material-icons-round">
-                        {connected ? "how_to_reg" : "person_add"}
-                      </span>
-                      {connected ? "Request Sent" : "Connect"}
-                    </button>
-                    <button
-                      className="pp-msg-btn"
-                      onClick={() => showToast("Messaging coming soon!", "info", "chat")}
-                    >
-                      <span className="material-icons-round">chat_bubble_outline</span>
-                      Message
-                    </button>
-                  </>
-                )}
+                  <button
+                    className="pp-btn-ghost"
+                    onClick={() => showToast("Messaging coming soon!", "info", "chat")}
+                  >
+                    <span className="material-icons-round">chat_bubble_outline</span>
+                    Message
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* External links */}
+            {(user.github || user.linkedin) && (
+              <div className="pp-link-strip">
                 {user.github && (
-                  <a href={user.github} target="_blank" rel="noreferrer" className="pp-msg-btn">
+                  <a href={user.github} target="_blank" rel="noreferrer" className="pp-link-chip">
                     <span className="material-icons-round">terminal</span>
                     GitHub
                   </a>
                 )}
                 {user.linkedin && (
-                  <a href={user.linkedin} target="_blank" rel="noreferrer" className="pp-msg-btn">
+                  <a href={user.linkedin} target="_blank" rel="noreferrer" className="pp-link-chip">
                     <span className="material-icons-round">work</span>
                     LinkedIn
                   </a>
                 )}
               </div>
-            </div>
-          </div>
+            )}
+          </aside>
 
-          {/* ══ SKILLS CARD ══════════════════════════════════ */}
-          <div className="pp-card">
-            <div className="pp-card-head">
-              <div className="pp-card-icon">
-                <span className="material-icons-round">code</span>
+          {/* ── CONTENT ──────────────────────────────── */}
+          <main className="pp-content">
+
+            {/* Rating */}
+            <RatingRing avg={user?.rating?.avg} count={user?.rating?.count} onRate={handleRate} />
+
+            {/* Bio */}
+            {user.bio && (
+              <section className="pp-section">
+                <div className="pp-section-head">
+                  <span className="pp-section-num">01</span>
+                  <span className="pp-section-title">About</span>
+                  <div className="pp-section-line" />
+                </div>
+                <p className="pp-bio">{user.bio}</p>
+              </section>
+            )}
+
+            {/* Skills */}
+            <section className="pp-section">
+              <div className="pp-section-head">
+                <span className="pp-section-num">0{user.bio ? 2 : 1}</span>
+                <span className="pp-section-title">Skills</span>
+                <div className="pp-section-line" />
+                <span className="pp-section-count">{user.skills.length}</span>
               </div>
-              <span className="pp-card-title">Skills</span>
-              <span className="pp-card-count">{user.skills.length}</span>
-            </div>
-            <div className="pp-card-body">
-              <div className="pp-tags">
+              <div className="pp-skill-grid">
                 {user.skills.map((s, i) => (
-                  <span
+                  <div
                     key={s._id}
-                    className="pp-tag skill"
+                    className="pp-skill-chip"
                     style={{ animationDelay: `${i * 0.05}s` }}
                   >
-                    <span className="material-icons-round">code</span>
+                    <span className="pp-skill-hex" />
                     {s.name}
-                  </span>
+                  </div>
                 ))}
               </div>
-            </div>
-          </div>
+            </section>
 
-          {/* ══ INTERESTS CARD ═══════════════════════════════ */}
-          <div className="pp-card">
-            <div className="pp-card-head">
-              <div className="pp-card-icon" style={{ background: "rgba(167,139,250,0.1)", borderColor: "rgba(167,139,250,0.2)" }}>
-                <span className="material-icons-round" style={{ color: "var(--violet)" }}>interests</span>
+            {/* Interests */}
+            <section className="pp-section">
+              <div className="pp-section-head">
+                <span className="pp-section-num">0{user.bio ? 3 : 2}</span>
+                <span className="pp-section-title">Interests</span>
+                <div className="pp-section-line" />
+                <span className="pp-section-count pp-violet-count">{user.interests.length}</span>
               </div>
-              <span className="pp-card-title">Interests</span>
-              <span className="pp-card-count" style={{ background: "rgba(167,139,250,0.1)", color: "var(--violet)", borderColor: "rgba(167,139,250,0.2)" }}>
-                {user.interests.length}
-              </span>
-            </div>
-            <div className="pp-card-body">
-              <div className="pp-tags">
+              <div className="pp-interest-grid">
                 {user.interests.map((s, i) => (
-                  <span key={s} className="pp-tag interest" style={{ animationDelay: `${i * 0.05}s` }}>
+                  <div
+                    key={s}
+                    className="pp-interest-chip"
+                    style={{ animationDelay: `${i * 0.05}s` }}
+                  >
                     <span className="material-icons-round">interests</span>
                     {s}
-                  </span>
+                  </div>
                 ))}
               </div>
-            </div>
-          </div>
+            </section>
 
+          </main>
         </div>
       </div>
 
-      {/* ── Toasts ─────────────────────────────────────────── */}
+      {/* Toasts */}
       <div className="pp-toast-container">
         {toasts.map(t => (
           <div key={t.id} className={`pp-toast ${t.type}`}>
