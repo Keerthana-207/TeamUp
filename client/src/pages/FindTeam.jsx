@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import axios from 'axios';
 import "./FindTeam.css";
 
@@ -83,7 +83,10 @@ export default function FindTeam() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const location = useLocation();
-  const { hackathonId, hackathonTitle, skills } = location.state || {};
+  const { id } = useParams();
+  const hackathonId = location.state?.hackathonId || id;
+  const skills = location.state?.skills;
+  const hackathonTitle = location.state?.hackathonTitle || `Hackathon ${id}`;
 
   const SKILL_OPTIONS = skills || ["React","Node.js","Python","Machine Learning","Blockchain","UI/UX","Data Science","Cloud","Flutter","TypeScript","Java","Figma"];
 
@@ -174,9 +177,9 @@ export default function FindTeam() {
           <div className="ft-topbar-sep" />
           <div className="ft-topbar-context">
             <div className="ft-topbar-context-label">Find Team for</div>
-            <div className="ft-topbar-context-name">{hackathonTitle || "this event"}</div>
+            <div className="ft-topbar-context-name">{hackathonTitle}</div>
           </div>
-          <a href={`/explore/${hackathonId}`} className="ft-back-btn">
+          <a href={`/events/${hackathonId}`} className="ft-back-btn">
             <span className="material-icons-round">arrow_back</span>
             Back
           </a>
@@ -328,7 +331,7 @@ export default function FindTeam() {
                         {/* Rating */}
                         <div style={{ display:"flex", alignItems:"center", gap:"5px", marginTop:"8px", fontSize:"0.76rem", color:"var(--text-muted)" }}>
                           <span className="material-icons-round" style={{ fontSize:"14px", color:"var(--yellow)" }}>star</span>
-                          <strong style={{ color:"var(--text)" }}>{user.rating}</strong>
+                          <strong style={{ color:"var(--text)" }}>{user.rating?.avg ? user.rating.avg.toFixed(1) : "0.0"}</strong>
                           rating
                           <span style={{ marginLeft:"auto", color:"var(--text-muted)" }}>
                             {user.exp}+ yr{user.exp !== 1 ? "s" : ""} exp

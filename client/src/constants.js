@@ -226,7 +226,7 @@ export const MAIN_NAV = [
   // { id: "people",      label: "Browse People",icon: "manage_search",  href: "/people",         badge: null         },
   { id: "competitions",  label: "Competitions",   icon: "emoji_events",   href: "/events",     badge: { text: "New", cls: "green" }  },
   { id: "skills-test", label: "Skill Test",   icon: "quiz",           href: "/skills-test",      badge: null},
-  { id: "skills-share", label: "Skill Share", icon: "hat",            href:"/skills-share", badeg:null}
+  { id: "skills-share", label: "Skill Share", icon: "co_present",            href:"/skills-share",   badge:null}
 ];
 export const ACCOUNT_NAV = [
   { id: "profile",     label: "My Profile",   icon: "manage_accounts", href: "/profile",       badge: null },
@@ -288,51 +288,230 @@ export const QUESTION_BANK = {
       explanation:'The event loop processes the callback queue after the call stack is empty.' },
     { id:20, diff:'easy', text:'Which symbol is used for template literals?', options:['Single quotes','Double quotes','Backticks','Forward slashes'], correct:2,
       explanation:'Template literals use backticks (`) and support embedded expressions via ${}.' },
-  ],
+    { 
+      id: 21, diff: 'easy', 
+      text: 'Which of the following is NOT a JavaScript data type?', 
+      options: ['String', 'Boolean', 'Float', 'Undefined'], correct: 2,
+      explanation: 'JavaScript has a Number type that handles both integers and floating-point values; "Float" is not a separate primitive type.' 
+    },
+    { 
+      id: 22, diff: 'easy', 
+      text: 'What is the result of "5" + 5?', 
+      options: ['10', '"55"', 'NaN', 'TypeError'], correct: 1,
+      explanation: 'The plus operator triggers string coercion if one operand is a string, resulting in concatenation.' 
+    },
+    { 
+      id: 23, diff: 'easy', 
+      text: 'Which keyword is used to declare a block-scoped variable?', 
+      options: ['var', 'let', 'const', 'Both let and const'], correct: 3,
+      explanation: 'let and const are block-scoped, meaning they only exist within the curly braces {} they are defined in.' 
+    },
+    { 
+      id: 24, diff: 'easy', 
+      text: 'What does the "===" operator check?', 
+      options: ['Value equality only', 'Assignment', 'Value and Type equality', 'Reference equality only'], correct: 2,
+      explanation: 'Strict equality (===) checks both the value and the data type without performing type conversion.' 
+    },
+    { 
+      id: 25, diff: 'easy', 
+      text: 'How do you write an arrow function?', 
+      options: ['function => ()', '() => {}', 'callback: ()', '=> function()'], correct: 1,
+      explanation: 'Arrow functions use the parameters in parentheses followed by the "fat arrow" and function body.' 
+    },
 
+    // --- BUILDER LEVEL (intermediate) ---
+    { 
+      id: 26, diff: 'intermediate', 
+      text: 'What is a "closure" in JavaScript?', 
+      options: ['A function that returns a value', 'A function bundled with its lexical environment', 'A way to close a browser tab', 'A method to end a loop'], correct: 1,
+      explanation: 'Closures allow a function to access variables from an outer function scope even after the outer function has finished executing.' 
+    },
+    { 
+      id: 27, diff: 'intermediate', 
+      text: 'What is the purpose of the "this" keyword?', 
+      options: ['It refers to the current function name', 'It refers to the object the function is a property of', 'It is a placeholder for future variables', 'It always refers to the global window object'], correct: 1,
+      explanation: 'In an object method, "this" refers to the "owner" object, though its value depends on how the function is called.' 
+    },
+    { 
+      id: 28, diff: 'intermediate', 
+      text: 'What does Array.prototype.map() return?', 
+      options: ['The original array modified', 'A single value (accumulator)', 'A new array with the results of the callback function', 'A boolean'], correct: 2,
+      explanation: 'Map creates a new array of the same length, populated with the results of calling a provided function on every element.' 
+    },
+    { 
+      id: 29, diff: 'intermediate', 
+      text: 'What is the difference between "undefined" and "null"?', 
+      options: ['They are identical', 'Undefined is for objects; Null is for primitives', 'Undefined means a variable is declared but not assigned; Null is an intentional absence of value', 'Null is a type; Undefined is a value'], correct: 2,
+      explanation: 'Undefined is the default value of uninitialized variables; null is an assignment value used to represent "no value".' 
+    },
+    { 
+      id: 30, diff: 'intermediate', 
+      text: 'What is the Event Loop?', 
+      options: ['A loop that runs through every element in an array', 'The mechanism that handles asynchronous callbacks by pushing them to the call stack', 'A CSS animation tool', 'A way to prevent infinite loops'], correct: 1,
+      explanation: 'The Event Loop monitors the Callback Queue and moves tasks to the Stack when it is empty.' 
+    },
+
+    // --- ARCHITECT LEVEL (hard) ---
+    { 
+      id: 31, diff: 'hard', 
+      text: 'What is "Hoisting" in JavaScript?', 
+      options: ['Moving all script tags to the header', 'JavaScript’s behavior of moving declarations to the top of their scope during compilation', 'A method for lifting heavy data objects', 'The process of minifying code'], correct: 1,
+      explanation: 'Function and variable declarations are moved to the top of their scope, though "let" and "const" are not initialized (TDZ).' 
+    },
+    { 
+      id: 32, diff: 'hard', 
+      text: 'How does Prototypal Inheritance work?', 
+      options: ['Objects inherit from classes directly', 'Objects have a link to a prototype object from which they inherit properties and methods', 'It is a copy of all properties from one object to another', 'Inheritance is handled by the compiler at build time'], correct: 1,
+      explanation: 'JavaScript uses a prototype chain; if a property isn\'t found on an object, JS looks up the chain to find it.' 
+    },
+    { 
+      id: 33, diff: 'hard', 
+      text: 'What is the "Temporal Dead Zone" (TDZ)?', 
+      options: ['A period where the website is unresponsive', 'The state between a variable\'s scope entry and its actual declaration (for let/const)', 'A way to delete old memory', 'The time it takes for a Promise to resolve'], correct: 1,
+      explanation: 'Accessing a let/const variable before its declaration line results in a ReferenceError due to the TDZ.' 
+    },
+    { 
+      id: 34, diff: 'hard', 
+      text: 'What is the difference between a "Promise" and "Async/Await"?', 
+      options: ['Async/Await is faster than Promises', 'Async/Await is syntactic sugar built on top of Promises for cleaner asynchronous code', 'Promises are deprecated', 'Promises are for frontend; Async is for backend'], correct: 1,
+      explanation: 'Async/Await makes asynchronous code look and behave a bit more like synchronous code, improving readability.' 
+    },
+    { 
+      id: 35, diff: 'hard', 
+      text: 'What is "Debouncing" in the context of JS performance?', 
+      options: ['Removing extra spaces from strings', 'Limiting the rate at which a function is executed by ensuring it only runs after a delay', 'A method to clear the cache', 'A way to fix variable naming conflicts'], correct: 1,
+      explanation: 'Debouncing prevents a function from firing too often (e.g., on window resize) by waiting for a pause in the events.' 
+    }
+  ],
   python: [
+    /* ═════════ EASY ═════════ */
+
     { id:1, diff:'easy', text:'Which of these is a valid Python list?', options:['(1,2,3)','[1,2,3]','{1,2,3}','<1,2,3>'], correct:1,
       explanation:'Square brackets define a list in Python. () is a tuple, {} is a set/dict.' },
-    { id:2, diff:'easy', text:'What does `len("hello")` return?', options:['4','5','6','Error'], correct:1,
-      explanation:'len() returns the number of characters in the string, which is 5 for "hello".' },
-    { id:3, diff:'easy', text:'How do you start a comment in Python?', options:['//','/* */','#','--'], correct:2,
-      explanation:'Python uses # for single-line comments.' },
-    { id:4, diff:'easy', text:'Which keyword defines a function in Python?', options:['function','func','def','fn'], correct:2,
-      explanation:'def is used to define functions in Python.' },
-    { id:5, diff:'easy', text:'What is the output of `type(3.14)`?', options:["<class 'int'>","<class 'float'>","<class 'double'>","<class 'number'>"], correct:1,
-      explanation:'3.14 is a float, so type() returns <class "float">.' },
-    { id:6, diff:'easy', text:'What does `range(5)` produce?', options:['[1,2,3,4,5]','[0,1,2,3,4]','(0,1,2,3,4)','A generator of 5 items starting from 0'], correct:3,
-      explanation:'range(5) generates numbers 0–4 as a lazy sequence object.' },
-    { id:7, diff:'easy', text:'Which method removes whitespace from both ends of a string?', options:['clean()','strip()','trim()','remove()'], correct:1,
-      explanation:'strip() removes leading and trailing whitespace from a string.' },
-    { id:8, diff:'easy', text:'What is a Python dictionary?', options:['An ordered list','A key-value pair collection','A tuple','A function'], correct:1,
-      explanation:'A dictionary is an unordered (insertion-ordered in Python 3.7+) collection of key-value pairs.' },
-    { id:9, diff:'easy', text:'What does `__init__` do in a class?', options:['Deletes an object','Initializes a new object','Defines a method','Imports a module'], correct:1,
-      explanation:'__init__ is the constructor method called when a new instance is created.' },
-    { id:10, diff:'easy', text:'Which statement is used to handle exceptions?', options:['catch','rescue','try/except','handle'], correct:2,
-      explanation:'Python uses try/except for exception handling.' },
-    { id:11, diff:'easy', text:'What does `list.append(x)` do?', options:['Inserts x at position 0','Removes x from the list','Adds x to the end','Returns x'], correct:2,
-      explanation:'append() adds the element to the end of the list in place.' },
-    { id:12, diff:'easy', text:'What is a generator in Python?', options:['A function returning a list','A function that yields values lazily','A class decorator','A file reader'], correct:1,
-      explanation:'Generators use yield to produce values lazily, one at a time.' },
-    { id:13, diff:'easy', text:'What is the output of `bool(0)`?', options:['True','False','None','Error'], correct:1,
-      explanation:'In Python, 0 is falsy, so bool(0) returns False.' },
-    { id:14, diff:'easy', text:'Which keyword is used for a loop over a sequence?', options:['loop','while','foreach','for'], correct:3,
-      explanation:'"for" iterates over sequences, ranges, and iterables.' },
-    { id:15, diff:'easy', text:'What does `*args` allow in a function?', options:['Named keyword args','Variable number of positional args','Type hints','Default values'], correct:1,
-      explanation:'*args collects extra positional arguments into a tuple.' },
-    { id:16, diff:'easy', text:'How do you open a file in Python?', options:['open()','file()','read()','load()'], correct:0,
-      explanation:'The built-in open() function opens a file and returns a file object.' },
-    { id:17, diff:'easy', text:'What does `enumerate()` do?', options:['Sorts a list','Adds index-value pairs to iteration','Converts to set','Counts items'], correct:1,
-      explanation:'enumerate() adds a counter to an iterable, yielding (index, value) tuples.' },
-    { id:18, diff:'easy', text:'What is a lambda function?', options:['A named function','An anonymous one-line function','A class method','A module'], correct:1,
-      explanation:'lambda creates an anonymous function with a single expression.' },
-    { id:19, diff:'easy', text:'What is pip?', options:['A Python interpreter','A package manager for Python','A testing framework','A code formatter'], correct:1,
-      explanation:'pip is the standard package installer for Python.' },
-    { id:20, diff:'easy', text:'What does `is` operator check?', options:['Value equality','Type equality','Identity (same object)','Length'], correct:2,
-      explanation:'"is" checks if two variables refer to the exact same object in memory.' },
-  ],
 
+    { id:2, diff:'easy', text:'What does `len("hello")` return?', options:['4','5','6','Error'], correct:1,
+      explanation:'len() returns number of characters, so "hello" has 5.' },
+
+    { id:3, diff:'easy', text:'How do you start a comment in Python?', options:['//','/* */','#','--'], correct:2,
+      explanation:'# is used for single-line comments in Python.' },
+
+    { id:4, diff:'easy', text:'Which keyword defines a function in Python?', options:['function','func','def','fn'], correct:2,
+      explanation:'Functions are defined using def keyword.' },
+
+    { id:5, diff:'easy', text:'What is the output of type(3.14)?', options:["<class 'int'>","<class 'float'>","<class 'double'>","<class 'number'>"], correct:1,
+      explanation:'3.14 is a float in Python.' },
+
+    { id:6, diff:'easy', text:'What does range(5) produce?', options:['[1,2,3,4,5]','[0,1,2,3,4]','(0,1,2,3,4)','Iterator from 0 to 4'], correct:3,
+      explanation:'range(5) generates values 0 to 4 lazily.' },
+
+    { id:7, diff:'easy', text:'Which method removes whitespace from both ends of a string?', options:['clean()','strip()','trim()','remove()'], correct:1,
+      explanation:'strip() removes leading and trailing spaces.' },
+
+    { id:8, diff:'easy', text:'What is a Python dictionary?', options:['Ordered list','Key-value pair collection','Tuple','Function'], correct:1,
+      explanation:'Dictionary stores key-value pairs.' },
+
+    { id:9, diff:'easy', text:'What does __init__ do in a class?', options:['Deletes object','Initializes object','Creates module','Imports file'], correct:1,
+      explanation:'__init__ is constructor method.' },
+
+    { id:10, diff:'easy', text:'Which block handles exceptions?', options:['catch','try/except','handle','error'], correct:1,
+      explanation:'Python uses try/except for exception handling.' },
+
+    { id:11, diff:'easy', text:'What does list.append(x) do?', options:['Adds at start','Removes x','Adds at end','Sorts list'], correct:2,
+      explanation:'append() adds element at end of list.' },
+
+    { id:12, diff:'easy', text:'What is a generator?', options:['Returns list','Uses yield for lazy values','Class type','Loop type'], correct:1,
+      explanation:'Generators yield values lazily.' },
+
+    { id:13, diff:'easy', text:'What is bool(0)?', options:['True','False','None','Error'], correct:1,
+      explanation:'0 is falsy in Python.' },
+
+    { id:14, diff:'easy', text:'Which keyword is used for loops?', options:['loop','while','foreach','for'], correct:3,
+      explanation:'for is used for iteration.' },
+
+    { id:15, diff:'easy', text:'What does *args allow?', options:['Keyword args','Multiple positional args','Type hints','Return values'], correct:1,
+      explanation:'*args collects multiple positional arguments.' },
+
+    { id:16, diff:'easy', text:'How do you open a file?', options:['open()','file()','read()','load()'], correct:0,
+      explanation:'open() is used to open files.' },
+
+    { id:17, diff:'easy', text:'What does enumerate() do?', options:['Sorts','Adds index','Counts only','Reverses'], correct:1,
+      explanation:'enumerate adds index to iterable.' },
+
+    { id:18, diff:'easy', text:'What is lambda?', options:['Named function','Anonymous function','Class','Module'], correct:1,
+      explanation:'lambda creates anonymous functions.' },
+
+    { id:19, diff:'easy', text:'What is pip?', options:['Compiler','Package manager','IDE','Debugger'], correct:1,
+      explanation:'pip installs Python packages.' },
+
+    { id:20, diff:'easy', text:'What does "is" check?', options:['Value equality','Type','Identity','Length'], correct:2,
+      explanation:'is checks object identity.' },
+
+    { id:21, diff:'easy', text:'What is 2**3 in Python?', options:['6','8','9','Error'], correct:1,
+      explanation:'** is exponent operator.' },
+
+    { id:22, diff:'easy', text:'What is "hello"[1:4]?', options:['hel','ell','llo','heo'], correct:1,
+      explanation:'Slicing returns characters from index 1 to 3.' },
+
+    { id:23, diff:'easy', text:'What does input() return?', options:['int','float','string','bool'], correct:2,
+      explanation:'input() always returns string.' },
+
+    { id:24, diff:'easy', text:'What is Python file extension?', options:['.java','.py','.python','.pt'], correct:1,
+      explanation:'.py is Python file extension.' },
+
+    { id:25, diff:'easy', text:'Which data structure is mutable?', options:['tuple','string','list','int'], correct:2,
+      explanation:'Lists are mutable in Python.' },
+
+
+    /* ═════════ INTERMEDIATE ═════════ */
+
+    { id:26, diff:'medium', text:'What is output of 3 * "Hi"?', options:['HiHiHi','3Hi','Error','Hi3'], correct:0,
+      explanation:'String multiplication repeats the string.' },
+
+    { id:27, diff:'medium', text:'What is correct list comprehension?', options:['[x for x in range(5)]','for x in range(5) [x]','(x in range 5)','{x range(5)}'], correct:0,
+      explanation:'List comprehension uses [expression for item in iterable].' },
+
+    { id:28, diff:'medium', text:'What does dict.get(key) do?', options:['Deletes key','Returns value safely','Sorts dict','Creates key'], correct:1,
+      explanation:'get() avoids KeyError if key is missing.' },
+
+    { id:29, diff:'medium', text:'What is output of isinstance(5, int)?', options:['True','False','Error','None'], correct:0,
+      explanation:'5 is an integer.' },
+
+    { id:30, diff:'medium', text:'What does break do in loop?', options:['Skips iteration','Ends loop','Restarts loop','Pauses loop'], correct:1,
+      explanation:'break exits loop immediately.' },
+
+    { id:31, diff:'medium', text:'What is output of sorted([3,1,2])?', options:['[3,2,1]','[1,2,3]','(1,2,3)','Error'], correct:1,
+      explanation:'sorted returns ascending order.' },
+
+    { id:32, diff:'medium', text:'What is a Python module?', options:['Function','File with Python code','Loop','Variable'], correct:1,
+      explanation:'Module is a .py file.' },
+
+    { id:33, diff:'medium', text:'What does pass do?', options:['Stops program','Placeholder','Raises error','Returns value'], correct:1,
+      explanation:'pass does nothing, used as placeholder.' },
+
+    { id:34, diff:'medium', text:'What is output of bool("")?', options:['True','False','None','Error'], correct:1,
+      explanation:'Empty string is falsy.' },
+
+    { id:35, diff:'medium', text:'What is OOP encapsulation?', options:['Hiding data','Looping','Sorting','Compilation'], correct:0,
+      explanation:'Encapsulation hides internal data.' },
+
+
+    /* ═════════ HARD ═════════ */
+
+    { id:36, diff:'hard', text:'What is output of [i*i for i in range(3)]?', options:['[0,1,4]','[1,4,9]','[0,2,4]','Error'], correct:0,
+      explanation:'Squares of 0,1,2 → [0,1,4].' },
+
+    { id:37, diff:'hard', text:'What is GIL in Python?', options:['Memory system','Global Interpreter Lock','File system','Compiler'], correct:1,
+      explanation:'GIL allows only one thread to execute Python bytecode.' },
+
+    { id:38, diff:'hard', text:'What is decorator?', options:['Function modifying function','Loop','Class','Variable'], correct:0,
+      explanation:'Decorators modify behavior of functions.' },
+
+    { id:39, diff:'hard', text:'What is output of map(lambda x:x+1,[1,2,3])?', options:['[2,3,4]','[1,2,3]','Error','None'], correct:0,
+      explanation:'map applies function to each element.' },
+
+    { id:40, diff:'hard', text:'What is deep copy?', options:['Copies reference','Copies values recursively','Deletes object','Shares memory'], correct:1,
+      explanation:'deepcopy creates independent nested copies.' }
+  ],
   react: [
     { id:1, diff:'easy', text:'What is JSX?', options:['A CSS framework','A JavaScript syntax extension for writing HTML-like code','A database query language','A build tool'], correct:1,
       explanation:'JSX is syntactic sugar that lets you write HTML-like markup inside JavaScript.' },
@@ -374,6 +553,80 @@ export const QUESTION_BANK = {
       explanation:'Lifting state up means moving shared state to the nearest common ancestor.' },
     { id:20, diff:'easy', text:'What is React Fragments used for?', options:['CSS styling','Grouping children without adding extra DOM nodes','Code splitting','API calls'], correct:1,
       explanation:'Fragments let you group a list of children without adding extra nodes to the DOM.' },
+    { 
+      id: 21, diff: 'intermediate', 
+      text: 'Primary purpose of the useEffect hook?', 
+      options: ['To manage component styling', 'To perform side effects (data fetching, subscriptions, DOM mutations) after render', 'To replace useState', 'To memoize expensive calculations'], correct: 1,
+      explanation: 'useEffect runs after the render is committed to the DOM, making it the right place for side effects.' 
+    },
+    { 
+      id: 22, diff: 'intermediate', 
+      text: 'Empty dependency array [] in useEffect means:', 
+      options: ['The effect runs on every render', 'The effect never runs', 'The effect runs only once after the initial mount', 'It causes a runtime error'], correct: 2,
+      explanation: 'An empty array tells React there are no dependencies to watch, so the effect fires only on mount.' 
+    },
+    { 
+      id: 23, diff: 'intermediate', 
+      text: 'Difference between controlled and uncontrolled components?', 
+      options: ['Controlled use refs; uncontrolled use state', 'Controlled have form state managed by React state; uncontrolled rely on the DOM', 'Uncontrolled cannot be used in forms', 'They are identical'], correct: 1,
+      explanation: 'In controlled components React is the single source of truth for input value; uncontrolled components let the DOM handle it.' 
+    },
+    { 
+      id: 24, diff: 'intermediate', 
+      text: 'What does React.memo() do?', 
+      options: ['Memoizes the return value of an expensive function', 'Prevents a functional component from re-rendering if its props haven\'t changed', 'Caches API responses', 'Converts a class component to a functional one'], correct: 1,
+      explanation: 'React.memo() does a shallow comparison of props and skips re-rendering if they haven\'t changed.' 
+    },
+    { 
+      id: 25, diff: 'intermediate', 
+      text: 'Purpose of the key prop when rendering lists?', 
+      options: ['It sets the CSS id', 'It helps React identify changed, added, or removed items for efficient reconciliation', 'It is required for event handlers', 'It controls render order of siblings'], correct: 1,
+      explanation: 'Keys give React a stable identity for list items so it can minimally update the DOM during re-renders.' 
+    },
+    { 
+      id: 26, diff: 'intermediate', 
+      text: "What does 'lifting state up' mean in React?", 
+      options: ['Moving state to a common ancestor so siblings can share it', 'Using Context instead of useState', 'Converting local state to a Redux store', 'Moving useState calls to the top of the component'], correct: 0,
+      explanation: "When siblings need shared state, it's moved to their closest common ancestor which passes it down as props." 
+    },
+    { 
+      id: 27, diff: 'intermediate', 
+      text: 'Difference between useCallback and useMemo?', 
+      options: ['useCallback memoizes a value; useMemo memoizes a function', 'useCallback memoizes a function reference; useMemo memoizes the result of calling a function', 'They are identical', 'useCallback is only for event handlers'], correct: 1,
+      explanation: 'useCallback prevents a function from being recreated; useMemo prevents an expensive calculation from rerunning.' 
+    },
+
+    // --- ARCHITECT LEVEL (hard) ---
+    { 
+      id: 28, diff: 'hard', 
+      text: "How does React's reconciliation algorithm decide what to update?", 
+      options: ['It re-renders the full DOM on every change', 'It compares the new virtual DOM with the previous, using element type and key to find minimal DOM mutations', 'It patches the DOM using CSS selectors', 'It uses MutationObserver to track changes'], correct: 1,
+      explanation: "React's diffing algorithm has O(n) complexity by assuming type changes require full subtree replacement and using keys for lists." 
+    },
+    { 
+      id: 29, diff: 'hard', 
+      text: "What problem does React 18's Concurrent Mode solve?", 
+      options: ['It enables server-side rendering', 'It lets React interrupt, pause, and resume rendering to keep the UI responsive during heavy updates', 'It replaces the Context API', 'It enables multi-threaded JS'], correct: 1,
+      explanation: 'Concurrent rendering makes updates interruptible so high-priority updates (user input) aren\'t blocked by low-priority ones.' 
+    },
+    { 
+      id: 30, diff: 'hard', 
+      text: 'When should you use useReducer over useState?', 
+      options: ['Always — useReducer is strictly better', 'When state is a simple boolean or string', 'When state logic is complex with multiple sub-values or next state depends on previous in non-trivial ways', 'Only when integrating with Redux'], correct: 2,
+      explanation: 'useReducer centralizes complex state transitions in a pure reducer function, making logic easier to test and reason about.' 
+    },
+    { 
+      id: 31, diff: 'hard', 
+      text: 'What is a render prop pattern and what problem does it solve?', 
+      options: ['A prop containing JSX to inject — shares stateful logic without HOCs', 'A prop controlling whether a component renders', 'A pattern to pass CSS styles dynamically', 'A way to prevent unnecessary re-renders'], correct: 0,
+      explanation: 'Render props share behavior by passing a function-as-prop that the child calls to render, avoiding HOC wrapper hell.' 
+    },
+    { 
+      id: 32, diff: 'hard', 
+      text: 'What causes a stale closure in a React hook and how do you prevent it?', 
+      options: ['Using too many hooks; split into smaller components', 'A callback capturing an old state/prop because the dependency array is incomplete; fix by including all deps or using a ref', 'Calling a hook conditionally; fix by always calling hooks at top level', 'Using arrow functions inside JSX; move them outside the component'], correct: 1,
+      explanation: 'The closure captures the value at render time; a missing dependency means the callback forever sees that snapshot.' 
+    }
   ],
 
   css: [
@@ -417,6 +670,80 @@ export const QUESTION_BANK = {
       explanation:'Media queries apply CSS rules conditionally based on screen size, resolution, etc.' },
     { id:20, diff:'easy',text:'Which value centers a block element horizontally?', options:['text-align: center','margin: auto','padding: auto','align: center'], correct:1,
       explanation:'margin: auto on a block element with a set width centers it horizontally.' },
+    { 
+      id: 21, diff: 'intermediate', 
+      text: 'Difference between display: flex and display: grid?', 
+      options: ['Flexbox is 2D; Grid is 1D', 'Flexbox handles 1D (row or column); Grid handles 2D (rows and columns simultaneously)', 'Grid only works in modern browsers', 'They are interchangeable'], correct: 1,
+      explanation: 'Flexbox aligns items along one axis at a time; Grid lets you control both axes simultaneously.' 
+    },
+    { 
+      id: 22, diff: 'intermediate', 
+      text: 'What does position: sticky do?', 
+      options: ['Fixes element to viewport at all times', 'Behaves like relative until a scroll threshold, then acts like fixed within its container', 'Removes element from document flow', 'Makes the element overlap others'], correct: 1,
+      explanation: 'sticky is a hybrid: it scrolls with content until the threshold is hit, then pins within its scroll container.' 
+    },
+    { 
+      id: 23, diff: 'intermediate', 
+      text: 'Which selector has the highest specificity?', 
+      options: ['.class-name', 'element', '#id', '*'], correct: 2,
+      explanation: 'ID selectors (score 1-0-0) beat class selectors (0-1-0) which beat element selectors (0-0-1).' 
+    },
+    { 
+      id: 24, diff: 'intermediate', 
+      text: 'What does the CSS box model consist of?', 
+      options: ['content, margin, border, font', 'content, padding, border, margin', 'width, height, position, display', 'content, spacing, outline, shadow'], correct: 1,
+      explanation: 'The four layers from inside out are content → padding → border → margin.' 
+    },
+    { 
+      id: 25, diff: 'intermediate', 
+      text: 'Difference between box-sizing: content-box and border-box?', 
+      options: ['content-box includes padding and border in width; border-box excludes them', 'border-box includes padding and border in width; content-box excludes them', 'They are identical in modern browsers', 'border-box only applies to block elements'], correct: 1,
+      explanation: 'border-box makes width mean "total rendered width", simplifying layout math; content-box adds padding/border on top.' 
+    },
+    { 
+      id: 26, diff: 'intermediate', 
+      text: 'What does :nth-child(2n+1) select?', 
+      options: ['Every second element', 'Only the first child', 'Every odd-numbered child element', 'Every third element'], correct: 2,
+      explanation: '2n+1 matches positions 1, 3, 5, … — the odd children; :nth-child(2n) would match even ones.' 
+    },
+    { 
+      id: 27, diff: 'intermediate', 
+      text: 'What is a CSS custom property (variable)?', 
+      options: ['A shorthand property; declared with @property', 'A reusable value declared with -- prefix and accessed with var()', 'A preprocessor feature from SASS/LESS only', 'A property set at the browser level'], correct: 1,
+      explanation: 'Custom properties (e.g., --primary: blue) are declared on any element and read with var(--primary), supporting the cascade.' 
+    },
+
+    // --- ARCHITECT LEVEL (hard) ---
+    { 
+      id: 28, diff: 'hard', 
+      text: 'What creates a new CSS stacking context?', 
+      options: ['The order HTML elements appear in the DOM; nothing can change it', 'A rendering layer controlling z-index scope; created by position+z-index, opacity<1, transform, filter, etc.', 'The order CSS files are loaded', 'The order rules are applied after specificity resolution'], correct: 1,
+      explanation: 'A stacking context isolates z-index; children can never escape their context to overlap elements outside it.' 
+    },
+    { 
+      id: 29, diff: 'hard', 
+      text: 'Difference between CSS transitions and CSS animations?', 
+      options: ['Transitions are JavaScript-based; animations are CSS', 'Transitions animate between two states triggered by a change; animations use @keyframes for multi-step sequences', 'Animations can only change opacity and transform', 'Transitions require more browser support'], correct: 1,
+      explanation: 'Transitions need a trigger (hover, class toggle); @keyframes animations can auto-start, loop, and have multiple steps.' 
+    },
+    { 
+      id: 30, diff: 'hard', 
+      text: 'How does the CSS contain property improve performance?', 
+      options: ['It compresses CSS files before parsing', 'It tells the browser the subtree is independent, limiting style/layout/paint recalculations to within it', 'It prevents CSS from applying to child elements', 'It enables GPU acceleration'], correct: 1,
+      explanation: 'contain: layout stops a subtree\'s layout changes from triggering a full-page reflow, a key rendering optimization.' 
+    },
+    { 
+      id: 31, diff: 'hard', 
+      text: 'What causes layout thrashing and how does CSS help?', 
+      options: ['Too many CSS classes; reduce rules', 'Alternating between reading and writing layout properties in JS; mitigated by using CSS transforms and batching reads/writes', 'Large image files; use object-fit', 'Too many z-index layers'], correct: 1,
+      explanation: 'CSS transforms (translate, scale) don\'t trigger reflow — they run on the compositor thread, avoiding layout thrashing.' 
+    },
+    { 
+      id: 32, diff: 'hard', 
+      text: 'What are the four factors of the CSS cascade?', 
+      options: ['Alphabetical order, file size, media query, selector type', 'Origin, importance (!important), specificity, and source order', 'Specificity, class count, element count, file order', 'Browser defaults, inherited, inline, external'], correct: 1,
+      explanation: 'The cascade resolves conflicts in this order: origin+importance first, then specificity, then source order as a tiebreaker.' 
+    }
   ],
 
   sql: [
@@ -460,6 +787,68 @@ export const QUESTION_BANK = {
       explanation:'NULL represents the absence of a value or an unknown value.' },
     { id:20, diff:'easy', text:'Which clause is used to give a column or table an alias?', options:['RENAME','AS','ALIAS','LABEL'], correct:1,
       explanation:'AS gives a column or table a temporary alias in the query result.' },
+    { 
+      id: 21, diff: 'intermediate', 
+      text: 'Difference between INNER JOIN and LEFT JOIN?', 
+      options: ['INNER returns all rows from both; LEFT returns only matches', 'INNER returns only matching rows; LEFT returns all left rows plus matches (NULLs where none)', 'They are identical', 'LEFT JOIN is faster'], correct: 1,
+      explanation: 'INNER JOIN is the intersection; LEFT JOIN is the left table plus the intersection, padding missing rights with NULL.' 
+    },
+    { 
+      id: 22, diff: 'intermediate', 
+      text: 'What does GROUP BY do?', 
+      options: ['Sorts the result set', 'Filters rows before aggregation', 'Groups rows sharing the same values so aggregate functions apply per group', 'Joins two tables on a common column'], correct: 2,
+      explanation: 'Without GROUP BY, aggregate functions (SUM, COUNT) collapse all rows into one; GROUP BY produces one row per group.' 
+    },
+    { 
+      id: 23, diff: 'intermediate', 
+      text: 'Difference between WHERE and HAVING?', 
+      options: ['WHERE filters columns; HAVING filters rows', 'WHERE filters rows before grouping; HAVING filters groups after aggregation', 'HAVING is used only with ORDER BY', 'They are interchangeable'], correct: 1,
+      explanation: 'WHERE can\'t reference aggregate results; HAVING is applied after GROUP BY to filter aggregated groups.' 
+    },
+    { 
+      id: 24, diff: 'intermediate', 
+      text: 'What does a PRIMARY KEY constraint enforce?', 
+      options: ['The column is indexed and can have duplicates', 'The column must be a number', 'Values must be unique and non-null, uniquely identifying each row', 'The column is automatically encrypted'], correct: 2,
+      explanation: 'A primary key is the row\'s unique identifier; it implicitly creates an index and disallows NULL and duplicates.' 
+    },
+    { 
+      id: 25, diff: 'intermediate', 
+      text: 'What is a subquery?', 
+      options: ['A stored procedure with parameters', 'A query nested inside another query, used in SELECT, FROM, or WHERE clauses', 'A query that runs on a subset of a table', 'A query that modifies data'], correct: 1,
+      explanation: 'Subqueries allow results of one query to drive another, enabling filtering by aggregates or derived sets.' 
+    },
+    { 
+      id: 26, diff: 'intermediate', 
+      text: 'What does DISTINCT do in SELECT?', 
+      options: ['Sorts the result alphabetically', 'Removes duplicate rows from the result set', 'Returns only NULL values', 'Limits the result to 1 row'], correct: 1,
+      explanation: 'DISTINCT eliminates rows where all selected column values are identical, returning only unique combinations.' 
+    },
+    { 
+      id: 27, diff: 'intermediate', 
+      text: 'What is a foreign key?', 
+      options: ['A key from an external database', 'A column that uniquely identifies each row in its own table', 'A column referencing the primary key of another table, enforcing referential integrity', 'An encrypted primary key'], correct: 2,
+      explanation: 'Foreign keys prevent orphaned rows by ensuring referenced values exist in the parent table.' 
+    },
+
+    // --- ARCHITECT LEVEL (hard) ---
+    { 
+      id: 28, diff: 'hard', 
+      text: 'What is a database index and its trade-offs?', 
+      options: ['A backup copy of a table; only disk space trade-off', 'A data structure (usually B-tree) that speeds up reads but slows writes and uses extra storage', 'A constraint preventing duplicate values', 'A virtual table based on a query'], correct: 1,
+      explanation: 'Indexes make SELECT faster but every INSERT/UPDATE/DELETE must also update the index, adding write overhead.' 
+    },
+    { 
+      id: 29, diff: 'hard', 
+      text: 'ACID: which property ensures all-or-nothing transactions?', 
+      options: ['Authorization, Concurrency, Integrity, Durability — Concurrency', 'Atomicity, Consistency, Isolation, Durability — Atomicity', 'Atomicity, Concurrency, Indexing, Durability — Durability', 'Access, Consistency, Integrity, Distribution — Integrity'], correct: 1,
+      explanation: 'Atomicity means a transaction is treated as a single unit — it either fully commits or fully rolls back.' 
+    },
+    { 
+      id: 30, diff: 'hard', 
+      text: 'What is a CTE and when is it preferred over a subquery?', 
+      options: ['A permanent table from a query; preferred for large datasets', 'A named temporary result set defined with WITH, improving readability and enabling recursive queries', 'A compiled stored procedure; preferred for performance', 'A cross-database join mechanism'], correct: 1,
+      explanation: 'CTEs make complex queries more readable and are the only way to write recursive queries (WITH RECURSIVE).' 
+    }
   ],
 
   git: [
@@ -503,6 +892,100 @@ export const QUESTION_BANK = {
       explanation:'git fetch retrieves remote changes but does not merge them into your working branch.' },
     { id:20, diff:'easy',text:'What does `git cherry-pick` do?', options:['Selects a random commit','Applies a specific commit to the current branch','Deletes commits','Compares branches'], correct:1,
       explanation:'git cherry-pick applies the changes from a specific commit onto the current branch.' },
+    { 
+      id: 21, diff: 'easy', 
+      text: 'Which command is used to initialize a new Git repository?', 
+      options: ['git start', 'git create', 'git init', 'git setup'], correct: 1,
+      explanation: 'git init creates a new .git subdirectory in your current working directory to begin tracking files.' 
+    },
+    { 
+      id: 22, diff: 'easy', 
+      text: 'How do you check the state of your working directory and staging area?', 
+      options: ['git check', 'git status', 'git inspect', 'git log'], correct: 1,
+      explanation: 'git status shows which files are staged, unstaged, or untracked.' 
+    },
+    { 
+      id: 23, diff: 'easy', 
+      text: 'Which command moves changes from the working directory to the staging area?', 
+      options: ['git commit', 'git push', 'git add', 'git stage'], correct: 2,
+      explanation: 'git add <file> tells Git you want to include updates to a particular file in the next commit.' 
+    },
+    { 
+      id: 24, diff: 'easy', 
+      text: "What does 'git commit -m \"message\"' do?", 
+      options: ['Uploads code to GitHub', 'Saves a snapshot of staged changes with a descriptive message', 'Deletes the current branch', 'Downloads the latest changes'], correct: 1,
+      explanation: 'Commits are local snapshots of your project at a specific point in time.' 
+    },
+    { 
+      id: 25, diff: 'easy', 
+      text: 'Which command is used to copy an existing repository from a remote server?', 
+      options: ['git copy', 'git download', 'git clone', 'git pull'], correct: 2,
+      explanation: 'git clone creates a local copy of a remote repository and sets up remote tracking.' 
+    },
+
+    // --- BUILDER LEVEL (intermediate) ---
+    { 
+      id: 26, diff: 'intermediate', 
+      text: 'What is the difference between git fetch and git pull?', 
+      options: ['They are identical', 'fetch downloads data but doesn\'t merge it; pull downloads and immediately tries to merge', 'pull only works for private repos', 'fetch is for branches; pull is for tags'], correct: 1,
+      explanation: 'git pull is essentially git fetch followed by git merge FETCH_HEAD.' 
+    },
+    { 
+      id: 27, diff: 'intermediate', 
+      text: 'How do you create a new branch and switch to it immediately?', 
+      options: ['git branch <name>', 'git switch <name>', 'git checkout -b <name>', 'git move <name>'], correct: 2,
+      explanation: 'The -b flag with checkout (or git switch -c) creates the branch before switching.' 
+    },
+    { 
+      id: 28, diff: 'intermediate', 
+      text: 'What does "git merge" do?', 
+      options: ['Deletes a branch', 'Combines the histories of two branches', 'Renames a repository', 'Uploads files to a server'], correct: 1,
+      explanation: 'Merge takes the independent lines of development created by branches and integrates them into a single branch.' 
+    },
+    { 
+      id: 29, diff: 'intermediate', 
+      text: 'What is "git stash" used for?', 
+      options: ['Deleting unused files', 'Temporarily shelving uncommitted changes to work on something else', 'Pushing code to a hidden branch', 'Viewing the history of a single file'], correct: 1,
+      explanation: 'Stashing saves your dirty working directory on a stack of unfinished changes that you can reapply later.' 
+    },
+    { 
+      id: 30, diff: 'intermediate', 
+      text: 'How do you view the commit history of a repository?', 
+      options: ['git history', 'git log', 'git show', 'git status'], correct: 1,
+      explanation: 'git log lists the commits made in the repository in reverse chronological order.' 
+    },
+
+    // --- ARCHITECT LEVEL (hard) ---
+    { 
+      id: 31, diff: 'hard', 
+      text: 'What is the difference between "git merge" and "git rebase"?', 
+      options: ['Merge creates a new commit joining histories; Rebase moves the entire feature branch to the tip of main', 'Rebase is safer than merge', 'Merge only works on local branches', 'Rebase deletes the commit history'], correct: 0,
+      explanation: 'Rebase rewrites project history by creating brand new commits for each commit in the original branch, resulting in a linear history.' 
+    },
+    { 
+      id: 32, diff: 'hard', 
+      text: 'What does "git cherry-pick" allow you to do?', 
+      options: ['Select the best branch to work on', 'Apply the changes introduced by an existing commit from another branch onto your current branch', 'Delete specific lines of code', 'Merge only the last commit of a branch'], correct: 1,
+      explanation: 'Cherry-picking is useful for bringing a specific fix or feature from one branch to another without merging the whole branch.' 
+    },
+    { 
+      id: 33, diff: 'hard', 
+      text: 'What is a "detached HEAD" state in Git?', 
+      options: ['A fatal error that deletes the repo', 'When your working directory points to a specific commit instead of a branch', 'When the server is down', 'When you have uncommitted changes'], correct: 1,
+      explanation: 'In detached HEAD, you are looking at a snapshot. Any commits made here won\'t belong to a branch and can be lost if you switch away.' 
+    },
+    { 
+      id: 34, diff: 'hard', 
+      text: 'What is the purpose of the "git reflog" command?', 
+      options: ['To view a log of all reference changes (checkouts, resets, etc.) even if not in branch history', 'To repair a broken repository', 'To list all remote repositories', 'To delete all temporary files'], correct: 0,
+      explanation: 'Reflog is a safety net; it records when branch tips were updated, allowing you to recover "lost" commits after a bad rebase.' 
+    },
+    { 
+      id: 35, diff: 'hard', 
+      text: 'What does "git reset --hard" do compared to "--soft"?', 
+      options: ['Soft deletes files; Hard keeps them', 'Soft only moves the HEAD pointer; Hard moves HEAD and overwrites staging and working directory', 'There is no difference', 'Hard only works on remote repositories'], correct: 1,
+      explanation: '--hard is destructive as it discards all uncommitted changes in your working directory and staging area.' 
+    }
   ],
 
   node: [
@@ -546,6 +1029,44 @@ export const QUESTION_BANK = {
       explanation:'.env files store environment variables (like API keys) outside of source code.' },
     { id:20, diff:'easy',text:'What does `app.use()` do in Express?', options:['Creates a route','Mounts middleware or routers','Starts the server','Connects to a database'], correct:1,
       explanation:'app.use() mounts middleware at a path, executing it for every matching request.' },
+    { 
+      id: 21, diff: 'intermediate', 
+      text: 'How does the Node.js Event Loop work?', 
+      options: ['Multi-threaded execution', 'Single-threaded non-blocking I/O using a callback queue', 'Synchronous execution of all tasks', 'Parallel processing of multiple requests'], correct: 1,
+      explanation: 'Node.js uses a single thread but delegates I/O tasks to the system, handling results via an event loop.' 
+    },
+    { 
+      id: 22, diff: 'intermediate', 
+      text: 'Difference between CommonJS (require) and ES Modules (import)?', 
+      options: ['require is synchronous and loaded at runtime; import is asynchronous and analyzed at build time', 'import is only for CSS', 'require is newer than import', 'They are identical'], correct: 0,
+      explanation: 'CommonJS evaluates scripts as they are required; ESM allows for static analysis and tree-shaking.' 
+    },
+    { 
+      id: 23, diff: 'intermediate', 
+      text: 'What is the purpose of process.nextTick()?', 
+      options: ['To delay execution until the next day', 'To schedule a callback to run immediately after the current operation, before the event loop continues', 'To stop the event loop', 'To schedule a task for the next second'], correct: 1,
+      explanation: 'nextTick queue is drained immediately after the current operation, making it higher priority than setTimeout.' 
+    },
+
+    // --- ARCHITECT LEVEL (hard) ---
+    { 
+      id: 24, diff: 'hard', 
+      text: 'What is the purpose of the cluster module in Node.js?', 
+      options: ['To group files together', 'To manage database clusters', 'To spawn multiple instances of a Node process to leverage multi-core CPUs', 'To minify code'], correct: 2,
+      explanation: 'Cluster allows a master process to fork worker processes that share the same server port.' 
+    },
+    { 
+      id: 25, diff: 'hard', 
+      text: 'How do Node.js Streams improve performance for large files?', 
+      options: ['By compressing the file', 'By reading/writing data in small chunks instead of loading the entire file into memory', 'By increasing CPU speed', 'By deleting the file after reading'], correct: 1,
+      explanation: 'Streams provide better memory efficiency by processing data as it arrives.' 
+    },
+    { 
+      id: 26, diff: 'hard', 
+      text: 'What is Express.js middleware fundamentally?', 
+      options: ['A database connector', 'A frontend template', 'A function that has access to the request/response objects and the next middleware in the pipeline', 'A CSS styling tool'], correct: 2,
+      explanation: 'Middleware functions can execute code, modify request/response, and end the cycle or pass control.' 
+    }
   ],
 
   ds: [
@@ -589,6 +1110,106 @@ export const QUESTION_BANK = {
       explanation:'Big O notation describes the upper bound of an algorithm\'s time or space complexity.' },
     { id:20, diff:'easy', text:'What is a trie?', options:['A type of graph','A tree used for efficient string prefix searching','A balanced BST','A hash map'], correct:1,
       explanation:'A trie (prefix tree) stores strings character by character, enabling fast prefix searches.' },
+    { 
+      id: 21, diff: 'easy', 
+      text: 'What is the time complexity of accessing an element in an array by its index?', 
+      options: ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'], correct: 0,
+      explanation: 'Arrays allow "random access," meaning the computer can jump directly to any memory address using the index in constant time[cite: 72].' 
+    },
+    { 
+      id: 22, diff: 'easy', 
+      text: 'Which data structure follows the Last-In-First-Out (LIFO) principle?', 
+      options: ['Queue', 'Linked List', 'Stack', 'Tree'], correct: 2,
+      explanation: 'A Stack works like a pile of plates; the last one you put on top is the first one you take off[cite: 72].' 
+    },
+    { 
+      id: 23, diff: 'easy', 
+      text: 'Which data structure follows the First-In-First-Out (FIFO) principle?', 
+      options: ['Stack', 'Queue', 'Binary Tree', 'Graph'], correct: 1,
+      explanation: 'A Queue works like a real-life line; the person who gets in line first is served first[cite: 72].' 
+    },
+    { 
+      id: 24, diff: 'easy', 
+      text: 'What is a major disadvantage of a Singly Linked List compared to an Array?', 
+      options: ['It uses more memory for pointers', 'It cannot grow in size', 'It does not allow random access', 'It is always sorted'], correct: 2,
+      explanation: 'In a linked list, you must start at the beginning and follow the pointers one by one to find an element, whereas arrays allow instant access[cite: 72].' 
+    },
+    { 
+      id: 25, diff: 'easy', 
+      text: 'In a Binary Search Tree (BST), values smaller than the root are always placed where?', 
+      options: ['In the right subtree', 'In the left subtree', 'Directly in the root', 'In a separate list'], correct: 1,
+      explanation: 'The fundamental rule of a BST is that the left child is smaller than the parent and the right child is larger[cite: 72].' 
+    },
+
+    // --- BUILDER LEVEL (intermediate) ---
+    { 
+      id: 26, diff: 'intermediate', 
+      text: 'What is the average time complexity for searching a value in a Hash Table?', 
+      options: ['O(n)', 'O(log n)', 'O(1)', 'O(n log n)'], correct: 2,
+      explanation: 'Hash tables use a hash function to map keys to specific indices, allowing for near-instant retrieval[cite: 72].' 
+    },
+    { 
+      id: 27, diff: 'intermediate', 
+      text: 'Which tree traversal visits the root node last?', 
+      options: ['Pre-order', 'In-order', 'Post-order', 'Level-order'], correct: 2,
+      explanation: 'Post-order traversal follows the sequence: Left Child -> Right Child -> Root[cite: 72].' 
+    },
+    { 
+      id: 28, diff: 'intermediate', 
+      text: 'What occurs during a "Hash Collision"?', 
+      options: ['The table is deleted', 'Two different keys produce the same hash index', 'The memory overflows', 'The hash function stops working'], correct: 1,
+      explanation: 'Collisions happen when different inputs result in the same index; they are usually handled by "chaining" or "open addressing"[cite: 72].' 
+    },
+    { 
+      id: 29, diff: 'intermediate', 
+      text: 'Which data structure is fundamentally used to manage Function Calls and Recursion?', 
+      options: ['Queue', 'Stack', 'Heap', 'Graph'], correct: 1,
+      explanation: 'The "Call Stack" tracks active functions; each new call is pushed onto the stack and popped off when finished[cite: 72].' 
+    },
+    { 
+      id: 30, diff: 'intermediate', 
+      text: 'What is the height of a perfectly balanced Binary Tree with N nodes?', 
+      options: ['O(N)', 'O(log N)', 'O(N²)', 'O(1)'], correct: 1,
+      explanation: 'Because each level doubles the number of nodes, the relationship between the number of nodes and the height is logarithmic[cite: 72].' 
+    },
+
+    // --- ARCHITECT LEVEL (hard) ---
+    { 
+      id: 31, diff: 'hard', 
+      text: 'How does a Min-Heap differ from a Binary Search Tree (BST)?', 
+      options: [
+        'Heaps are always sorted', 
+        'Min-Heaps provide O(1) access to the minimum element; BSTs are optimized for general searching', 
+        'BSTs use more memory', 
+        'There is no functional difference'
+      ], 
+      correct: 1,
+      explanation: 'Heaps are specialized for priority tasks (finding the smallest/largest), whereas BSTs are designed for fast searching of any key[cite: 72].' 
+    },
+    { 
+      id: 32, diff: 'hard', 
+      text: 'Which algorithm is used to find the shortest path from one node to all others in a weighted graph?', 
+      options: ['DFS', 'Dijkstra’s Algorithm', 'Kruskal’s Algorithm', 'Prim’s Algorithm'], correct: 1,
+      explanation: 'Dijkstra’s uses a priority queue to greedily find the shortest distance in graphs without negative edge weights[cite: 72].' 
+    },
+    { 
+      id: 33, diff: 'hard', 
+      text: 'What is the primary characteristic of an AVL Tree?', 
+      options: ['It is a tree with 3 children per node', 'It is a self-balancing BST where subtrees differ in height by at most one', 'It is used only for strings', 'It is a type of linear list'], correct: 1,
+      explanation: 'AVL trees use rotations to maintain strict balance, ensuring that operations always remain O(log N)[cite: 72].' 
+    },
+    { 
+      id: 34, diff: 'hard', 
+      text: 'What is the time complexity of the "Heapify" process when building a heap from an unsorted array?', 
+      options: ['O(N log N)', 'O(N)', 'O(log N)', 'O(N²)'], correct: 1,
+      explanation: 'While single insertions are O(log N), building an entire heap from the bottom up mathematically converges to O(N)[cite: 72].' 
+    },
+    { 
+      id: 35, diff: 'hard', 
+      text: 'What is a "Disjoint Set" (Union-Find) data structure primarily used for?', 
+      options: ['Sorting strings', 'Tracking connected components and detecting cycles in a graph', 'Performing binary search', 'Calculating node degrees'], correct: 1,
+      explanation: 'Union-Find efficiently manages elements partitioned into non-overlapping sets, which is vital for Kruskal’s MST algorithm[cite: 72].' 
+    }
   ],
 
   ml: [
@@ -632,6 +1253,128 @@ export const QUESTION_BANK = {
       explanation:'In deep networks, gradients can become exponentially small during backprop, stalling learning.' },
     { id:20, diff:'easy', text:'What does CNN stand for?', options:['Central Neural Node','Convolutional Neural Network','Clustered Node Network','Continuous Neural Node'], correct:1,
       explanation:'CNNs use convolutional layers to automatically learn spatial features from images.' },
+    { 
+      id: 21, diff: 'intermediate', 
+      text: 'What is the difference between Supervised and Unsupervised Learning?', 
+      options: [
+        'Supervised uses labeled data; Unsupervised finds hidden patterns in unlabeled data', 
+        'Supervised is for images; Unsupervised is for text', 
+        'Supervised requires no data; Unsupervised requires historical data', 
+        'They are the same'
+      ], 
+      correct: 0,
+      explanation: 'Supervised learning learns a mapping from input to output based on example pairs; Unsupervised learning groups data based on inherent structures.' 
+    },
+    { 
+      id: 22, diff: 'intermediate', 
+      text: 'What is "Overfitting" in a Machine Learning model?', 
+      options: [
+        'The model is too simple to capture the data trend', 
+        'The model performs well on training data but poorly on unseen test data', 
+        'The model has too few parameters', 
+        'The data is too large for the model'
+      ], 
+      correct: 1,
+      explanation: 'Overfitting occurs when a model learns the "noise" in the training data rather than the actual signal, failing to generalize.' 
+    },
+    { 
+      id: 23, diff: 'intermediate', 
+      text: 'What is the purpose of a "Validation Set"?', 
+      options: [
+        'To train the model weights', 
+        'To test the final model accuracy only once', 
+        'To tune hyperparameters and prevent overfitting during the training process', 
+        'To replace the training set'
+      ], 
+      correct: 2,
+      explanation: 'The validation set provides an unbiased evaluation of a model fit while tuning model parameters (like learning rate or tree depth).' 
+    },
+    { 
+      id: 24, diff: 'intermediate', 
+      text: 'What does the "Bias-Variance Tradeoff" refer to?', 
+      options: [
+        'Choosing between speed and accuracy', 
+        'The conflict between a models ability to minimize error from simple assumptions (bias) vs sensitivity to data fluctuations (variance)', 
+        'The cost of hardware vs the size of the dataset', 
+        'The difference between training and inference time'
+      ], 
+      correct: 1,
+      explanation: 'High bias causes underfitting; high variance causes overfitting. A good model finds the sweet spot that minimizes total error.' 
+    },
+    { 
+      id: 25, diff: 'intermediate', 
+      text: 'What is a "Confusion Matrix" used for?', 
+      options: [
+        'To scramble data for security', 
+        'To visualize the performance of a classification model by showing true vs predicted classes', 
+        'To calculate the derivative of a function', 
+        'To handle missing values in a dataset'
+      ], 
+      correct: 1,
+      explanation: 'It allows you to see not just the accuracy, but where the model is specifically getting confused (e.g., False Positives vs False Negatives).' 
+    },
+
+    // --- ARCHITECT LEVEL (hard) ---
+    { 
+      id: 26, diff: 'hard', 
+      text: 'How does Gradient Descent work in training a Neural Network?', 
+      options: [
+        'By randomly guessing weights until it works', 
+        'By iteratively updating weights in the opposite direction of the gradient of the loss function to find a minimum', 
+        'By increasing the learning rate at every step', 
+        'By removing layers from the network'
+      ], 
+      correct: 1,
+      explanation: 'The gradient tells us which way "up" is; we move in the opposite direction to slide down the loss curve toward the lowest error.' 
+    },
+    { 
+      id: 27, diff: 'hard', 
+      text: 'What is "Regularization" (L1/L2) and why is it used?', 
+      options: [
+        'A method to speed up data loading', 
+        'Adding a penalty term to the loss function to discourage overly complex models and prevent overfitting', 
+        'The process of cleaning a dataset', 
+        'A technique for normalizing image pixels'
+      ], 
+      correct: 1,
+      explanation: 'L1 (Lasso) can lead to sparse weights (feature selection), while L2 (Ridge) keeps weights small; both help the model generalize.' 
+    },
+    { 
+      id: 28, diff: 'hard', 
+      text: 'What is the "Vanishing Gradient" problem in Deep Learning?', 
+      options: [
+        'When the dataset becomes too small', 
+        'When gradients become extremely small during backpropagation, preventing early layers from learning', 
+        'When the model forgets the training data', 
+        'When the loss function reaches zero'
+      ], 
+      correct: 1,
+      explanation: 'In very deep networks, multiplying many small gradients causes them to shrink to zero, effectively stopping the weights from updating.' 
+    },
+    { 
+      id: 29, diff: 'hard', 
+      text: 'What is the "Kernel Trick" in Support Vector Machines (SVM)?', 
+      options: [
+        'A way to hide data from the user', 
+        'Mapping data into a higher-dimensional space to make it linearly separable without explicitly calculating coordinates', 
+        'A method to speed up the CPU', 
+        'A way to use SVM for text generation'
+      ], 
+      correct: 1,
+      explanation: 'The kernel function calculates the dot product in high-dimensional space efficiently, allowing for complex non-linear boundaries.' 
+    },
+    { 
+      id: 30, diff: 'hard', 
+      text: 'What is "Principal Component Analysis" (PCA) primarily used for?', 
+      options: [
+        'Increasing the size of the dataset', 
+        'Dimensionality reduction by projecting data onto axes that maximize variance', 
+        'Predicting a continuous target variable', 
+        'Training a deep neural network'
+      ], 
+      correct: 1,
+      explanation: 'PCA transforms correlated variables into a smaller set of uncorrelated variables (principal components) while keeping as much information as possible.' 
+    }
   ],
 
   system: [
@@ -675,6 +1418,128 @@ export const QUESTION_BANK = {
       explanation:'Circuit breakers prevent cascading failures by stopping calls to a failing service until it recovers.' },
     { id:20, diff:'easy', text:'What is WebSocket used for?', options:['Database queries','Full-duplex real-time communication between client and server','Static file serving','DNS resolution'], correct:1,
       explanation:'WebSockets provide a persistent, bidirectional connection for real-time apps like chat or live feeds.' },
+    { 
+      id: 21, diff: 'intermediate', 
+      text: 'What is the primary purpose of an Operating System (OS)?', 
+      options: [
+        'To design websites', 
+        'To manage hardware resources and provide a user interface for software execution', 
+        'To act as a primary database for user files', 
+        'To increase the physical clock speed of the CPU'
+      ], 
+      correct: 1,
+      explanation: 'The OS acts as an intermediary between the user/applications and the computer hardware, managing memory, processes, and storage.' 
+    },
+    { 
+      id: 22, diff: 'intermediate', 
+      text: 'What is "Virtual Memory"?', 
+      options: [
+        'Memory stored on a cloud server', 
+        'A technique that uses hard drive space to simulate additional RAM', 
+        'Memory that only exists while the computer is off', 
+        'A hardware upgrade for the motherboard'
+      ], 
+      correct: 1,
+      explanation: 'Virtual memory allows a computer to compensate for physical memory shortages by temporarily transferring data from RAM to disk storage.' 
+    },
+    { 
+      id: 23, diff: 'intermediate', 
+      text: 'Difference between a Process and a Thread?', 
+      options: [
+        'Threads are larger than processes', 
+        'A process is an executing program with its own memory; a thread is a subset of a process that shares memory with other threads', 
+        'Processes share memory, while threads do not', 
+        'There is no difference'
+      ], 
+      correct: 1,
+      explanation: 'Processes are independent execution units; threads are "lightweight" processes that run within a process to perform concurrent tasks.' 
+    },
+    { 
+      id: 24, diff: 'intermediate', 
+      text: 'What is a "System Call"?', 
+      options: [
+        'A phone call to technical support', 
+        'A programmatic way for an application to request a service from the OS kernel', 
+        'An error message sent by the hardware', 
+        'A function used only for mathematical calculations'
+      ], 
+      correct: 1,
+      explanation: 'System calls provide the interface between a running program and the operating system (e.g., reading a file or allocating memory).' 
+    },
+    { 
+      id: 25, diff: 'intermediate', 
+      text: 'What is the "Kernel" of an Operating System?', 
+      options: [
+        'The GUI (Graphical User Interface)', 
+        'The central core of the OS that has complete control over everything in the system', 
+        'The folder where user documents are stored', 
+        'The bootloader that starts the computer'
+      ], 
+      correct: 1,
+      explanation: 'The kernel is the first part of the OS to load into memory and remains there to manage system resources and hardware communication.' 
+    },
+
+    // --- ARCHITECT LEVEL (hard) ---
+    { 
+      id: 26, diff: 'hard', 
+      text: 'What is a "Deadlock" in OS and its four necessary conditions?', 
+      options: [
+        'A computer crash caused by overheating', 
+        'A state where a set of processes are blocked because each is holding a resource and waiting for another; conditions: Mutual Exclusion, Hold and Wait, No Preemption, Circular Wait', 
+        'When the hard drive stops spinning', 
+        'When the CPU runs at 100% capacity indefinitely'
+      ], 
+      correct: 1,
+      explanation: 'Deadlock prevents system progress. All four "Coffman conditions" must hold true simultaneously for a deadlock to occur.' 
+    },
+    { 
+      id: 27, diff: 'hard', 
+      text: 'What is "Thrashing" in memory management?', 
+      options: [
+        'Physical damage to the RAM sticks', 
+        'A state where the system spends more time swapping pages in and out of virtual memory than executing instructions', 
+        'Deleting all temporary files to save space', 
+        'Overclocking the CPU beyond its limits'
+      ], 
+      correct: 1,
+      explanation: 'Thrashing occurs when the total size of active processes exceeds physical RAM, causing constant page faults and severe performance drops.' 
+    },
+    { 
+      id: 28, diff: 'hard', 
+      text: 'Difference between Monolithic and Microkernel architectures?', 
+      options: [
+        'Monolithic is only for old computers', 
+        'Monolithic runs all OS services in kernel space; Microkernel moves most services to user space for better stability and modularity', 
+        'Microkernels are faster than Monolithic kernels', 
+        'Monolithic kernels cannot be updated'
+      ], 
+      correct: 1,
+      explanation: 'Monolithic kernels are generally faster due to direct communication, but Microkernels are more robust as service failures don’t crash the whole system.' 
+    },
+    { 
+      id: 29, diff: 'hard', 
+      text: 'What is the purpose of a "Translation Lookaside Buffer" (TLB)?', 
+      options: [
+        'To translate code from C++ to Java', 
+        'A hardware cache that stores recent virtual-to-physical address mappings to speed up memory access', 
+        'To buffer network requests', 
+        'To store the results of mathematical operations'
+      ], 
+      correct: 1,
+      explanation: 'The TLB reduces the time taken to access a user data location by avoiding multiple memory lookups in page tables.' 
+    },
+    { 
+      id: 30, diff: 'hard', 
+      text: 'What is "Context Switching" and why is it expensive?', 
+      options: [
+        'Changing the desktop wallpaper', 
+        'The process of storing and restoring the state of a CPU so that execution can be resumed later; expensive due to cache misses and overhead', 
+        'Moving a computer to a different room', 
+        'Switching between different programming languages'
+      ], 
+      correct: 1,
+      explanation: 'While essential for multitasking, context switching requires the CPU to save registers and flush caches, which consumes significant cycles.' 
+    }
   ],
 
   docker: [
@@ -718,6 +1583,128 @@ export const QUESTION_BANK = {
       explanation:'RUN executes a command in a new layer during the image build process.' },
     { id:20, diff:'easy', text:'What is Kubernetes?', options:['A container runtime','A container orchestration platform for automating deployment and scaling','A Docker replacement','A registry'], correct:1,
       explanation:'Kubernetes (k8s) automates deployment, scaling, and management of containerized applications.' },
+    { 
+      id: 21, diff: 'intermediate', 
+      text: 'What is the fundamental difference between a Docker Container and a Virtual Machine (VM)?', 
+      options: [
+        'Containers include a full OS; VMs share the host OS kernel', 
+        'Containers share the host OS kernel and are lightweight; VMs include a full guest OS and run on a hypervisor', 
+        'VMs are faster to start than containers', 
+        'There is no difference in resource usage'
+      ], 
+      correct: 1,
+      explanation: 'Containers virtualize the OS level, making them much smaller and faster than VMs, which virtualize the hardware level.' 
+    },
+    { 
+      id: 22, diff: 'intermediate', 
+      text: 'What is a "Dockerfile"?', 
+      options: [
+        'A script containing commands to assemble a Docker image', 
+        'A log file showing container errors', 
+        'A configuration file for Docker Desktop settings', 
+        'A backup of a running container'
+      ], 
+      correct: 0,
+      explanation: 'A Dockerfile is a text document that contains all the commands a user could call on the command line to create an image.' 
+    },
+    { 
+      id: 23, diff: 'intermediate', 
+      text: 'What does the "docker-compose" tool allow you to do?', 
+      options: [
+        'Compile C++ code into Docker', 
+        'Define and run multi-container Docker applications using a YAML file', 
+        'Connect Docker to a physical printer', 
+        'Scan images for security vulnerabilities'
+      ], 
+      correct: 1,
+      explanation: 'Compose is used to manage a stack of services (like a web app and a database) as a single unit.' 
+    },
+    { 
+      id: 24, diff: 'intermediate', 
+      text: 'What is a Docker "Image" vs a "Container"?', 
+      options: [
+        'An image is a running instance of a container', 
+        'An image is a read-only template; a container is a running, executable instance of an image', 
+        'They are the same thing', 
+        'Images are for databases; containers are for code'
+      ], 
+      correct: 1,
+      explanation: 'Think of an image as a "class" or "blueprint," and a container as an "object" or "instance" of that class.' 
+    },
+    { 
+      id: 25, diff: 'intermediate', 
+      text: 'How do you persist data in Docker after a container is deleted?', 
+      options: [
+        'Data is automatically saved to the cloud', 
+        'Using Docker Volumes or Bind Mounts', 
+        'By committing the container to a new image every hour', 
+        'Data cannot be persisted in Docker'
+      ], 
+      correct: 1,
+      explanation: 'Volumes are the preferred mechanism for persisting data generated by and used by Docker containers.' 
+    },
+
+    // --- ARCHITECT LEVEL (hard) ---
+    { 
+      id: 26, diff: 'hard', 
+      text: 'What is "Layer Caching" in Docker and why is it important?', 
+      options: [
+        'A way to hide code layers from hackers', 
+        'A mechanism where Docker reuses unchanged instructions from previous builds to speed up the build process', 
+        'A tool for compressing images for storage', 
+        'A method for encrypting container traffic'
+      ], 
+      correct: 1,
+      explanation: 'Each instruction in a Dockerfile creates a layer. Docker caches these layers to avoid re-running expensive steps like dependency installation if the commands haven\'t changed.' 
+    },
+    { 
+      id: 27, diff: 'hard', 
+      text: 'What is the purpose of a Multi-stage build in a Dockerfile?', 
+      options: [
+        'To run a container on multiple servers at once', 
+        'To use multiple FROM statements to create smaller, optimized production images by leaving out build-time dependencies', 
+        'To allow multiple users to edit the same Dockerfile', 
+        'To test the image on different Operating Systems'
+      ], 
+      correct: 1,
+      explanation: 'Multi-stage builds allow you to compile your code in one stage and copy only the binary to a final, much smaller image.' 
+    },
+    { 
+      id: 28, diff: 'hard', 
+      text: 'Difference between the "COPY" and "ADD" instructions?', 
+      options: [
+        'COPY is for folders; ADD is for files', 
+        'COPY only supports basic local file copying; ADD has extra features like extracting local tar files and downloading from URLs', 
+        'ADD is the newer, preferred version of COPY', 
+        'There is no functional difference'
+      ], 
+      correct: 1,
+      explanation: 'While ADD has more features, COPY is generally preferred for its simplicity and transparency unless the specific features of ADD are required.' 
+    },
+    { 
+      id: 29, diff: 'hard', 
+      text: 'What is a "Distroless" image?', 
+      options: [
+        'An image without an internet connection', 
+        'An image that contains only your application and its runtime dependencies, excluding package managers and shells', 
+        'An image that cannot be distributed to others', 
+        'A generic image that works on any hardware'
+      ], 
+      correct: 1,
+      explanation: 'Distroless images improve security by reducing the attack surface (removing tools like "sh" or "apt" that a hacker could use).' 
+    },
+    { 
+      id: 30, diff: 'hard', 
+      text: 'In Docker networking, what does the "bridge" network mode do?', 
+      options: [
+        'Connects the container directly to the physical router', 
+        'Creates a private internal network on the host so containers can communicate with each other but are isolated from the outside', 
+        'Disables all networking for the container', 
+        'Shares the host’s IP address directly'
+      ], 
+      correct: 1,
+      explanation: 'The bridge driver is the default network driver. It creates a software bridge that allows containers on the same bridge network to communicate while providing isolation from the host network.' 
+    }
   ],
 
   ts: [
@@ -761,5 +1748,85 @@ export const QUESTION_BANK = {
       explanation:'tsc is the TypeScript compiler that transforms .ts files into .js files.' },
     { id:20, diff:'easy', text:'What is a mapped type in TypeScript?', options:['A type for Maps','A type that transforms each property of another type','An array type','A generic constraint'], correct:1,
       explanation:'Mapped types iterate over keys of a type and transform each property (e.g., Readonly<T>).' },
+    { 
+      id: 21, diff: 'intermediate', 
+      text: 'What is the primary benefit of using TypeScript over JavaScript?', 
+      options: ['It makes the code run faster', 'It adds static typing to catch errors during development', 'It replaces CSS', 'It is a different language'], correct: 1,
+      explanation: 'TS catches type-related bugs at compile-time before they reach production.' 
+    },
+    { 
+      id: 22, diff: 'intermediate', 
+      text: 'Difference between an Interface and a Type alias?', 
+      options: ['Interfaces are only for classes', 'Interfaces are open for "declaration merging"; Type aliases are not', 'Types are faster', 'Interfaces cannot be used with objects'], correct: 1,
+      explanation: 'Interfaces can be extended by declaring them multiple times; Types are constant.' 
+    },
+    { 
+      id: 23, diff: 'intermediate', 
+      text: 'What does the "any" type do in TypeScript?', 
+      options: ['Enforces strict typing', 'Effectively opts out of type checking for a variable', 'Same as unknown', 'Auto-detects types'], correct: 1,
+      explanation: '"any" bypasses the compiler checks, essentially reverting the variable to plain JavaScript behavior.' 
+    },
+    { 
+      id: 24, diff: 'intermediate', 
+      text: 'What is a "Union Type" in TypeScript?', 
+      options: ['An array-only type', 'A type that allows a value to be one of several types (e.g., string | number)', 'A database join', 'A type containing all properties of two interfaces'], correct: 1,
+      explanation: 'Unions allow a variable to hold more than one specific type of data.' 
+    },
+    { 
+      id: 25, diff: 'intermediate', 
+      text: 'What is the purpose of the "tsconfig.json" file?', 
+      options: ['Store passwords', 'Specify root files and compiler options for the project', 'Install packages', 'Define UI layout'], correct: 1,
+      explanation: 'It defines how the TypeScript compiler (tsc) should behave for that specific project.' 
+    },
+    { 
+      id: 26, diff: 'intermediate', 
+      text: 'How does TypeScript handle "Structural Typing"?', 
+      options: ['Checks if names match', 'Checks if the members of the object match the required shape (duck typing)', 'Requires classes for every object', 'Only for primitives'], correct: 1,
+      explanation: 'TS focuses on the shape of the data rather than the specific class or name assigned to it.' 
+    },
+    { 
+      id: 27, diff: 'intermediate', 
+      text: 'What does the "readonly" modifier do on an interface property?', 
+      options: ['Hides the property', 'Prevents reassignment after initialization', 'Converts to string', 'Only for loops'], correct: 1,
+      explanation: 'Readonly ensures that a property’s value cannot be changed once the object is created.' 
+    },
+
+    // --- ARCHITECT LEVEL (6 Unique) ---
+    { 
+      id: 28, diff: 'hard', 
+      text: 'What are Generics in TypeScript?', 
+      options: ['Common types', 'A way to create reusable components that work with various types (using <T>)', 'Random data generators', 'Auto-assigned types'], correct: 1,
+      explanation: 'Generics allow for type-safe code that remains flexible for different data inputs.' 
+    },
+    { 
+      id: 29, diff: 'hard', 
+      text: 'Difference between "unknown" and "any"?', 
+      options: ['Identical', 'Unknown is safer; it requires type narrowing before usage', 'Any is for objects', 'Unknown is for catch blocks only'], correct: 1,
+      explanation: 'You must check what an "unknown" variable is (e.g., using typeof) before calling methods on it.' 
+    },
+    { 
+      id: 30, diff: 'hard', 
+      text: 'What is "Type Narrowing"?', 
+      options: ['Saving memory', 'Refining a broad type into a more specific one using logic like "if" statements', 'Deleting types', 'Type conversion'], correct: 1,
+      explanation: 'TS uses control flow to determine that a variable is a specific type within a certain block of code.' 
+    },
+    { 
+      id: 31, diff: 'hard', 
+      text: 'What does the "keyof" operator do?', 
+      options: ['Returns object value', 'Creates a union type of all keys/properties of an object type', 'Unlocks variables', 'Database check'], correct: 1,
+      explanation: 'keyof takes an object type and produces a string or numeric literal union of its keys.' 
+    },
+    { 
+      id: 32, diff: 'hard', 
+      text: 'What is a "Mapped Type"?', 
+      options: ['Google Maps type', 'Creating new types based on existing ones by transforming properties (e.g., Partial)', 'Project type list', 'Coordinate map'], correct: 1,
+      explanation: 'Mapped types allow you to programmatically create variations of types (like making all fields optional).' 
+    },
+    { 
+      id: 33, diff: 'hard', 
+      text: 'How does the tsc treat ES Modules vs CommonJS?', 
+      options: ['Converts to ESM only', 'Allows specifying the target module system in tsconfig.json', 'Cannot compile ESM', 'Ignores modules'], correct: 1,
+      explanation: 'The "module" compiler option dictates whether output uses "require" or "import/export" syntax.' 
+    }
   ],
 };

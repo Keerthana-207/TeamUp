@@ -6,12 +6,25 @@ import "./SkillAssessment.css";
 /* ════════════════════════════════════════════════════════════
    SCORING
 ════════════════════════════════════════════════════════════ */
+function normalizeDiff(diff) {
+  if (!diff) return "easy";
+
+  const d = diff.toLowerCase().trim();
+
+  if (d === "intermediate" || d === "medium") return "medium";
+  if (d === "easy") return "easy";
+  if (d === "hard") return "hard";
+
+  return "easy";
+}
+
 const DIFF_WEIGHTS = { easy: 1, medium: 1.5, hard: 2 };
 
 function calcScore(answers, questions) {
   let earned = 0, max = 0;
   questions.forEach((q, i) => {
-    const w = DIFF_WEIGHTS[q.diff];
+    const diff = normalizeDiff(q.diff);
+    const w = DIFF_WEIGHTS[diff] ?? 1;
     max += w;
     if (answers[i] === q.correct) earned += w;
   });
@@ -64,16 +77,52 @@ export default function SkillAssessment() {
   const [score,       setScore]       = useState(0);
   const timerKey = useRef(0);
 
-  function getRandomQuestions(allQuestions, count = 5) {
-    const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, count);
+  function safePick(arr, n) {
+    const shuffled = [...arr].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, Math.min(n, shuffled.length));
+  }
+
+  // function getRandomQuestions(allQuestions, count = 5) {
+  //   const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+  //   return shuffled.slice(0, count);
+  // }
+
+  function getBalancedQuestions(allQuestions) {
+    // Step 1: normalize first (VERY IMPORTANT)
+    const normalized = allQuestions.map(q => ({
+      ...q,
+      diff: normalizeDiff(q.diff)
+    }));
+
+    // Step 2: split properly
+    const easy = normalized.filter(q => q.diff === "easy");
+    const medium = normalized.filter(q => q.diff === "medium");
+    const hard = normalized.filter(q => q.diff === "hard");
+
+    // Step 3: initial balanced pick (2-2-1)
+    let selected = [
+      ...safePick(easy, 2),
+      ...safePick(medium, 2),
+      ...safePick(hard, 1),
+    ];
+
+    // Step 4: ensure EXACTLY 5 questions always
+    const remaining = normalized.filter(q => !selected.includes(q));
+
+    while (selected.length < 5 && remaining.length > 0) {
+      selected.push(remaining.shift());
+    }
+
+    // Step 5: final shuffle
+    return selected.sort(() => Math.random() - 0.5);
   }
 
   /* Start quiz */
   function startQuiz() {
     if (!chosenSkill) return;
+    console.log(chosenSkill);
     const allQs = QUESTION_BANK[chosenSkill.id];
-    const qs = getRandomQuestions(allQs, 5);
+    const qs = getBalancedQuestions(allQs);
     setQuestions(qs);
     setQIdx(0); setAnswers([]); setSelected(null); setRevealed(false);
     timerKey.current++;

@@ -68,7 +68,25 @@ const userSchema = new mongoose.Schema({
     },
     profilePhoto: {
         type: String // store URL (Cloudinary / S3)
+    },
+    rating: {
+    avg: {
+        type: Number,
+        min: 0,
+        max: 5,
+        default: 0
+    },
+    count: {
+        type: Number,
+        default: 0
     }
+},
+    connections: [
+    {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }
+    ]
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

@@ -6,6 +6,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/User");
+const Project = require("../models/Project");
+const Team = require("../models/Team");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -38,7 +40,10 @@ router.post("/register", upload.single("profilePhoto"), async (req, res) => {
             bio
         } = req.body;
 
-        // 🔍 Check if user already exists
+        const profilePhoto = req.file
+        ? `http://localhost:3001/uploads/${req.file.filename}`
+        : "";
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
@@ -46,9 +51,6 @@ router.post("/register", upload.single("profilePhoto"), async (req, res) => {
 
         // 🔐 Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // 🖼️ Handle profile photo
-        const profilePhoto = req.file ? req.file.path : "";
 
         // ⚠️ Parse skills & interests (from FormData)
         let parsedSkills = [];
@@ -151,9 +153,29 @@ const verifyToken = (req, res, next) => {
 };
 
 router.get("/me", verifyToken, async (req, res) => {
+
     try {
-        const user = await User.findById(req.user.id).select("-password");
-        res.json(user);
+        const userId = req.user.id;
+        const user = await User.findById(userId).select("-password");
+        const projects = await Project.find({
+        $or: [
+            { createdBy: userId },
+            { "collaborators.user": userId }
+        ]
+        }).sort({ createdAt: -1 }); 
+
+        const teams = await Team.find({
+        members: userId 
+        }).populate("members", "fullName profilePhoto");
+
+        const connections = [];
+        
+        res.json({
+            ...user._doc,
+            projects,
+            teams,
+            connections
+        });
     } catch (err) {
         res.status(500).json({ message: "Server error" });
     }

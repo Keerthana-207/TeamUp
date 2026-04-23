@@ -590,6 +590,57 @@
 .db-quick-card-icon .material-icons-round { font-size: 20px !important; }
 .db-quick-card-label { font-size: 0.83rem; font-weight: 600; color: var(--text); line-height: 1.3; }
 
+/* ─── SKILLS BAR (Dashboard Profile) ───────────────────── */
+
+.db-skill-bars {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.db-skill-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.db-skill-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.db-skill-name {
+  color: var(--text);
+}
+
+.db-skill-score {
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+.db-skill-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.db-skill-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--cyan), var(--violet));
+  transition: width 0.6s ease;
+}
+
+.db-skill-level {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
 /* ─── TOAST ──────────────────────────────────────────────── */
 .db-toast-container {
   position: fixed; bottom: 24px; right: 24px; z-index: 9999;

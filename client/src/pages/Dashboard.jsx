@@ -6,13 +6,6 @@ import axios from 'axios';
 import "./Dashboard.css";
 
 
-const STATS = [
-  { icon: "rocket_launch",    iconBg: "rgba(99,218,255,0.12)",  iconColor: "var(--cyan)",   label: "My Projects", value: 0,   trend: "+",  trendDir: "up"  },
-  { icon: "group",            iconBg: "rgba(167,139,250,0.12)", iconColor: "var(--violet)", label: "My Teams",    value: 2,   trend: "—",   trendDir: "neu" },
-  { icon: "star",             iconBg: "rgba(251,191,36,0.12)",  iconColor: "var(--yellow)", label: "Avg Rating",  value: "4.3", trend: "+0.2", trendDir: "up" },
-  { icon: "groups",           iconBg: "rgba(52,211,153,0.12)",  iconColor: "var(--green)",  label: "Connections", value: 17,  trend: "+3",  trendDir: "up"  },
-];
-
 const QUICK_ACTIONS = [
   { label: "New Project",    icon: "add_circle",        iconBg: "rgba(99,218,255,0.12)",  iconColor: "var(--cyan)",   href: "/projects/new"  },
   { label: "Find a Team",    icon: "group_add",         iconBg: "rgba(167,139,250,0.12)", iconColor: "var(--violet)", href: "/teams/browse"  },
@@ -123,6 +116,47 @@ if (!user) return (
 
   const MY_PROJECTS = user.projects || [];
   const MY_TEAMS = user.teams || [];
+
+  const statsData = [
+  {
+    icon: "rocket_launch",
+    iconBg: "rgba(99,218,255,0.12)",
+    iconColor: "var(--cyan)",
+    label: "My Projects",
+    value: MY_PROJECTS.length,
+    // value: 0,
+    trend: "+",
+    trendDir: "up"
+  },
+  {
+    icon: "group",
+    iconBg: "rgba(167,139,250,0.12)",
+    iconColor: "var(--violet)",
+    label: "My Teams",
+    value: MY_TEAMS.length,
+    // value:0,
+    trend: "—",
+    trendDir: "neu"
+  },
+  {
+    icon: "star",
+    iconBg: "rgba(251,191,36,0.12)",
+    iconColor: "var(--yellow)",
+    label: "Avg Rating",
+    value: user.rating?.avg ? user.rating.avg.toFixed(1) : "0.0", // ⭐ FIX HERE
+    trend: "",
+    trendDir: "up"
+  },
+  {
+    icon: "groups",
+    iconBg: "rgba(52,211,153,0.12)",
+    iconColor: "var(--green)",
+    label: "Connections",
+    value: user.connections?.length || 0,
+    trend: "+",
+    trendDir: "up"
+  }
+];
   return (
     <>
       {/* ── BG ──────────────────────────────────────────── */}
@@ -172,8 +206,8 @@ if (!user) return (
                 className="db-topbar-avatar"
                 onClick={() => setOpenMenu(prev => !prev)}
               >
-                {user.photoUrl
-                  ? <img src={user.photoUrl} alt={user.fullName} />
+                {user.profilePhoto
+                  ? <img src={user.profilePhoto} alt={user.fullName} />
                   : <span className="material-icons-round">person</span>
                 }
               </div>
@@ -275,7 +309,7 @@ if (!user) return (
 
             {/* ══ STATS ROW ═════════════════════════════ */}
             <div className="db-stats-row">
-              {STATS.map(s => (
+              {statsData.map(s => (
                 <div key={s.label} className="db-stat-card">
                   <div className="db-stat-top">
                     <div className="db-stat-icon" style={{ background: s.iconBg }}>
@@ -410,16 +444,41 @@ if (!user) return (
                   <div className="db-profile-sum-name">{user.fullName}</div>
                   <div className="db-profile-sum-email">{user.email}</div>
                   <div className="db-profile-sum-tags">
-                  {user.skills.slice(0, 4).map(s => (
+                  {/* {user.skills.slice(0, 4).map(s => (
                     <span key={s._id} className="db-tag-mini skill">
                       {s.name}
                     </span>
-                  ))}
+                  ))} */}
                     {user.interests.slice(0, 3).map(s => (
                       <span key={s} className="db-tag-mini interest">{s}</span>
                     ))}
                   </div>
+                                    {/* ─── SKILL BARS ─── */}
+                  <div className="db-skill-bars">
+                    {user.skills.map(skill => (
+                      <div key={skill._id} className="db-skill-row">
+                        
+                        <div className="db-skill-top">
+                          <span className="db-skill-name">{skill.name}</span>
+                          <span className="db-skill-score">{skill.score}%</span>
+                        </div>
+
+                        <div className="db-skill-bar">
+                          <div
+                            className="db-skill-fill"
+                            style={{ width: `${skill.score}%` }}
+                          />
+                        </div>
+
+                        <div className="db-skill-level">
+                          {skill.level}
+                        </div>
+
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
                 {/* View Public Profile button */}
                 <a
                   href={`/profile/me`}
@@ -432,7 +491,7 @@ if (!user) return (
               </div>
 
               {/* Profile completion bar */}
-              <div className="db-completion-wrap">
+              {/* <div className="db-completion-wrap">
                 <div className="db-completion-label">
                   <span>Profile completion</span>
                   <span>{user.profileCompletion}%</span>
@@ -440,9 +499,9 @@ if (!user) return (
                 <div className="db-completion-bar">
                   <div className="db-completion-fill" style={{ width: `${user.profileCompletion}%` }} />
                 </div>
-              </div>
+              </div> */}
 
-              {user.profileCompletion < 100 && (
+              {/* {user.profileCompletion < 100 && (
                 <div style={{ marginTop: "14px", display: "flex", alignItems: "center", gap: "8px" }}>
                   <span className="material-icons-round" style={{ fontSize: "16px", color: "var(--yellow)" }}>tips_and_updates</span>
                   <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
@@ -452,7 +511,7 @@ if (!user) return (
                     Complete now →
                   </a>
                 </div>
-              )}
+              )} */}
             </Module>
 
           </main>
