@@ -3,6 +3,7 @@ import { MAIN_NAV, ACCOUNT_NAV } from "../constants";
 import { ThreeDots } from "react-loader-spinner";
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import TopBar from "../components/TopBar";
 import './MyProject.css';
 
 function formatDate(str) {
@@ -187,6 +188,7 @@ export default function MyProjects() {
   const [toasts, setToasts]           = useState([]);
   const toastIdRef                    = useRef(0);
   const [activeNav, setActiveNav] = useState("projects");
+  const [user, setUser] = useState(null);
 
    // ── Toast helper ──────────────────────────────────
   const showToast = useCallback((message, type = "info", icon = "info", duration = 3000) => {
@@ -194,6 +196,30 @@ export default function MyProjects() {
     setToasts(prev => [...prev, { id, message, type, icon }]);
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), duration);
   }, []);
+
+  useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(
+        "http://localhost:3001/api/auth/me",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setUser(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchUser();
+}, []);
+
 
     useEffect(() => {
     const fetchProjects = async () => {
@@ -238,7 +264,7 @@ export default function MyProjects() {
     fetchProjects();
   }, []);
 
-if (loading) {
+if (loading || !user) {
   return (
     <div style={{
       display: "flex",
@@ -350,21 +376,7 @@ const confirmDelete = async () => {
       <div className="orb orb-3" />
 
       {/* Topbar */}
-      <nav className="topbar">
-        <a href="#" className="logo">
-          <span className="material-icons-round logo-icon">bolt</span>
-          <span>Team<span className="logo-accent">Up</span></span>
-        </a>
-        <div className="nav-actions">
-          <div className="nav-icon-btn" title="Notifications">
-            <span className="material-icons-round">notifications_none</span>
-          </div>
-          <div className="nav-icon-btn" title="Settings">
-            <span className="material-icons-round">settings</span>
-          </div>
-          <div className="nav-avatar">AS</div>
-        </div>
-      </nav>
+      <TopBar user={user} showToast={showToast} showGreeting={false} />
 
       <div className="app-layout">
           <aside className="db-sidebar">

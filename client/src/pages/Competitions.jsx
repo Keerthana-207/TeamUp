@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import "./Competitions.css";
 
 /* ════════════════════════════════════════════════════════════
@@ -311,10 +311,18 @@ export default function Competitions({ hackathonId }) {
                 </span>
                 {registered ? "Registered!" : "Register Now"}
               </button>
-              <a href={`/find-team/${hack.id}`} className="ed-find-team-btn">
+              <Link
+                to={`/find-team/${hack.id}`}
+                state={{
+                  hackathonId: hack.id,
+                  hackathonTitle: hack.title,
+                  skills: hack.skillsRequired.map(s => s.name)
+                }}
+                className="ed-find-team-btn"
+              >
                 <span className="material-icons-round">group_add</span>
                 Find a Team
-              </a>
+              </Link>
               <div className="ed-action-divider" />
               <button className="ed-share-btn" onClick={() => { navigator.clipboard?.writeText(window.location.href); showToast("Link copied to clipboard!", "info", "link"); }}>
                 <span className="material-icons-round">share</span>
@@ -343,10 +351,17 @@ export default function Competitions({ hackathonId }) {
                     </span>
                   </a>
                 ))}
-                <a href={`/find-team/${hack.id}`} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", padding: "10px", fontSize: "0.81rem", color: "var(--cyan)", textDecoration: "none", fontWeight: 600, marginTop: "4px" }}>
+                <Link
+                  to={`/find-team/${hack.id}`}
+                  state={{
+                    hackathonId: hack.id,
+                    hackathonTitle: hack.title,
+                    skills: hack.skillsRequired.map(s => s.name)
+                  }}
+                  
+                >
                   View all matches
-                  <span className="material-icons-round" style={{ fontSize: "15px" }}>arrow_forward</span>
-                </a>
+                </Link>
               </div>
             </div>
 

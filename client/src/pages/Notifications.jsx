@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
+import { logout } from '../utils/auth'
 import "./Notifications.css";
 
 const FILTER_TABS = [
@@ -53,6 +54,10 @@ function getDateLabel(dateString) {
 
 function NotifItem({ notif, onAccept, onDecline, onView, onMarkRead, index }) {
   const n = notif;
+
+const handleLogout = () => {
+  logout(navigate, setUser, showToast);
+};
 
 const time = n.createdAt
   ? new Date(n.createdAt).toLocaleTimeString([], {
@@ -128,12 +133,37 @@ export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [activeFilter, setActiveFilter]   = useState("all");
   const [toasts,       setToasts]         = useState([]);
+  const [user, setUser] = useState(null);
+  const [openMenu, setOpenMenu] = useState(false);
 
   const token = localStorage.getItem("token");
 
   const config = {
     headers: { Authorization: `Bearer ${token}` },
   };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(
+          "http://localhost:3001/api/auth/me",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setUser(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUser();
+  }, []); 
 
     useEffect(() => {
     async function fetchNotifications() {
@@ -283,7 +313,40 @@ const groups = Object.entries(groupsMap).map(([date, items]) => ({
           <div className="nav-icon-btn">
             <span className="material-icons-round">settings</span>
           </div>
-          <div className="nav-avatar">AS</div>
+          <div className="db-topbar-avatar-wrap">
+            <div
+              className="db-topbar-avatar"
+              onClick={() => setOpenMenu(prev => !prev)}
+            >
+              {user?.profilePhoto ? (
+                <img src={user.profilePhoto} alt={user?.fullName || "User"} />
+              ) : (
+                <span className="material-icons-round">person</span>
+              )}
+            </div>
+
+            {openMenu && (
+              <div className="db-dropdown">
+                {ACCOUNT_NAV.map(item => (
+                  <a key={item.id} href={item.href} className="db-nav-item">
+                    <span className="material-icons-round">{item.icon}</span>
+                    {item.label}
+                  </a>
+                ))}
+
+                <div className="db-dropdown-divider" />
+
+                <button
+                  className="db-nav-item logout"
+                  style={{ color: "var(--red)", marginTop: "4px" }}
+                  onClick={handleLogout}
+                >
+                  <span className="material-icons-round">logout</span>
+                  Sign out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 

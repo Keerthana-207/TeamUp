@@ -1,5 +1,8 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import axios from 'axios';
 import "./SkillShare.css";
+import { logout } from '../utils/auth'
+import { ACCOUNT_NAV } from "../constants";
 
 /* ══════════════════════════════════════════════════
    DATA
@@ -362,6 +365,8 @@ export default function SkillShare() {
   const [inviteSent,     setInviteSent]     = useState(false);
   const [toasts,         setToasts]         = useState([]);
   const resultsRef = useRef(null);
+  const [user, setUser] = useState(null);
+  const [openMenu, setOpenMenu] = useState(false);
 
   /* ── toast helper ── */
   const showToast = useCallback((msg, type = "info", icon = "info", duration = 3200) => {
@@ -437,6 +442,34 @@ export default function SkillShare() {
       : currentProfile.projects_list.filter((pr) => pr.tag === projFilter)
     : [];
 
+   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(
+          "http://localhost:3001/api/auth/me",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setUser(res.data);
+      } catch (err) {
+        console.error(err);
+        setUser(null); // 🔴 MODIFIED: ensure fallback state (prevents undefined crashes)
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  const handleLogout = () => {
+    logout(navigate, setUser, showToast);
+  };
+
   /* ════════════════════════════════════════════
      RENDER
   ════════════════════════════════════════════ */
@@ -461,7 +494,43 @@ export default function SkillShare() {
           <div className="nav-icon-btn">
             <span className="material-icons-round">settings</span>
           </div>
-          <div className="nav-avatar">AS</div>
+          <div className="db-topbar-avatar-wrap">
+            <div
+              className="db-topbar-avatar"
+              onClick={() => setOpenMenu(prev => !prev)}
+            >
+              {user?.profilePhoto ? (
+                <img
+                  src={user.profilePhoto}
+                  alt={user?.fullName || "User"}
+                />
+              ) : (
+                <span className="material-icons-round">person</span>
+              )}
+            </div>
+
+            {openMenu && (
+              <div className="db-dropdown">
+                {ACCOUNT_NAV.map(item => (
+                  <a key={item.id} href={item.href} className="db-nav-item">
+                    <span className="material-icons-round">{item.icon}</span>
+                    {item.label}
+                  </a>
+                ))}
+
+                <div className="db-dropdown-divider" />
+
+                <button
+                  className="db-nav-item logout"
+                  style={{ color: "var(--red)", marginTop: "4px" }}
+                  onClick={handleLogout}
+                >
+                  <span className="material-icons-round">logout</span>
+                  Sign out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 

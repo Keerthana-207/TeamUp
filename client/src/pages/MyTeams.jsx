@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { MAIN_NAV, ACCOUNT_NAV } from "../constants";
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import TopBar from "../components/TopBar";
 import "./MyTeams.css";
 
 const MyTeams = () => {
@@ -19,6 +20,7 @@ const MyTeams = () => {
     const [activeNav, setActiveNav] = useState("teams");
     const [toast, setToast] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [user, setUser] = useState(null);
 
     let currentUser = null;
 
@@ -45,6 +47,28 @@ const MyTeams = () => {
       }
     };
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(
+          "http://localhost:3001/api/auth/me",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setUser(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUser();
+  }, []);    
     useEffect(() => {
       fetchTeams();
     },[]);
@@ -152,21 +176,8 @@ const handleCreateTeam = async () => {
       <div className="orb orb-2"></div>
       <div className="orb orb-3"></div>
 
-      <nav className="topbar">
-        <a href="#" className="logo">
-          <span className="material-icons-round logo-icon">bolt</span>
-          Team<span className="logo-accent">Up</span>
-        </a>
-        <div className="nav-actions">
-          <div className="nav-icon-btn">
-            <span className="material-icons-round">notifications_none</span>
-          </div>
-          <div className="nav-icon-btn">
-            <span className="material-icons-round">settings</span>
-          </div>
-          <div className="nav-avatar">AS</div>
-        </div>
-      </nav>
+      {/* TopBar */}
+      <TopBar user={user} showToast={showToast} showGreeting={false} />
 
       <div className="app-layout">
           <aside className="db-sidebar">
@@ -186,30 +197,6 @@ const handleCreateTeam = async () => {
               </Link>
             ))}
 
-            <div className="db-sidebar-footer">
-              <div className="db-nav-section-label" style={{ marginTop: 0 }}>Account</div>
-              {ACCOUNT_NAV.map(item => (
-                <a
-                  key={item.id}
-                  href={item.href}
-                  className={`db-nav-item ${activeNav === item.id ? "active" : ""}`}
-                  onClick={() => setActiveNav(item.id)}
-                >
-                  <span className="material-icons-round">{item.icon}</span>
-                  {item.label}
-                </a>
-              ))}
-
-              {/* Logout */}
-              <button
-                className="db-nav-item"
-                style={{ color: "var(--red)", marginTop: "4px" }}
-                onClick={() => showToast("Signing out…", "info", "logout")}
-              >
-                <span className="material-icons-round">logout</span>
-                Sign out
-              </button>
-            </div>
           </aside>
         <main className="page">
           <div className="page-header">

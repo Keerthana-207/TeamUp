@@ -80,12 +80,42 @@
   box-shadow: 0 0 20px rgba(99,218,255,0.35);
 }
 
+.db-topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.db-icon-btn {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: border-color var(--t), background var(--t);
+  position: relative;
+}
+.db-icon-btn:hover { border-color: rgba(99,218,255,0.3); background: var(--surface3); }
+.db-icon-btn .material-icons-round { font-size: 19px !important; color: var(--text-muted); }
+.db-notif-dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--cyan); border: 1.5px solid var(--bg);
+  box-shadow: 0 0 6px rgba(99,218,255,0.7);
+}
+
+.db-topbar-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--surface2); border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; cursor: pointer;
+  transition: border-color var(--t); flex-shrink: 0;
+}
+.db-topbar-avatar:hover { border-color: var(--border-h); }
+.db-topbar-avatar img { width:100%; height:100%; object-fit:cover; }
+.db-topbar-avatar .material-icons-round { font-size: 20px !important; color: var(--text-muted); }
+
 /* ─── MAIN WRAPPER ───────────────────────────────────── */
 .main-wrapper {
   position: relative; z-index: 1;
   max-width: 1280px; margin: 0 auto;
   padding: 48px 24px 80px;
 }
+
 
 /* ─── HERO SECTION ───────────────────────────────────── */
 .hero {

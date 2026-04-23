@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ACCOUNT_NAV } from "../constants";
+import axios from 'axios';
+import { ThreeDots } from 'react-loader-spinner';
+import { logout } from '../utils/auth'
 import "./Explore.css";
 
 /* ─── CONSTANTS ─────────────────────────────────────── */
@@ -195,6 +199,8 @@ function ToastContainer({ toasts }) {
 
 /* ─── MAIN COMPONENT ────────────────────────────────── */
 export default function Explore() {
+  const [user, setUser] = useState(null);
+  const [openMenu, setOpenMenu] = useState(false);
   const [allHackathons, setAllHackathons] = useState([]);
   const [filtered,      setFiltered]      = useState([]);
   const [currentFilter, setCurrentFilter] = useState("all");
@@ -205,6 +211,7 @@ export default function Explore() {
   const [loading,       setLoading]        = useState(true);
   const [error,         setError]          = useState(false);
   const [toasts,        setToasts]         = useState([]);
+  const navigate = useNavigate();
 
   const [stats, setStats] = useState({
     total: "—", online: "—", offline: "—", featured: "—",
@@ -248,8 +255,26 @@ export default function Explore() {
   //   }
   //   fetchHackathons();
   // }, [showToast]);
-
+  // Fetch User
   useEffect(() => {
+    const fetchUser = async () => {
+      try{
+        const token = localStorage.getItem('token');
+        const res = await axios.get('http://localhost:3001/api/auth/me', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+      setUser(res.data);
+      }catch(err){
+        console.error(err);
+      }
+    }
+    fetchUser();
+},[])
+
+useEffect(() => {
   async function fetchHackathons() {
     try {
       const res  = await fetch("https://webdevharsha.github.io/open-hackathons-api/data.json");
@@ -324,6 +349,30 @@ export default function Explore() {
     setPage((p) => p + 1);
   }
 
+  const handleLogout = () => {
+    logout(navigate, setUser, showToast);
+  };
+
+  if (!user) return (
+  <div style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",       // full viewport height
+    width: "100vw",        // full viewport width
+    background: "var(--bg)" // optional, match your dashboard background
+  }}>
+    <ThreeDots
+      visible={true}
+      height="80"
+      width="80"
+      color="#53CBF3"
+      radius="9"
+      ariaLabel="three-dots-loading"
+    />
+  </div>
+);
+
   /* ─────────────────────────────────────────────────── */
   return (
     <>
@@ -345,12 +394,60 @@ export default function Explore() {
           <li><a href="#">Teams</a></li>
           <li><a href="#">Projects</a></li>
         </ul>
-        <div className="nav-right">
-          <button className="btn-ghost">Sign In</button>
-          <button className="btn-primary">
-            <span className="material-icons-round" style={{ fontSize: 16 }}>add</span>
-            Register
-          </button>
+        <div className="db-topbar-right">
+          {/* Search */}
+          <div
+            className="db-icon-btn"
+            title="Search"
+            onClick={() => showToast("Search coming soon!", "info", "search")}
+          >
+            <span className="material-icons-round">search</span>
+          </div>
+
+          {/* Notifications */}
+          <div
+            className="db-icon-btn"
+            title="Notifications"
+            onClick={() => navigate('/notifications')}
+          >
+            <span className="material-icons-round">notifications_none</span>
+            <div className="db-notif-dot" />
+          </div>
+
+          {/* Avatar → profile */}
+          <div className="db-topbar-avatar-wrap">
+            <div
+              className="db-topbar-avatar"
+              onClick={() => setOpenMenu(prev => !prev)}
+            >
+              {user.profilePhoto
+                ? <img src={user.profilePhoto} alt={user.fullName} />
+                : <span className="material-icons-round">person</span>
+              }
+            </div>
+
+            {openMenu && (
+              <div className="db-dropdown">
+                {ACCOUNT_NAV.map(item => (
+                  <a key={item.id} href={item.href} className="db-nav-item">
+                    <span className="material-icons-round">{item.icon}</span>
+                    {item.label}
+                  </a>
+                ))}
+
+                <div className="db-dropdown-divider" />
+
+                <button
+                  className="db-nav-item logout"
+                  style={{ color: "var(--red)", marginTop: "4px" }}
+                  onClick={handleLogout}
+                >
+                  <span className="material-icons-round">logout</span>
+                  Sign out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 
