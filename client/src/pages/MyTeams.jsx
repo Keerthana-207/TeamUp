@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { MAIN_NAV, ACCOUNT_NAV } from "../constants";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import TopBar from "../components/TopBar";
 import "./MyTeams.css";
@@ -21,6 +21,8 @@ const MyTeams = () => {
     const [toast, setToast] = useState(null);
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState(null);
+
+    const navigate = useNavigate();
 
     let currentUser = null;
 
@@ -269,18 +271,21 @@ const handleCreateTeam = async () => {
                   <div className="card-footer">
                   <div className="card-members">
                       <div className="member-avatars">
-                      {team.members?.slice(0, 5).map((m, index) => (
-                          <div
-                          key={index}
-                          className="member-av"
-                          style={{
-                              background: m.bg + "22",
-                              borderColor: m.bg + "44",
-                              color: m.bg,
-                          }}
-                          >
-                          {m.init}
-                          </div>
+                      {team.members?.slice(0, 5).map((member, index) => (
+                        <div key={member._id || index} className="member-av">
+
+                          {/* PROFILE IMAGE */}
+                          {member.profilePhoto ? (
+                            <img
+                              src={member.profilePhoto}
+                              alt={member.fullName}
+                              className="member-avatar-img"
+                            />
+                          ) : (
+                            /* fallback initials */
+                            member.fullName?.charAt(0).toUpperCase()
+                          )}
+                        </div>
                       ))}
                       </div>
 
@@ -289,9 +294,12 @@ const handleCreateTeam = async () => {
                       </span>
                   </div>
 
-                  <button className="card-open-btn">
+                    <button
+                      className="card-open-btn"
+                      onClick={() => navigate(`/teams/${team._id}`)}
+                    >
                       Open <span className="material-icons-round">arrow_forward</span>
-                  </button>
+                    </button>
                   </div>
               </div>
             ))}

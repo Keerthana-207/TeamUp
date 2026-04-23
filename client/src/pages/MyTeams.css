@@ -212,6 +212,23 @@
   display: flex; flex-direction: column; gap: 2px;
 }
 
+.member-av {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  background: #ddd;
+}
+
+.member-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 
     /* ── CREATE TEAM CARD ── */

@@ -165,20 +165,33 @@ export default function Notifications() {
     fetchUser();
   }, []); 
 
-    useEffect(() => {
-    async function fetchNotifications() {
-      try {
-        const res = await axios.get("/api/notifications", config);
-        const sorted = res.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        setNotifications(sorted);
-      } catch (err) {
-        showToast("Failed to load notifications", "error", "error");
-      }
+useEffect(() => {
+  async function fetchNotifications() {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(
+        "http://localhost:3001/api/notifications",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const sorted = res.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setNotifications(sorted);
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to load notifications", "error", "error");
     }
-    fetchNotifications();
-  }, []);
+  }
+
+  fetchNotifications();
+}, []);
 
 
   /* ── toast ── */
@@ -194,7 +207,7 @@ export default function Notifications() {
       prev.map((n) => (n._id === id ? { ...n, unread: false } : n))
     );
     try {
-      await axios.patch(`/api/notifications/${id}/read`, {}, config);
+      await axios.patch(`http://localhost:3001/api/notifications/${id}/read`, {}, config);
     } catch {
       showToast("Failed to mark read", "error", "error");
     }
@@ -207,7 +220,7 @@ export default function Notifications() {
     setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
     showToast("All notifications marked as read", "success", "done_all");
     try {
-      await axios.patch("/api/notifications/read-all", {}, config);
+      await axios.patch("http://localhost:3001/api/notifications/read-all", {}, config);
     } catch {}
   }
 
@@ -220,22 +233,44 @@ export default function Notifications() {
     setNotifications((prev) => prev.filter((n) => !ids.includes(n._id)));
     showToast("Notifications cleared", "info", "delete_sweep");
     try {
-      await axios.post("/api/notifications/clear", { ids }, config);
+      await axios.post("http://localhost:3001/api/notifications/clear", { ids }, config);
     } catch {}
   }
 
   /* ── invite actions ── */
-  async function handleAccept(id) {
+async function handleAccept(id) {
+  // Optimistic UI update: immediately reflect "accepted" in UI
+  setNotifications((prev) =>
+    prev.map((n) =>
+      n._id === id
+        ? { ...n, inviteState: "accepted", unread: false }
+        : n
+    )
+  );
+
+  // Show success toast immediately (better UX)
+  showToast("You joined the team!", "success", "check_circle");
+
+  try {
+    // Relative URL → goes through Vite proxy (recommended setup)
+    await axios.post(`http://localhost:3001/api/notifications/${id}/accept`, {}, config);
+  } catch (err) {
+    // Revert UI if request fails (optional but better UX)
     setNotifications((prev) =>
-      prev.map((n) => (n._id === id ? { ...n, inviteState: "accepted", unread: false } : n))
+      prev.map((n) =>
+        n._id === id
+          ? { ...n, inviteState: null } // rollback state
+          : n
+      )
     );
-    showToast("You joined the team!", "success", "check_circle");
-    try {
-      await axios.post(`/api/notifications/${id}/accept`, {}, config);
-    } catch {
-      showToast("Failed to accept invite", "error", "error");
-    }
+
+    showToast(
+      err?.response?.data?.message || "Failed to accept invite",
+      "error",
+      "error"
+    );
   }
+}
 
   async function handleDecline(id) {
     setNotifications((prev) =>
@@ -243,7 +278,7 @@ export default function Notifications() {
     );
     showToast("Invitation declined", "error", "cancel");
     try {
-      await axios.post(`/api/notifications/${id}/decline`, {}, config);
+      await axios.post(`http://localhost:3001/api/notifications/${id}/decline`, {}, config);
     } catch {
       showToast("Failed to decline invite", "error", "error");
     }

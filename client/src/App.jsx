@@ -16,8 +16,8 @@ import SkillAssessment from './pages/SkillAssessment'
 import Explore from './pages/Explore'
 import SkillShare from './pages/SkillShare'
 import Notifications from './pages/Notifications'
-import TeamDetail from './pages/TeamDetail'
 import NotFound from './pages/NotFound'
+import TeamDetails from './pages/TeamDetails'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -47,7 +47,7 @@ function App() {
       <Route path='/notifications' element={<Notifications />} />
 
       {/* Team Details */}
-      <Route path='/team-details' element={<TeamDetail />} />
+      <Route path='/teams/:teamId' element={<TeamDetails />} />
       <Route path='*' element={<NotFound />} />
     </Routes>
     </>

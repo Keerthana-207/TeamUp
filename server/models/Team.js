@@ -26,6 +26,13 @@ const teamSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
   },
+  description: { type: String, default: null },
+  domain: { type: String, default: null },
+  status: { type: String, default: "active" },
+  color: { type: String, default: null },
+  domainIcon: { type: String, default: null },
+
+  activity: { type: Array, default: null },
 
   inviteLink: String,
 
