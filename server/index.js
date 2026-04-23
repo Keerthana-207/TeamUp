@@ -40,6 +40,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use("/uploads", express.static("uploads"));
 
 app.listen(3001, () => {
     console.log('App is running')
